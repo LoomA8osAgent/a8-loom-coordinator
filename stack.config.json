@@ -1,0 +1,160 @@
+{
+  "$schema": "./stack.config.README.md",
+  "project": {
+    "name": "MyProject",
+    "repoRoot": "",
+    "rootMarkers": ["CLAUDE.md", "index.html"]
+  },
+  "source": {
+    "codeGlobs": ["js/**/*.js"],
+    "styleFiles": ["css/anim8.css"],
+    "markupFiles": ["index.html"],
+    "exemptDirSegments": ["/tools/", "/tests/", "/node_modules/", "/.claude/"],
+    "exemptExtensions": [".md"]
+  },
+  "canon": {
+    "files": ["CLAUDE.md", "SKILL.md", "ROUTING.md"],
+    "specGlobs": ["specs/**/*.md"],
+    "registryFile": "UI-REGISTRY.md",
+    "hints": [
+      "panelBuild", "a8Build", "sxCreate", "sxSet", "floMod", "cardOpen",
+      "componentRegistry", "diagRegistry", "dd-panel", "dd-item",
+      "state-active", "state-ok", "state-warn", "state-err", "specs/", "canon"
+    ],
+    "helperHomes": [
+      "/js/components.js", "/js/util.js", "/js/card.js", "/js/sx-wrap.js",
+      "/js/floating-module.js", "/js/workspace.js"
+    ]
+  },
+  "consent": {
+    "tokens": ["ui-ok", "ui-consent", "new-ui-ok"],
+    "oneOffMarker": "one-off-ok"
+  },
+  "devServer": {
+    "command": "node tools/dev-server.js",
+    "port": 8080,
+    "url": "http://localhost:8080/"
+  },
+  "verification": {
+    "enabled": false,
+    "testApiPrefix": "mc",
+    "allowedCalls": [
+      "mcRun", "mcRunBatch", "mcRunSequence", "mcLoadLibrary",
+      "mcLoadLibraryFromUrl", "mcList", "mcGet"
+    ],
+    "browserTools": [
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type",
+      "mcp__playwright__browser_hover",
+      "mcp__playwright__browser_run_code_unsafe",
+      "mcp__playwright__browser_drag",
+      "mcp__playwright__browser_press_key"
+    ]
+  },
+  "statePersistence": {
+    "enabled": true,
+    "walkName": "preset walk",
+    "trailerName": "State",
+    "exemptMarker": "state-walk-exempt",
+    "stateFileGlobs": ["js/formats/", "js/editors/", "js/card.js"],
+    "signals": [
+      { "re": "\\bsupports[A-Z]\\w*Mode\\b", "what": "a new supports<X>Mode capability getter" },
+      { "re": "\\bset[A-Z]\\w*Mode\\b\\s*=\\s*function", "what": "a new set<X>Mode setter" },
+      { "re": "\\b_menuExtraSections\\b\\s*=\\s*function", "what": "a new editor pane menu section" },
+      { "re": "\\bsection\\s*:\\s*true\\b", "what": "a new collapsible context-menu group ({section:true})" }
+    ]
+  },
+  "docSync": {
+    "enabled": true,
+    "trailerName": "Docs",
+    "exemptMarker": "docsync-exempt",
+    "featureGlobs": ["js/", "css/anim8.css"],
+    "featureExemptPrefixes": ["js/macro-engine", "tools/", "lib/", "tests/"],
+    "pillars": [
+      { "name": "spec", "stagedPrefixes": ["specs/"] },
+      { "name": "manual", "stagedPrefixes": ["design/manual-shards/"] },
+      { "name": "macro", "stagedPrefixes": ["design/nav-map-shards/"] }
+    ],
+    "citationLint": {
+      "enabled": false,
+      "command": "node tools/lint-citations.js --changed",
+      "specGlobPrefix": "specs/"
+    }
+  },
+  "canonBlock": {
+    "rules": [
+      {
+        "pattern": "\\son(click|change|input|mousedown|mouseup|keydown|keyup|focus|blur)\\s*=\\s*[\"'](?!\\\\)",
+        "flags": "i",
+        "allow": [],
+        "code": "CSP-INLINE-HANDLER",
+        "msg": "Inline event attribute detected. CSP script-src has no 'unsafe-inline'; these silently fail. Wire via addEventListener."
+      },
+      {
+        "pattern": "<input[^>]*type\\s*=\\s*[\"']color[\"']",
+        "flags": "i",
+        "allow": ["/js/settings.js", "/js/components.js", "/js/util.js"],
+        "code": "COLOR-PICKER-CANON-LOCK",
+        "msg": "<input type=\"color\"> is allowed only in the shared helper file. Use the canonical swatch helper."
+      }
+    ]
+  },
+  "session": {
+    "generators": [
+      "node tools/gen-code-registry.js",
+      "node tools/gen-manifest.js",
+      "node tools/gen-changelog.js"
+    ],
+    "deploySkillsAgents": "node tools/gen-skills-agents.js",
+    "delegationHint": ""
+  },
+  "worktree": {
+    "guardEnabled": false,
+    "dirSegment": "/.claude/worktrees/"
+  },
+  "artifacts": {
+    "enabled": true,
+    "sweepRootImages": true,
+    "imageExtensions": ["png", "jpg", "jpeg", "gif", "webp", "bmp"],
+    "scratchPatterns": [
+      "^genprobe[-_].*\\.json$",
+      "^.*[-_]snap\\.md$",
+      "^.*[-_]regress\\.json$"
+    ],
+    "keepFiles": [
+      "README.md", "CHANGELOG.md", "CLAUDE.md", "SKILL.md", "LICENSE",
+      "package.json", "package-lock.json", "UI-REGISTRY.md"
+    ],
+    "scratchDirs": [".playwright-mcp"]
+  },
+  "modulePrefixes": {
+    "example": { "css": "ex-", "storage": "ex_", "log": "EX:", "js": "ex" }
+  },
+  "commitTrailers": {
+    "docs": "Docs",
+    "state": "State"
+  },
+  "alwaysOnDocs": ["CLAUDE.md", "SKILL.md", "ROUTING.md"],
+  "install": {
+    "hooksDir": "~/.claude/hooks",
+    "gateLog": "~/.claude/a8-gate.log",
+    "settingsTarget": ".claude/settings.json",
+    "maxBackups": 2
+  },
+  "serviceRecovery": {
+    "notifyEnabled": true,
+    "notifyCommand": "osascript -e 'display notification \"{msg}\" with title \"{title}\"'",
+    "logFile": "~/.claude/service-recovery.log",
+    "autoResume": false
+  },
+  "codegraph": {
+    "syncEnabled": true,
+    "staleThresholdMinutes": 5,
+    "binaryCandidates": [
+      "~/.local/bin/codegraph",
+      "/opt/homebrew/bin/codegraph",
+      "/usr/local/bin/codegraph"
+    ]
+  }
+}
