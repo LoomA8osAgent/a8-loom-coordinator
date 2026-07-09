@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the enforced failure-pattern table — the hard-won catalogue of ways an agent
   breaks a codebase, each with the prevention that kills it. These are the rules the agent

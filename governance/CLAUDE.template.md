@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the always-on governance core for an agent-driven project. It is the ONE
   file the agent loads every turn. It is deliberately LEAN — it @-imports the operator

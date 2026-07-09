@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the doc-sync skill — the discipline that a user-visible change ships WITH its
   spec, its user-doc, and its acceptance test in the SAME commit. Kills LIVE-FEATURE-

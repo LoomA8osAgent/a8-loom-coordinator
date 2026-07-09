@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the BUILDER agent archetype — executes build/edit work on its assigned files.
   It boots with the domain canon preloaded so it EXTENDS shared homes instead of re-rolling

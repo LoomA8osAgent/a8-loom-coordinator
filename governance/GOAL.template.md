@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the autonomy charter — the dispatch layer for autonomous /goal + /loop
   operation. The coordinator works this file top-down with only operator spot-checks. It

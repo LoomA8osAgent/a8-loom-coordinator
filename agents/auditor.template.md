@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the AUDITOR agent archetype — sweeps for duplication / orphans / dead code.
   Its findings are UNTRUSTED until grep-confirmed live. It embeds the audit-agent contract so

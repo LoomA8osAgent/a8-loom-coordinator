@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the on-demand spec map. The big specs are NOT auto-loaded; this file tells the
   agent (and the canon-check hooks) which file to Read/grep for a given task keyword, and

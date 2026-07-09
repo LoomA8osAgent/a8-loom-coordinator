@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the session protocol — the mandatory ordered steps before ANY edit, the
   pre-edit checklist, and the syntax-check / delivery discipline. The operator contract

@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the PLANNER agent archetype — the governance-aware alternative to a built-in
   Plan/Explore agent (those skip CLAUDE.md). It investigates + designs + authors specs, but

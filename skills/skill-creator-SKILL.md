@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the skill that governs creating, evaluating, and maintaining all other skill
   files. A skill is an agent ACTIVATION CONTRACT, not a spec summary. Nearly project-agnostic

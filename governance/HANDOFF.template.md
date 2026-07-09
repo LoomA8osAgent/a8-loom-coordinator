@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the session-handoff convention. HANDOFF.md is a ROLLING BACKLOG, not a
   per-session snapshot. A fresh session has ZERO context beyond what is committed + written

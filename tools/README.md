@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License. (c) 2026 contributors. -->
+<!-- A8 Loom Coordinator — MIT License. (c) 2026 contributors. -->
 
 # tools — the anti-drift generators
 

@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the dev-infrastructure skill — the operating canon for the tooling that runs
   and polices the build: ONE canonical dev server, verify-the-running-system (not disk),

@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the operator contract — the founder standards the operator holds THEMSELF to,
   and which the agent has the right AND obligation to enforce. This is the human half of the
@@ -134,4 +134,4 @@ The agent will:
 
 ## Changelog
 > Append dated entries as rules are added/widened; note which session surfaced each change.
-- **{{date}}** — Initial contract adopted from the A8 Coordinator Stack.
+- **{{date}}** — Initial contract adopted from the A8 Loom Coordinator.

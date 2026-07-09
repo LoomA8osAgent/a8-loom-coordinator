@@ -1,8 +1,8 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the adoption skill. It interviews the operator, writes stack.config.json, fills
   every {{...}} token across the templates, and ends by installing the hook stack. This is how
-  a new project ADOPTS the A8 Coordinator Stack. It is the one skill an operator loads FIRST.
+  a new project ADOPTS the A8 Loom Coordinator. It is the one skill an operator loads FIRST.
 
   WHEN IT LOADS: on first adoption — "set up the coordinator stack", "adopt A8 stack",
   "initialize governance".
@@ -14,7 +14,7 @@
 ---
 name: init-interview
 description: >
-  Use this skill to ADOPT the A8 Coordinator Stack into a new project. It interviews the
+  Use this skill to ADOPT the A8 Loom Coordinator into a new project. It interviews the
   operator for the project's real values, writes stack.config.json, fills every {{...}} token
   across the governance templates + skills + agents, and installs the hook stack. Trigger on:
   "set up the coordinator stack", "adopt the A8 stack", "initialize governance", "onboard this
@@ -26,7 +26,7 @@ description: >
 
 # Init-Interview — adopt the stack into a project
 
-You are onboarding a NEW project onto the A8 Coordinator Stack. Work through the interview,
+You are onboarding a NEW project onto the A8 Loom Coordinator. Work through the interview,
 write the config, materialize the templates, install the gates. Do not skip a section — an
 unfilled token ships a broken governance file.
 

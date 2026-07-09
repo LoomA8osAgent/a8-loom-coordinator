@@ -1,4 +1,4 @@
-<!-- A8 Coordinator Stack — MIT License -->
+<!-- A8 Loom Coordinator — MIT License -->
 <!--
   WHAT THIS IS: the library-first canon — the operator-vetted, license-cleared shortlist of
   dependencies. It is the FIRST thing read before any non-trivial capability, so the agent

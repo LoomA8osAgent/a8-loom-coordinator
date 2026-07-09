@@ -1,6 +1,6 @@
 <!--
-  A8 Coordinator Stack — MIT License.
-  Copyright (c) 2026 A8 Coordinator Stack contributors.
+  A8 Loom Coordinator — MIT License.
+  Copyright (c) 2026 A8 Loom Coordinator contributors.
 -->
 
 # stack.config.json — the one knob

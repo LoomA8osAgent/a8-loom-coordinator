@@ -1,6 +1,6 @@
 # Coordinator Skill
 
-A8 Coordinator Stack — MIT License.
+A8 Loom Coordinator — MIT License.
 
 ---
 name: coordinator

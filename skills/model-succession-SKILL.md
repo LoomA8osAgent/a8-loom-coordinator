@@ -1,6 +1,6 @@
 # Model Succession Skill — the seat-handoff letter
 
-A8 Coordinator Stack — MIT License.
+A8 Loom Coordinator — MIT License.
 
 ---
 name: model-succession

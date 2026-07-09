@@ -1,4 +1,4 @@
-# A8 Coordinator Stack
+# A8 Loom Coordinator
 
 **A complete governance, skills, and hooks stack for running Claude (or any capable
 LLM coordinator) as the autonomous senior engineer on a real software project — with
