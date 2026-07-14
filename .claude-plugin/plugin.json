@@ -1,0 +1,27 @@
+{
+  "name": "a8-loom-coordinator",
+  "description": "Run Claude as an autonomous senior engineer on any codebase — config-driven hooks that enforce discover-then-reuse, plus the coordinator/succession/doc-sync skills and planner/builder/auditor agents. Frontend or backend, any language.",
+  "version": "0.2.0",
+  "author": {
+    "name": "exiledsurfer",
+    "url": "https://github.com/exiledsurfer"
+  },
+  "homepage": "https://github.com/LoomA8osAgent/a8-loom-coordinator#readme",
+  "repository": "https://github.com/LoomA8osAgent/a8-loom-coordinator",
+  "license": "MIT",
+  "keywords": [
+    "governance",
+    "hooks",
+    "anti-hallucination",
+    "discover-then-reuse",
+    "coordinator",
+    "autonomous",
+    "ai-governance",
+    "deterministic"
+  ],
+  "agents": [
+    "./agents/planner.template.md",
+    "./agents/builder.template.md",
+    "./agents/auditor.template.md"
+  ]
+}

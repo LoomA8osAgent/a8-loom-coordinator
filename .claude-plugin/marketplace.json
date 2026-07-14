@@ -1,0 +1,24 @@
+{
+  "name": "a8-loom",
+  "owner": {
+    "name": "exiledsurfer",
+    "url": "https://github.com/exiledsurfer"
+  },
+  "metadata": {
+    "description": "The A8os / Loom marketplace — reusable LLM-coordinator infrastructure. a8-loom-coordinator is the first; more a8-loom-* projects follow.",
+    "version": "0.2.0"
+  },
+  "plugins": [
+    {
+      "name": "a8-loom-coordinator",
+      "source": "./",
+      "description": "Run Claude (or any capable LLM) as an autonomous senior engineer on any codebase — config-driven hooks enforcing discover-then-reuse, plus coordinator/succession/doc-sync skills and planner/builder/auditor agents. Frontend or backend, any language.",
+      "version": "0.2.0",
+      "author": { "name": "exiledsurfer" },
+      "homepage": "https://github.com/LoomA8osAgent/a8-loom-coordinator#readme",
+      "license": "MIT",
+      "keywords": ["governance", "hooks", "ai-governance", "autonomous", "anti-hallucination", "agents-md", "skill-md"],
+      "category": "productivity"
+    }
+  ]
+}

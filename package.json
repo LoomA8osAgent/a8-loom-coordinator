@@ -1,0 +1,71 @@
+{
+  "name": "a8-loom-coordinator",
+  "version": "0.2.0",
+  "description": "Governance, skills, and hooks stack for running Claude (or any capable LLM) as an autonomous senior engineer on any software project — frontend or backend, any language. Config-driven, agent-native, MIT.",
+  "keywords": [
+    "claude",
+    "claude-code",
+    "claude-code-plugin",
+    "claude-code-hooks",
+    "agent-skills",
+    "skill-md",
+    "agents-md",
+    "ai-governance",
+    "llm-agents",
+    "ai-agents",
+    "coding-agent",
+    "autonomous-agent",
+    "prompt-engineering",
+    "agentic",
+    "codex",
+    "cursor",
+    "gemini-cli",
+    "anti-hallucination",
+    "deterministic-ai"
+  ],
+  "homepage": "https://github.com/LoomA8osAgent/a8-loom-coordinator#readme",
+  "bugs": {
+    "url": "https://github.com/LoomA8osAgent/a8-loom-coordinator/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LoomA8osAgent/a8-loom-coordinator.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "exiledsurfer",
+    "url": "https://github.com/exiledsurfer"
+  },
+  "contributors": [
+    "Loom (A8os coordinator seat, Claude) <noreply@anthropic.com>"
+  ],
+  "type": "commonjs",
+  "bin": {
+    "a8-loom-coordinator": "bin/loom-coordinator.js",
+    "loom-coordinator": "bin/loom-coordinator.js"
+  },
+  "files": [
+    "bin/",
+    "hooks/",
+    "skills/",
+    "agents/",
+    "governance/",
+    "frontend/",
+    "tools/",
+    "integrations/",
+    "stack.config.json",
+    "stack.config.example.backend.json",
+    "stack.config.example.frontend.json",
+    "stack.config.README.md",
+    "AGENTS.md",
+    "llms.txt",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "postinstall": "node -e \"console.log('\\n  a8-loom-coordinator installed. Run:  npx a8-loom-coordinator init\\n')\""
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

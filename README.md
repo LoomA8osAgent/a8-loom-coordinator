@@ -6,11 +6,40 @@ the human as operator, ratifier, and spot-checker instead of babysitter.**
 
 MIT licensed. Extracted from production use, not designed on a whiteboard.
 
+> **TL;DR (llms.txt blurb).** `a8-loom-coordinator` is a config-driven governance +
+> skills + hooks stack that makes an LLM build *deterministically* against an existing
+> codebase — any language, any framework, frontend or backend. Its one enforced idea:
+> **discover-then-reuse** — retrieve what the codebase already provides and reuse it,
+> never hand-roll a fresh version. A reusable, model-portable coordinator seat (the
+> "Loom" seat). First of the `a8-loom-*` line. By
+> [exiledsurfer](https://github.com/exiledsurfer). MIT.
+
+**Install** — pick one:
+
+```bash
+# Claude Code plugin (native):
+/plugin marketplace add LoomA8osAgent/a8-loom-coordinator
+/plugin install a8-loom-coordinator@a8-loom
+
+# npx (any repo):
+npx a8-loom-coordinator init      # scaffold stack.config.json
+npx a8-loom-coordinator install   # wire the hooks
+
+# manual: clone, run hooks/install-hooks.sh, fill stack.config.json
+```
+
+Cross-model: this repo ships an [AGENTS.md](AGENTS.md) (the open agent standard used
+by Codex CLI, Gemini CLI, Cursor, Cline, Devin, and 30+ tools) and an
+[llms.txt](llms.txt), so agents and crawlers discover it directly.
+
 **Works for any software project — frontend or backend, any language or framework.**
 Every gate is config-driven: you declare your own canon surfaces (helper modules,
 registry, hand-roll shapes) and the stack enforces *discover-then-reuse* against
-them. The CSS/DOM pieces are an opt-in `frontend/` module; backend projects never
-load them.
+them. The CSS/DOM pieces are an opt-in [`frontend/`](frontend/README.md) module —
+the specialized subset for adding **new features inside an existing frontend
+codebase** without forking its design system (host-first reuse, generated
+extraction, measured parity). It is one *instance* of the universal
+discover-then-reuse core; backend projects never load it.
 
 ---
 
@@ -109,11 +138,14 @@ Three design principles run through all of it:
 
 ## Quickstart
 
-1. Clone into your project or a sibling directory.
-2. Run the **init interview** (`skills/init-interview-SKILL.md`) — it asks for your
+1. Install (plugin / npx / manual — see the **Install** block at the top). `npx
+   a8-loom-coordinator init` drops a neutral `stack.config.json`; start from the
+   nearest example (`stack.config.example.backend.json` or `.frontend.json`).
+2. Or run the **init interview** (`skills/init-interview-SKILL.md`) — it asks for your
    project name, prefixes, dev server, test API, and persistence mechanism, then
    writes `stack.config.json` and fills every `{{placeholder}}`.
-3. `hooks/install-hooks.sh` — deploys the hook stack and settings.
+3. `hooks/install-hooks.sh` (or `npx a8-loom-coordinator install`) — deploys the hook
+   stack and settings.
 4. Fill the §Invariants buckets in your generated `CLAUDE.md` as your project
    teaches you its rules — and obey the harvest discipline: every session that
    surfaces a cross-cutting rule writes it down before it closes.
@@ -122,9 +154,8 @@ Three design principles run through all of it:
 
 ## Authors
 
-- **Michael Parenti** ([@exiledsurfer](https://github.com/exiledsurfer)) — operator,
-  method, three months of corrections that became the rules.
-- **Claude Fable 5** (Anthropic) — coordinator, co-author; wrote this stack from the
-  seat it describes, for whoever sits in it next.
+- **exiledsurfer** — operator, method, three months of corrections that became the rules.
+- **Loom** — the A8os coordinator seat (Claude); authored this stack from the seat it
+  describes, for whoever sits in it next. Model-portable by design.
 
 MIT License — see [LICENSE](LICENSE).

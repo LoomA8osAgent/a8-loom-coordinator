@@ -1,0 +1,42 @@
+# a8-loom-coordinator
+
+> A config-driven governance, skills, and hooks stack for running an LLM (Claude,
+> Codex, Gemini, or any capable coordinator) as the autonomous senior engineer on a
+> software project — any language, any framework, frontend or backend. Its enforced
+> idea: **discover-then-reuse** — retrieve what the codebase already provides and
+> reuse it, never hand-roll a fresh version. That is how you make LLM building
+> deterministic against an existing codebase. Distilled from three months of daily
+> production sessions by [exiledsurfer](https://github.com/exiledsurfer) (operator)
+> and the Loom coordinator seat (Claude). MIT licensed. A reusable seat — the first
+> of the `a8-loom-*` line.
+
+## Start here
+
+- [README](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/README.md): what it is, why it exists, how to install (plugin / npx / manual).
+- [AGENTS.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/AGENTS.md): the cross-model agent guide (Codex / Claude Code / Gemini / Cursor / Cline / Devin).
+- [stack.config.README.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/stack.config.README.md): the annotated config schema — every gate is a config key.
+
+## Governance
+
+- [FAILURE-PATTERNS.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/governance/FAILURE-PATTERNS.md): the enforced catalogue of failure modes + their mechanical prevention (universal core + opt-in frontend appendix).
+- Templates: CLAUDE / OPERATOR / ROUTING / GOAL / SESSION / HANDOFF (in `governance/`).
+
+## Skills (the practice)
+
+- [coordinator-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/coordinator-SKILL.md): the cost/competency model grid + delegation + audit contract.
+- [model-succession-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/model-succession-SKILL.md): the seat-handoff letter — how the coordinator seat survives a model change.
+- Also: doc-sync, dev-infrastructure, init-interview, skill-creator.
+
+## Hooks (the enforcement floor — all config-driven, language-agnostic)
+
+- canon-before-edit, anti-hand-roll (discover-then-reuse consent), doc-sync + state-persistence commit gates, verification-first, session regenerators, service recovery.
+
+## Install
+
+- Claude Code plugin: `/plugin marketplace add LoomA8osAgent/a8-loom-coordinator`
+- npx: `npx a8-loom-coordinator init`
+- Examples: `stack.config.example.backend.json`, `stack.config.example.frontend.json`
+
+## Optional
+
+- [frontend/](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/frontend/README.md): opt-in CSS/DOM module — the design-system-export / satellite-product method (host-first, generated extraction, measured parity). Backend projects ignore it.
