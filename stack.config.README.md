@@ -6,9 +6,13 @@
 # stack.config.json — the one knob
 
 Every hook and tool in this package reads **one** config file. JSON has no
-comments, so this document IS the annotated schema. There are **no hardcoded
-paths anywhere in the hooks** — the disease this package cures is the Anim8
-originals baking `/Users/.../Anim8` into 15 files. Instead:
+comments, so this document IS the annotated schema. The stack is **language-,
+framework-, and domain-agnostic**: nothing here assumes a web app. You describe
+YOUR project's canon (its helper modules, its registry, its hand-roll shapes) and
+the gates enforce *discover-then-reuse* against it. Two worked configs ship at the
+repo root — **`stack.config.example.backend.json`** (a Python/SQL API) and
+**`stack.config.example.frontend.json`** (a composed web app) — start from whichever
+is nearer your project. There are **no hardcoded paths anywhere in the hooks**:
 
 - Every hook resolves `stack.config.json` by **walking up** from the edited
   file (or the session `cwd`) until it finds one. A repo with no
@@ -45,14 +49,35 @@ only if the config lives somewhere other than the repo root.
 |---|---|
 | `files` | Always-on governance docs (used by messages + the manifest tool). |
 | `specGlobs` | Where deep specs live (citation lint + routing). |
-| `registryFile` | The generated code index (`UI-REGISTRY.md`) — the file `grep-required` GATE 2 requires you to consult before UI-machinery edits. |
-| `hints` | Substrings that make a grep/read "canon-relevant" (GATE 1). |
+| `registryFile` | The generated code index (`CODE-REGISTRY.md`) — the file `grep-required` GATE 2 requires you to consult before a reusable-unit edit. |
+| `hints` | Substrings that make a grep/read "canon-relevant" (GATE 1). Your codebase's helper names + canon terms. |
 | `helperHomes` | Files where shared/exported builders legitimately live (`helper-home` never blocks here). |
+| `symbolSections` / `classSections` | Registry markdown headings that list reusable symbols vs. (frontend) CSS classes. Both empty ⇒ the whole registry is reusable-symbol canon. |
+
+### `machinery` — the discover-then-reuse anti-hand-roll detectors
+The core of deterministic building: you DECLARE the shapes that mean "you are
+re-implementing something the codebase already provides." Nothing is hardcoded — an
+empty block means these gates do nothing. Works on ANY codebase.
+| key | meaning |
+|---|---|
+| `signals` | `[{ re, name }]` — regexes matching a hand-roll shape (a raw SQL string where a query-builder exists; a hand-written DOM builder where a component factory exists; a re-implemented util). A match ⇒ `new-surface-consent` requires operator consent + `grep-required` GATE 2 requires a registry consult. |
+| `builderRe` | A body-fragment regex matching "a new reusable builder/factory." A named function whose body matches, added outside a `helperHome` and not exported, is blocked by `helper-home` (extract-and-export is the remedy). Empty ⇒ off. |
+| `reusableExportRe` | Reserved for project-specific "new public symbol" detection. |
+
+### `frontend` — the opt-in CSS/DOM module
+`enabled:false` (default) ⇒ NO frontend-specific detector runs; backend projects
+leave this off. See `frontend/README.md`.
+| key | meaning |
+|---|---|
+| `enabled` | Turns on CSS-class registry parsing, `new-surface-consent` shapes B/C, and (with a manifest) `satellite-gate`. |
+| `mountClassRe` | Regex for your framework's mount classes (shape B — layout CSS that breaks panels). |
+| `layoutPropRe` | Regex for the layout props that break those mounts. |
+| `newClassRe` | Optional override for new-CSS-class detection (default matches `.class`). |
 
 ### `consent`
 | key | meaning |
 |---|---|
-| `tokens` | Words in the **operator's own message** that grant new-UI consent (unforgeable — read from the transcript). |
+| `tokens` | Words in the **operator's own message** that grant new-surface consent (unforgeable — read from the transcript). |
 | `oneOffMarker` | Comment marker (`one-off-ok`) that, WITH operator consent, sanctions a one-off builder. |
 
 ### `devServer`
@@ -78,6 +103,14 @@ A commit touching `featureGlobs` (minus `featureExemptPrefixes`) must carry a
 not. Each pillar names its `stagedPrefixes` — a pillar claimed as moved must
 have a matching staged file. `citationLint` optionally runs a `path:line`
 checker on staged spec markdown at the commit boundary.
+
+### `satellite` — the standalone-surface gate (`satellite-gate.js`)
+A commit staging any file listed in `manifestFile` (JSON:
+`{ "satellites": [{ "files": [...] }], "prefixes": [...] }`) must carry a
+`<trailerName>: parity-measured (<how>)` or `<trailerName>: n/a (<why>)`
+trailer. Enforces the host-first law for satellite products built from a
+composed design system — see `skills/design-system-export-SKILL.md` and the
+`STRIPPED-SHELL-HOST-MISMATCH` failure pattern. No manifest ⇒ no-op.
 
 ### `canonBlock` — string-pattern bans (`canon-block.js`)
 `rules[]`: `{ pattern (string → RegExp), flags, allow (path suffixes),

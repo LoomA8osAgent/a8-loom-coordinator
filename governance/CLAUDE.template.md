@@ -70,7 +70,7 @@ lives in §Invariants is *inviolable*.
 
 ### Helpers — use whole, never reinvent
 > Fill with YOUR project's canonical helpers. Before writing ANY builder/util, the agent
-> greps the helper source files ({{registry.helperFiles}}) + scans {{registry.uiIndex}}.
+> greps the helper source files ({{registry.helperFiles}}) + scans {{registry.index}}.
 > Reinventing a listed helper is `HELPER-HAND-ROLL`.
 - Example — `{{idHelper}}()` / `{{storeHelper}}.get|set|remove` / `{{logHelper}}(...)` — the
   unified id / persistence / logging primitives; never raw equivalents (no raw `console.log`).
@@ -88,9 +88,9 @@ lives in §Invariants is *inviolable*.
 > Fill with YOUR project's hard bans. Seed from FAILURE-PATTERNS.md. A few that generalize:
 - Never slice / transform / partially-use a helper return value — use whole.
 - Never invent an ID format — every id comes from a helper or matches a canonical example.
-- Never build UI / a control / a class without first scanning {{registry.uiIndex}} and
-  REUSING what exists; a genuinely-new item needs explicit operator consent
-  (`HELPER-HAND-ROLL` / `NEW-CLASS-WITHOUT-CONSENT`).
+- Never build a reusable unit (helper / module / component / — frontend — a control or class)
+  without first scanning {{registry.index}} and REUSING what exists; a genuinely-new abstraction
+  needs explicit operator consent (`HELPER-HAND-ROLL` / `NEW-VOCABULARY-WITHOUT-CONSENT`).
 - Never fix a bug in one module's copy of shared behavior — fix the ONE shared home and
   delete the per-module copies (`PATCH-NOT-ESCALATED-TO-SHARED`).
 - Never edit from memory — view source at exact line numbers before every edit.

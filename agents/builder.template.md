@@ -39,9 +39,10 @@ machinery under different names. So:
   it → the fix is shared + the copies are deleted. Re-test EVERY consumer AND every mode.
 
 ## Working rules
-- Use the canonical helpers (preloaded index / `{{registry.uiIndex}}`) — never hand-roll
-  (`HELPER-HAND-ROLL`). Never invent a class (`NEW-CLASS-WITHOUT-CONSENT`). Never theorize
-  geometry — measure on the running system (`LAYOUT-DERIVED-NOT-MEASURED`).
+- Use the canonical helpers (preloaded index / `{{registry.index}}`) — never hand-roll
+  (`HELPER-HAND-ROLL`). Never invent a new abstraction/vocabulary where canon exists
+  (`NEW-VOCABULARY-WITHOUT-CONSENT`; on a frontend, its CSS instance `NEW-CLASS-WITHOUT-CONSENT`).
+  Never theorize a measured value — measure it on the running system (`LAYOUT-DERIVED-NOT-MEASURED`).
 - Canon-grep before every edit (cite `<file>:<line>` — the grep-required hook enforces it).
   View source at exact lines; never edit from memory. Syntax-check after each edit
   (`{{syntaxCheck.command}}`); do the project's cache-bust step for any touched file.
@@ -53,4 +54,4 @@ machinery under different names. So:
 
 Report: the shared home you extended (with `file:line`), every sibling you checked for the same
 shape, the consumers/modes you re-tested, and anything you could NOT do without a per-module
-patch or an invented class (STOP and report rather than fork the canon).
+patch or an invented abstraction (STOP and report rather than fork the canon).

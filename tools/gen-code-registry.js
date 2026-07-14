@@ -4,8 +4,16 @@
 // gen-code-registry.js — generate the single index of every existing helper /
 // export / CSS class / component / engine in a codebase, PLUS a §6 orphan report
 // (exports with zero live callers). This is the anti-drift index the model scans
-// before building any UI so nothing gets hand-rolled that already exists — and
+// before building anything, so nothing gets hand-rolled that already exists — and
 // the file grep-required's GATE 2 requires you to consult.
+//
+// SCOPE NOTE: this reference generator recognizes JS/browser idioms (window
+// exports, typeId:, *Engine, CSS classes, `<style>` blocks) — it is the FRONTEND
+// reference implementation. A backend project points `session.generators` at its
+// OWN registry generator (a ctags / codegraph / language-server pass emitting the
+// same markdown shape: a task→helper map + backtick-quoted reusable symbols + an
+// orphan section). The gates only require THAT `canon.registryFile` exists and is
+// consulted — they do not care which generator produced it.
 //
 //   node tools/gen-code-registry.js            # write the registry
 //   node tools/gen-code-registry.js --help

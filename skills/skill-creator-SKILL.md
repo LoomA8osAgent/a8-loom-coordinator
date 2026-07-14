@@ -58,7 +58,7 @@ description: >
 ## Reference Files (in read order)
 1. CLAUDE.md + FAILURE-PATTERNS.md — governance every skill inherits
 2. ROUTING.md — keyword→spec map (big specs are Read/grep on demand)
-3. {{registry.uiIndex}} — index of everything already built (for any building skill)
+3. {{registry.index}} — index of everything already built (for any building skill)
 4. {primary spec} → {secondary specs}
 
 ## Key Constraints

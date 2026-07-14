@@ -23,7 +23,7 @@ description: >
   gates / install-hooks, registry regeneration, hook config, "the gates", "the dev server",
   "why didn't the hook fire".
 
-  Reference files: {{devServer.file}}, {{hooks.readme}}, {{registry.uiIndex}}
+  Reference files: {{devServer.file}}, {{hooks.readme}}, {{registry.index}}
 ---
 
 # Dev-Infrastructure
@@ -74,7 +74,7 @@ on pass — tail the log to see why one fired).
 
 ## 5. The generated registry
 
-`{{registry.uiIndex}}` is the generated index of every helper / class / component / reusable
+`{{registry.index}}` is the generated index of every helper / class / component / reusable
 unit — **scan it before building anything reusable.** A SessionStart hook regenerates it;
 `{{registry.genCommand}}` rebuilds it manually. Its orphan section lists zero-caller exports
 (the dead-code check the hooks can't do). If the generator reads EMPTY (wrong scan target),

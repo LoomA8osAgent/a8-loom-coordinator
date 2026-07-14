@@ -3,10 +3,10 @@
 //
 // lib/config.js — the ONE reason this package is project-agnostic.
 //
-// The Anim8 originals hardcoded `const ANIM8_ROOT = '/Users/exiledm4air/gits/Anim8'`
-// in fifteen files — so a hook could only ever govern one machine's one checkout.
-// This resolver instead LOCATES stack.config.json at RUNTIME by walking up from
-// the file being edited (or the session cwd). Consequences:
+// Early versions hardcoded an absolute repo root in every file — so a hook could
+// only ever govern one machine's one checkout. This resolver instead LOCATES
+// stack.config.json at RUNTIME by walking up from the file being edited (or the
+// session cwd). Consequences:
 //   • zero hardcoded paths — install the hooks once, govern any number of repos;
 //   • a repo with no stack.config.json at or above it is simply NOT governed:
 //     load() returns null and every hook no-ops (exit 0). Never blocks the
@@ -21,28 +21,57 @@ const os = require('os');
 
 // Sensible fallbacks so a partial config still runs harmlessly. Deep-merged
 // UNDER the loaded config (loaded values win).
+// All DEFAULTS are LANGUAGE- AND DOMAIN-NEUTRAL. Nothing here assumes a web app,
+// a frontend, a specific language, or any particular framework. A project makes
+// the gates concrete by supplying its OWN canon surfaces in stack.config.json
+// (its helper modules, its registry, its hand-roll shapes). See the two shipped
+// examples: stack.config.example.backend.json + stack.config.example.frontend.json.
 const DEFAULTS = {
   project: { name: 'project', repoRoot: '', rootMarkers: ['CLAUDE.md'] },
   source: {
-    codeGlobs: ['js/**/*.js'], styleFiles: ['css/anim8.css'], markupFiles: ['index.html'],
-    exemptDirSegments: ['/tools/', '/tests/', '/node_modules/', '/.claude/'],
+    // Neutral: any source tree. A project narrows this to its language(s).
+    codeGlobs: ['src/**/*'], styleFiles: [], markupFiles: [],
+    exemptDirSegments: ['/tools/', '/tests/', '/node_modules/', '/vendor/', '/target/', '/.claude/'],
     exemptExtensions: ['.md']
   },
-  canon: { files: [], specGlobs: [], registryFile: 'UI-REGISTRY.md', hints: [], helperHomes: [] },
-  consent: { tokens: ['ui-ok'], oneOffMarker: 'one-off-ok' },
+  canon: { files: [], specGlobs: [], registryFile: 'CODE-REGISTRY.md', hints: [], helperHomes: [],
+    // Which registry sections list REUSABLE SYMBOLS (functions/classes/modules/traits)
+    // vs. domain-specific vocabulary (e.g. CSS classes). Both empty = the whole
+    // registry is treated as reusable-symbol canon. Frontend projects set classSections.
+    symbolSections: [], classSections: [] },
+  consent: { tokens: ['new-ok'], oneOffMarker: 'one-off-ok' },
+  // machinery — the DISCOVER-THEN-REUSE anti-hand-roll detectors, config-supplied
+  // so they work on ANY existing codebase. A project declares the shapes that mean
+  // "you are hand-rolling something the codebase already provides":
+  //   signals[]      : [{ re, name }] — code shapes that reproduce an existing helper
+  //   builderRe      : a regex matching "a new reusable builder/factory" (its author
+  //                    must export it to canon, not keep it private) — empty = off
+  //   reusableExportRe: a regex matching "a new public/exported symbol" (its addition
+  //                    must be registry-consulted) — empty = off
+  // ALL EMPTY BY DEFAULT → the anti-hand-roll machinery gates do nothing until a
+  // project describes its own canon. Never invents a shape the project didn't declare.
+  machinery: { signals: [], builderRe: '', reusableExportRe: '' },
+  // frontend — the opt-in CSS/DOM module. When false (default) NO frontend-specific
+  // detector runs (new-CSS-class, mount-class, style-layout). A web project sets
+  // enabled:true and supplies mountClassRe/layoutPropRe/newClassRe. Backend projects
+  // never touch this block. See frontend/README.md.
+  frontend: { enabled: false, mountClassRe: '', layoutPropRe: '', newClassRe: '' },
   devServer: { command: '', port: 8080, url: 'http://localhost:8080/' },
-  verification: { enabled: false, testApiPrefix: 'mc', allowedCalls: [], browserTools: [] },
+  verification: { enabled: false, testApiPrefix: '', allowedCalls: [], browserTools: [] },
   statePersistence: { enabled: false, walkName: 'save walk', trailerName: 'State',
     exemptMarker: 'state-walk-exempt', stateFileGlobs: [], signals: [] },
   docSync: { enabled: false, trailerName: 'Docs', exemptMarker: 'docsync-exempt',
     featureGlobs: [], featureExemptPrefixes: [], pillars: [],
     citationLint: { enabled: false, command: '', specGlobPrefix: '' } },
-  canonBlock: { rules: [] },
-  session: { generators: [], deploySkillsAgents: '', delegationHint: '' },
+  satellite: { enabled: false, trailerName: 'Satellite', manifestFile: '' },
+  // canonBlock.fileTypes — which extensions the string-ban rules apply to.
+  // Empty = apply to every non-exempt source file (language-neutral).
+  canonBlock: { rules: [], fileTypes: [] },
+  session: { generators: [], deploySkillsAgents: '', delegationHint: '', registryReminder: '' },
   worktree: { guardEnabled: false, dirSegment: '/.claude/worktrees/' },
   artifacts: { enabled: false, sweepRootImages: true, imageExtensions: ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp'],
     scratchPatterns: [], keepFiles: [], scratchDirs: ['.playwright-mcp'] },
-  install: { hooksDir: '~/.claude/hooks', gateLog: '~/.claude/a8-gate.log',
+  install: { hooksDir: '~/.claude/hooks', gateLog: '~/.claude/gate.log',
     settingsTarget: '.claude/settings.json', maxBackups: 2 },
   serviceRecovery: { notifyEnabled: true, notifyCommand: '', logFile: '~/.claude/service-recovery.log', autoResume: false },
   codegraph: { syncEnabled: true, staleThresholdMinutes: 5, binaryCandidates: [] }

@@ -2,15 +2,20 @@
 'use strict';
 // A8 Coordinator Stack — MIT License. (c) 2026 contributors.
 //
-// lib/detect.js — SHARED detector lib for the anti-handroll gate stack.
+// lib/detect.js — SHARED detector lib for the anti-hand-roll gate stack.
 //
 // One source of truth for: stdin/payload extraction, the operator-consent token
 // read (unforgeable — from the operator's own most-recent message), the code-
-// registry parse (known CSS classes + exports), and the "is this edit building
-// UI machinery?" signal detector. Consumed by grep-required / new-surface-
-// consent / helper-home so their notion of "UI machinery" never drifts apart.
+// registry parse (reusable symbols [+ optional CSS classes]), and the "is this
+// edit HAND-ROLLING something the codebase already provides?" signal detector.
+// Consumed by grep-required / new-surface-consent / helper-home so their notion
+// of "reusable-unit machinery" never drifts apart.
 //
-// Everything is config-parameterized (via lib/config.js) — no hardcoded paths.
+// Everything is config-parameterized (via lib/config.js) — NO hardcoded language,
+// framework, or domain idiom. The anti-hand-roll signals a project cares about are
+// DECLARED by that project in stack.config.json (machinery.signals / builderRe /
+// reusableExportRe); CSS/DOM detection runs only when frontend.enabled. Empty
+// config → the detector reports nothing (never invents a shape).
 
 const fs = require('fs');
 const path = require('path');
@@ -58,21 +63,25 @@ function hasConsent(cfg, txPath) {
   return toks.some(tok => new RegExp('\\b' + tok.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b').test(t));
 }
 
-// ---- registry parse (known classes + exports) ------------------------------
-// Reads the generated code-registry markdown. §5 = CSS classes, §4 = window
-// exports, §0–§3 = helper/component/engine names.
+// ---- registry parse (reusable symbols [+ optional CSS classes]) -------------
+// Reads the generated code-registry markdown. Any `backtick` token is a known
+// reusable symbol (function / class / module / helper / trait). CSS-class parsing
+// (a leading-dot token in a §5 section) runs ONLY when frontend.enabled — a
+// backend registry simply has no classes, and `classes` stays empty (harmless).
 function loadRegistry(cfg) {
-  const regFile = path.join(cfg.__repoRoot, (cfg.canon && cfg.canon.registryFile) || 'UI-REGISTRY.md');
+  const regFile = path.join(cfg.__repoRoot, (cfg.canon && cfg.canon.registryFile) || 'CODE-REGISTRY.md');
   let txt = '';
   try { txt = fs.readFileSync(regFile, 'utf8'); }
   catch (e) { return { classes: new Set(), exports: new Set(), ok: false }; }
   const classes = new Set(), exports = new Set();
-  const after5 = txt.split(/^## 5\./m)[1] || '';
-  for (const m of after5.matchAll(/`\.(-?[A-Za-z_][\w-]*)`/g)) classes.add(m[1]);
-  const sec4 = (txt.split(/^## 4\./m)[1] || '').split(/^## 5\./m)[0] || '';
-  for (const m of sec4.matchAll(/`([A-Za-z_]\w*)`/g)) exports.add(m[1]);
-  const head = txt.split(/^## 4\./m)[0] || '';
-  for (const m of head.matchAll(/`([A-Za-z_][\w-]*)`/g)) exports.add(m[1]);
+  const feOn = !!(cfg.frontend && cfg.frontend.enabled);
+  if (feOn) {
+    // CSS classes: a `.token` in the classSections (default: a "## 5." section).
+    const after5 = txt.split(/^## 5\./m)[1] || '';
+    for (const m of after5.matchAll(/`\.(-?[A-Za-z_][\w-]*)`/g)) classes.add(m[1]);
+  }
+  // Reusable symbols: every backtick-quoted identifier in the registry.
+  for (const m of txt.matchAll(/`([A-Za-z_][\w-]*)`/g)) exports.add(m[1]);
   return { classes, exports, ok: classes.size > 0 || exports.size > 0 };
 }
 
@@ -105,23 +114,36 @@ function isStyleOrMarkup(cfg, fp) {
   return files.some(f => fp.endsWith(f));
 }
 
-// ---- UI-machinery signal detector -------------------------------------------
-function detectSignals(nc) {
+// ---- hand-roll signal detector (config-driven, project-declared) ------------
+// A project declares the shapes that mean "you are re-building something the
+// codebase already provides" in cfg.machinery.signals[] = [{ re, name }]. NOTHING
+// is hardcoded: no config signals → no detections. This is what makes the
+// discover-then-reuse gate work on ANY existing codebase — the project describes
+// its own hand-roll shapes (a raw SQL string where a query-builder exists, a
+// hand-written DOM builder where a component factory exists, a re-implemented
+// util, etc.).
+function _compile(re) { try { return new RegExp(re); } catch (e) { return null; } }
+
+function detectSignals(cfg, nc) {
   const sig = [];
-  if (/\b(inputs|INPUTS|getInputs\s*\([^)]*\))\s*\.\s*forEach\b/.test(nc) && /\bsxCreate\s*\(/.test(nc)) {
-    sig.push('inputs-forEach-sxCreate');
+  const sigs = (cfg.machinery && cfg.machinery.signals) || [];
+  for (const s of sigs) {
+    if (!s || !s.re) continue;
+    const rx = _compile(s.re);
+    if (rx && rx.test(nc)) sig.push(s.name || s.re);
   }
-  if ((nc.match(/createElement\s*\(/g) || []).length >= 3) sig.push('createElement-chain');
-  if (domBuildingFn(nc)) sig.push('dom-building-fn');
+  if (builderFn(cfg, nc)) sig.push('reusable-builder-fn');
   return sig;
 }
 
-// a NAMED function/method whose body contains createElement (raw DOM builder).
-function domBuildingFn(nc) {
-  if (/\bfunction\s+[A-Za-z_]\w*\s*\([^)]*\)\s*\{[\s\S]*?createElement\s*\(/.test(nc)) return true;
-  if (/\b[A-Za-z_]\w*\s*[:=]\s*function\s*\([^)]*\)\s*\{[\s\S]*?createElement\s*\(/.test(nc)) return true;
-  if (/\bprototype\.[A-Za-z_]\w*\s*=\s*function\s*\([^)]*\)\s*\{[\s\S]*?createElement\s*\(/.test(nc)) return true;
-  return false;
+// cfg.machinery.builderRe is the COMPLETE regex identifying "a new reusable
+// builder/factory being defined" IN THIS PROJECT'S LANGUAGE — e.g. a JS
+// `function \w+ ... createElement`, a Python `def build_`, a Rust `fn build_`.
+// The project owns the full shape so nothing is language-assumed here. Empty → off.
+function builderFn(cfg, nc) {
+  const src = (cfg.machinery && cfg.machinery.builderRe) || '';
+  const rx = src && _compile(src);
+  return rx ? rx.test(nc) : false;
 }
 
 // does the new content CONSUME a shared helper? (escape — a wiring method, not a raw builder)
@@ -135,13 +157,17 @@ function callsSharedHelper(cfg, nc) {
 }
 
 // new CSS classes in a style/markup edit not present in the registry.
+// FRONTEND-ONLY: returns [] unless frontend.enabled. A project may override the
+// class-detection regex via cfg.frontend.newClassRe (default: a `.class {` shape).
 function newCssClasses(cfg, fp, nc, reg) {
+  if (!(cfg.frontend && cfg.frontend.enabled)) return [];
   if (!isStyleOrMarkup(cfg, fp)) return [];
+  const rx = (cfg.frontend.newClassRe && _compile(cfg.frontend.newClassRe)) || /\.(-?[A-Za-z_][\w-]*)/g;
   const found = new Set();
   for (const ln of nc.split('\n')) {
     if (!/[{,]\s*$/.test(ln) && !/\{/.test(ln)) continue;
-    for (const m of ln.matchAll(/\.(-?[A-Za-z_][\w-]*)/g)) {
-      if (!reg.classes.has(m[1])) found.add(m[1]);
+    for (const m of ln.matchAll(new RegExp(rx.source, 'g'))) {
+      if (m[1] && !reg.classes.has(m[1])) found.add(m[1]);
     }
   }
   return [...found];
@@ -155,5 +181,5 @@ function hasOneOffMarker(cfg, nc) {
 module.exports = {
   readStdin, newContentOf, userMessageText, hasConsent,
   loadRegistry, isExemptFile, isHelperHome, isCodeFile, isStyleOrMarkup,
-  detectSignals, domBuildingFn, callsSharedHelper, newCssClasses, hasOneOffMarker
+  detectSignals, builderFn, callsSharedHelper, newCssClasses, hasOneOffMarker
 };

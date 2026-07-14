@@ -6,16 +6,21 @@ the human as operator, ratifier, and spot-checker instead of babysitter.**
 
 MIT licensed. Extracted from production use, not designed on a whiteboard.
 
+**Works for any software project — frontend or backend, any language or framework.**
+Every gate is config-driven: you declare your own canon surfaces (helper modules,
+registry, hand-roll shapes) and the stack enforces *discover-then-reuse* against
+them. The CSS/DOM pieces are an opt-in `frontend/` module; backend projects never
+load them.
+
 ---
 
 ## Where this came from
 
-This stack was not written in a weekend. It condensed out of **74 numbered working
-sessions (plus dozens of continuation sub-sessions — well over a hundred sittings)
-across three months** — April 7 to July 9, 2026 — building [Anim8](https://ainim8.me),
-a real-time visual compositor: a zero-framework web application with a WebGL2
-compositing pipeline, fifteen format engines, and a GLSL compilation architecture.
-Every file in this stack exists because something went wrong without it, twice.
+Condensed out of three months of daily production sessions building a real,
+shipping application, by [exiledsurfer](https://github.com/exiledsurfer) as operator
+and Claude as coordinator. Every file exists because something went wrong without it,
+twice. The origin project was a composed web frontend, but the stack is
+domain-agnostic — the lessons below recur in any codebase:
 
 The honest reasons it exists:
 
@@ -67,20 +72,27 @@ a hundred-session project stays inside them.
 
 ```
 governance/    CLAUDE / OPERATOR / ROUTING / GOAL / SESSION / HANDOFF templates,
-               FAILURE-PATTERNS ledger (15 universal patterns), ACKNOWLEDGEMENTS
+               FAILURE-PATTERNS ledger (universal core + opt-in frontend appendix),
+               ACKNOWLEDGEMENTS
 skills/        coordinator (delegation + audit contract + the model grid),
                model-succession (the seat-handoff letter), doc-sync,
                dev-infrastructure, init-interview, skill-creator
-hooks/         the enforcement floor: canon-before-edit, anti-handroll,
-               new-surface consent, doc-sync + state-persistence commit gates,
-               verification-first, session regenerators, caveman mode,
-               service recovery, install script
+hooks/         the enforcement floor (all config-driven, language-agnostic):
+               canon-before-edit, anti-hand-roll, discover-then-reuse consent,
+               doc-sync + state-persistence commit gates, verification-first,
+               session regenerators, caveman mode, service recovery, install script
 tools/         the anti-drift generators: code registry (+ zero-caller orphan
                report), skills/agents deploy, manifest, changelog, citation linter
 agents/        planner / builder / auditor archetypes with preloaded-canon pattern
+frontend/      OPT-IN CSS/DOM module (backend projects ignore it): the
+               design-system-export skill (satellite/standalone-product method)
 integrations/  rtk (60-90% token savings on dev ops), CodeGraph (call-path-aware
                code retrieval), caveman mode (terse-output contract)
 ```
+
+Root also ships `stack.config.json` (neutral template) plus two worked configs —
+`stack.config.example.backend.json` and `stack.config.example.frontend.json` — so
+you start from the one nearest your project.
 
 Three design principles run through all of it:
 

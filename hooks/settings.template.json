@@ -30,7 +30,8 @@
         "matcher": "Bash",
         "hooks": [
           { "type": "command", "command": "node \"__HOOKS_DIR__/docsync-commit.js\"", "timeout": 8, "statusMessage": "doc-sync commit gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/state-persistence-commit.js\"", "timeout": 8, "statusMessage": "state-persistence commit gate..." }
+          { "type": "command", "command": "node \"__HOOKS_DIR__/state-persistence-commit.js\"", "timeout": 8, "statusMessage": "state-persistence commit gate..." },
+          { "type": "command", "command": "node \"__HOOKS_DIR__/satellite-gate.js\"", "timeout": 8, "statusMessage": "satellite commit gate..." }
         ]
       },
       {

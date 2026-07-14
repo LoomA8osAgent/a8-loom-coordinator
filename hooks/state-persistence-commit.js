@@ -2,7 +2,7 @@
 // A8 Coordinator Stack — MIT License. (c) 2026 contributors.
 //
 // state-persistence-commit — PreToolUse gate for Bash (git commit).
-//   (generalized from Anim8's anim8-preset-walk-commit)
+//   (generalized from a preset/state-persistence gate)
 //
 // WHY: a control the user can change but a save/recall can't restore is a broken
 // save. When a commit ADDS a new user-selectable/persistable control (a mode

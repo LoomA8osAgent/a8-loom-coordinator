@@ -1,0 +1,69 @@
+{
+  "$schema": "./stack.config.README.md",
+  "_readme": "WORKED EXAMPLE — a backend service (here: a Python + SQL API). Shows the discover-then-reuse gates governing a NON-frontend codebase. The frontend block stays OFF. machinery.signals declares this project's own hand-roll shapes: writing raw SQL where the query-builder exists, re-implementing a serializer, etc. Adapt the regexes to your stack (Rust/Go/Java/Node all work the same way — you declare YOUR hand-roll shapes).",
+  "project": {
+    "name": "acme-api",
+    "repoRoot": "",
+    "rootMarkers": ["CLAUDE.md", "pyproject.toml"]
+  },
+  "source": {
+    "codeGlobs": ["acme/**/*.py"],
+    "styleFiles": [],
+    "markupFiles": [],
+    "exemptDirSegments": ["/tests/", "/migrations/", "/.venv/", "/.claude/"],
+    "exemptExtensions": [".md", ".txt", ".cfg"]
+  },
+  "canon": {
+    "files": ["CLAUDE.md", "ARCHITECTURE.md"],
+    "specGlobs": ["docs/specs/**/*.md"],
+    "registryFile": "CODE-REGISTRY.md",
+    "hints": ["query_builder", "Repository", "serialize", "get_session", "app_error", "audit_log"],
+    "helperHomes": ["/acme/db/query.py", "/acme/core/serialize.py", "/acme/core/errors.py"],
+    "symbolSections": [],
+    "classSections": []
+  },
+  "consent": { "tokens": ["new-ok"], "oneOffMarker": "one-off-ok" },
+  "machinery": {
+    "signals": [
+      { "re": "\\b(execute|executemany)\\s*\\(\\s*[fr]?[\"'](?:SELECT|INSERT|UPDATE|DELETE)", "name": "raw-sql-where-query-builder-exists" },
+      { "re": "\\bjson\\.dumps\\s*\\(\\s*\\{[\\s\\S]*?\\}\\s*\\)", "name": "hand-rolled-serializer" }
+    ],
+    "builderRe": "def\\s+build_",
+    "reusableExportRe": ""
+  },
+  "frontend": { "enabled": false },
+  "verification": { "enabled": false },
+  "statePersistence": { "enabled": false },
+  "docSync": {
+    "enabled": true,
+    "trailerName": "Docs",
+    "exemptMarker": "docsync-exempt",
+    "featureGlobs": ["acme/api/", "acme/models/"],
+    "featureExemptPrefixes": ["acme/internal/"],
+    "pillars": [
+      { "name": "spec", "stagedPrefixes": ["docs/specs/"] },
+      { "name": "test", "stagedPrefixes": ["tests/"] }
+    ],
+    "citationLint": { "enabled": false }
+  },
+  "satellite": { "enabled": false },
+  "canonBlock": {
+    "fileTypes": [".py"],
+    "rules": [
+      {
+        "pattern": "\\bprint\\s*\\(",
+        "flags": "",
+        "allow": ["/acme/cli/"],
+        "code": "USE-STRUCTURED-LOGGER",
+        "msg": "print() is not observable in prod. Use the structured logger (acme.core.log)."
+      }
+    ]
+  },
+  "session": {
+    "generators": ["python tools/gen_code_registry.py", "python tools/gen_changelog.py"],
+    "deploySkillsAgents": "node tools/gen-skills-agents.js",
+    "delegationHint": ""
+  },
+  "worktree": { "guardEnabled": true, "dirSegment": "/.claude/worktrees/" },
+  "install": { "hooksDir": "~/.claude/hooks", "gateLog": "~/.claude/gate.log" }
+}

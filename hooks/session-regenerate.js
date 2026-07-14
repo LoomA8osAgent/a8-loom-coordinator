@@ -45,16 +45,22 @@ process.stdin.on('end', () => {
   (sess.generators || []).forEach((command, i) => run('GEN[' + (i + 1) + ']', command));
   if (sess.deploySkillsAgents) run('SKILLS/AGENTS', sess.deploySkillsAgents);
 
-  const regFile = (cfg.canon && cfg.canon.registryFile) || 'UI-REGISTRY.md';
+  const regFile = (cfg.canon && cfg.canon.registryFile) || 'CODE-REGISTRY.md';
   let msg = lines.join('\n');
   if (msg) msg += '\n';
-  msg +=
-    'BEFORE building ANY UI (control / chrome / accordion / slider host / widget / CSS class): ' +
-    'SCAN ' + regFile + ' and USE what exists — reinventing a listed helper/class is a hand-roll. ' +
-    'If the capability is genuinely NOT in the registry it is NEW UI — STOP and get the operator\'s ' +
-    'express consent (' + ((cfg.consent && cfg.consent.tokens) || []).join(' / ') + ') before writing it. ' +
-    'The registry §6 (orphan candidates) lists exports with zero live callers — the dead-code check ' +
-    'the per-edit hooks cannot do; grep-confirm before deleting.';
+  // The registry reminder is the discover-then-reuse pump. A project may override
+  // the exact wording via session.registryReminder; otherwise emit this neutral,
+  // language-agnostic default. {reg} / {consent} are substituted.
+  const reminderTpl = (sess.registryReminder && String(sess.registryReminder)) ||
+    ('BEFORE building ANY reusable unit (a helper / builder / component / module / — for frontend — ' +
+     'a control or CSS class): SCAN {reg} and USE what exists — reinventing a listed symbol is a ' +
+     'hand-roll. If the capability is genuinely NOT in the registry it is NEW — STOP and get the ' +
+     'operator\'s express consent ({consent}) before writing it. The registry orphan section lists ' +
+     'exports with zero live callers — the dead-code check the per-edit hooks cannot do; grep-confirm ' +
+     'before deleting.');
+  msg += reminderTpl
+    .replace(/\{reg\}/g, regFile)
+    .replace(/\{consent\}/g, ((cfg.consent && cfg.consent.tokens) || []).join(' / '));
   if (sess.delegationHint) msg += '\n' + sess.delegationHint;
 
   process.stdout.write(JSON.stringify({

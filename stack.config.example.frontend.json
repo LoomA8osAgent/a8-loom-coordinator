@@ -1,0 +1,121 @@
+{
+  "$schema": "./stack.config.README.md",
+  "_readme": "WORKED EXAMPLE — a composed web frontend (a zero-framework HTML/CSS/JS app). Turns ON the frontend module and declares the CSS/DOM hand-roll shapes. This is the configuration the whole stack was first proven against (a real-time WebGL compositor). Use it as the pattern for any web UI; swap the helper names, class regexes, and registry file for yours.",
+  "project": {
+    "name": "my-web-app",
+    "repoRoot": "",
+    "rootMarkers": ["CLAUDE.md", "index.html"]
+  },
+  "source": {
+    "codeGlobs": ["js/**/*.js"],
+    "styleFiles": ["css/app.css"],
+    "markupFiles": ["index.html"],
+    "exemptDirSegments": ["/tools/", "/tests/", "/node_modules/", "/.claude/"],
+    "exemptExtensions": [".md"]
+  },
+  "canon": {
+    "files": ["CLAUDE.md", "SKILL.md", "ROUTING.md"],
+    "specGlobs": ["specs/**/*.md"],
+    "registryFile": "UI-REGISTRY.md",
+    "hints": [
+      "panelBuild", "buildSwatch", "createSlider", "sxCreate", "floMod",
+      "componentRegistry", "dd-panel", "dd-item", "state-active", "canon"
+    ],
+    "helperHomes": [
+      "/js/components.js", "/js/util.js", "/js/sliders.js", "/js/workspace.js"
+    ],
+    "symbolSections": ["## 1.", "## 2.", "## 3.", "## 4."],
+    "classSections": ["## 5."]
+  },
+  "consent": { "tokens": ["ui-ok", "new-ok"], "oneOffMarker": "one-off-ok" },
+  "machinery": {
+    "signals": [
+      { "re": "\\b(inputs|INPUTS|getInputs\\s*\\([^)]*\\))\\s*\\.\\s*forEach\\b[\\s\\S]*?\\bcreateSlider\\s*\\(", "name": "slider-host-hand-roll" },
+      { "re": "createElement\\s*\\([\\s\\S]*?createElement\\s*\\([\\s\\S]*?createElement\\s*\\(", "name": "createElement-chain" }
+    ],
+    "builderRe": "function\\s+[A-Za-z_]\\w*\\s*\\([^)]*\\)\\s*\\{[\\s\\S]*?createElement\\s*\\(",
+    "reusableExportRe": ""
+  },
+  "frontend": {
+    "enabled": true,
+    "mountClassRe": "\\.(component|[A-Za-z][\\w-]*-editor|overlay-panel|floating-panel)\\b[^{}\\n]*\\{",
+    "layoutPropRe": "\\b(position|min-height|max-height|flex|overflow|display)\\s*:",
+    "newClassRe": ""
+  },
+  "verification": {
+    "enabled": false,
+    "testApiPrefix": "mc",
+    "allowedCalls": ["mcRun", "mcRunBatch", "mcList", "mcGet"],
+    "browserTools": [
+      "mcp__playwright__browser_evaluate",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_type"
+    ]
+  },
+  "statePersistence": {
+    "enabled": true,
+    "walkName": "preset walk",
+    "trailerName": "State",
+    "exemptMarker": "state-walk-exempt",
+    "stateFileGlobs": ["js/formats/", "js/editors/", "js/card.js"],
+    "signals": [
+      { "re": "\\bsupports[A-Z]\\w*Mode\\b", "what": "a new supports<X>Mode capability getter" },
+      { "re": "\\bset[A-Z]\\w*Mode\\b\\s*=\\s*function", "what": "a new set<X>Mode setter" }
+    ]
+  },
+  "docSync": {
+    "enabled": true,
+    "trailerName": "Docs",
+    "exemptMarker": "docsync-exempt",
+    "featureGlobs": ["js/", "css/app.css"],
+    "featureExemptPrefixes": ["js/vendor", "tools/", "tests/"],
+    "pillars": [
+      { "name": "spec", "stagedPrefixes": ["specs/"] },
+      { "name": "manual", "stagedPrefixes": ["design/manual-shards/"] },
+      { "name": "macro", "stagedPrefixes": ["design/nav-map-shards/"] }
+    ],
+    "citationLint": { "enabled": false }
+  },
+  "satellite": {
+    "enabled": true,
+    "trailerName": "Satellite",
+    "manifestFile": "design/satellite-manifest.json"
+  },
+  "canonBlock": {
+    "fileTypes": [".js", ".css", ".html"],
+    "rules": [
+      {
+        "pattern": "\\son(click|change|input|mousedown|mouseup|keydown|keyup|focus|blur)\\s*=\\s*[\"'](?!\\\\)",
+        "flags": "i",
+        "allow": [],
+        "code": "CSP-INLINE-HANDLER",
+        "msg": "Inline event attribute detected. CSP script-src has no 'unsafe-inline'; these silently fail. Wire via addEventListener."
+      },
+      {
+        "pattern": "<input[^>]*type\\s*=\\s*[\"']color[\"']",
+        "flags": "i",
+        "allow": ["/js/components.js", "/js/util.js"],
+        "code": "COLOR-PICKER-CANON-LOCK",
+        "msg": "<input type=\"color\"> is allowed only in the shared helper file. Use the canonical swatch helper."
+      }
+    ]
+  },
+  "session": {
+    "generators": [
+      "node tools/gen-code-registry.js",
+      "node tools/gen-manifest.js",
+      "node tools/gen-changelog.js"
+    ],
+    "deploySkillsAgents": "node tools/gen-skills-agents.js",
+    "delegationHint": ""
+  },
+  "worktree": { "guardEnabled": false, "dirSegment": "/.claude/worktrees/" },
+  "artifacts": {
+    "enabled": true,
+    "sweepRootImages": true,
+    "scratchPatterns": ["^genprobe[-_].*\\.json$", "^.*[-_]snap\\.md$"],
+    "keepFiles": ["README.md", "CHANGELOG.md", "CLAUDE.md", "SKILL.md", "LICENSE", "UI-REGISTRY.md"],
+    "scratchDirs": [".playwright-mcp"]
+  },
+  "install": { "hooksDir": "~/.claude/hooks", "gateLog": "~/.claude/gate.log" }
+}

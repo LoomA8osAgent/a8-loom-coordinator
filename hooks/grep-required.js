@@ -45,7 +45,7 @@ process.stdin.on('end', () => {
   if (!tx || !fs.existsSync(tx)) return;
 
   const HINTS = (cfg.canon && cfg.canon.hints) || [];
-  const regFile = (cfg.canon && cfg.canon.registryFile) || 'UI-REGISTRY.md';
+  const regFile = (cfg.canon && cfg.canon.registryFile) || 'CODE-REGISTRY.md';
   const regRe = new RegExp(regFile.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
 
   function scanTranscript(txPath) {
@@ -144,17 +144,18 @@ process.stdin.on('end', () => {
 
   const nc = D.newContentOf(tool, inp);
   const reg = D.loadRegistry(cfg);
-  const isUiMachinery = D.detectSignals(nc).length > 0 || (reg.ok && D.newCssClasses(cfg, filePath, nc, reg).length > 0);
+  const isReusableMachinery = D.detectSignals(cfg, nc).length > 0 || (reg.ok && D.newCssClasses(cfg, filePath, nc, reg).length > 0);
 
-  if (isUiMachinery && !registryConsulted) {
+  if (isReusableMachinery && !registryConsulted) {
     process.stderr.write([
-      'REGISTRY-CHECK HARD-BLOCK — ' + tool + ' rejected: UI-machinery edit, ' + (cfg.canon.registryFile) + ' not consulted this turn.',
+      'REGISTRY-CHECK HARD-BLOCK — ' + tool + ' rejected: reusable-unit edit, ' + (cfg.canon.registryFile) + ' not consulted this turn.',
       '', 'File: ' + path.relative(cfg.__repoRoot, filePath), '',
-      'This edit builds UI machinery (a forEach slider host, a createElement chrome',
-      'chain, or a new CSS class). Scan the registry of everything already built',
-      'BEFORE building it — a canon-shaped grep elsewhere is not enough.', '',
+      'This edit hand-rolls something the codebase may already provide (a declared',
+      'hand-roll shape, a new reusable builder, or a new registry vocabulary item).',
+      'Scan the registry of everything already built BEFORE building it — a',
+      'canon-shaped grep elsewhere is not enough.', '',
       'Required (any ONE, this turn):',
-      '  Read  ' + (cfg.canon.registryFile) + '     (scan the task→helper map, then helpers/classes)',
+      '  Read  ' + (cfg.canon.registryFile) + '     (scan the task→helper map, then the symbol/class index)',
       '  Grep  "<the helper you might reinvent>" ' + (cfg.canon.registryFile),
       '', 'Then re-issue ' + tool + '. If genuinely NOT in the registry, it is NEW —',
       'get the operator\'s consent first (' + (cfg.consent.tokens || []).join(' / ') + ').'
@@ -163,5 +164,5 @@ process.stdin.on('end', () => {
     process.exit(2);
   }
 
-  CFG.logGate(cfg, 'grep-required', 'PASS', filePath, isUiMachinery ? 'ui-machinery+registry' : 'canon-grep');
+  CFG.logGate(cfg, 'grep-required', 'PASS', filePath, isReusableMachinery ? 'reusable-machinery+registry' : 'canon-grep');
 });

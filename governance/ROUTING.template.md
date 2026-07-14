@@ -19,16 +19,17 @@
 > `CLAUDE.md`) + §Enforced Failure Patterns (`FAILURE-PATTERNS.md`) stay always-on — that is
 > the anti-handroll core.
 
-## ⛔ BEFORE BUILDING ANY UI / REUSABLE UNIT — scan `{{registry.uiIndex}}` (MANDATORY)
+## ⛔ BEFORE BUILDING ANY REUSABLE UNIT — scan `{{registry.index}}` (MANDATORY)
 
-`{{registry.uiIndex}}` is the generated, always-current index of EVERY helper, class,
+`{{registry.index}}` is the generated, always-current index of EVERY helper, module,
 component, and reusable unit already built (rebuilt by `{{registry.genCommand}}`; refreshed
-each session). Building a new module, or adding a control/chrome/widget/class used elsewhere
+each session). Building a new module, or adding a function/component/pattern used elsewhere
 → SCAN IT FIRST and USE what exists. Start at its task → canonical-helper map, then the
-helper + component + class sections. Reinventing anything listed there is the
-`HELPER-HAND-ROLL` / `NEW-CLASS-WITHOUT-CONSENT` failure. **If the capability is genuinely
-NOT in the registry, it is new — STOP and get the operator's express consent before writing
-it.** Never assemble primitives into a whole-task widget a helper already provides.
+symbol + component sections (a frontend project also indexes its classes). Reinventing
+anything listed there is the `HELPER-HAND-ROLL` / `NEW-VOCABULARY-WITHOUT-CONSENT` failure.
+**If the capability is genuinely NOT in the registry, it is new — STOP and get the operator's
+express consent before writing it.** Never assemble primitives into a whole-task unit a
+helper already provides.
 
 ## Reason from the codebase, not from memory (the retrieve-first doctrine)
 
@@ -52,7 +53,7 @@ the claim.
 
 | Task touches… | Read |
 |---|---|
-| {{keyword.ui}} (class, token, style, control, chrome, accordion, slider host) | `{{spec.ui}}` + `{{registry.uiIndex}}` |
+| {{keyword.ui}} (class, token, style, control, chrome, accordion, slider host) | `{{spec.ui}}` + `{{registry.index}}` |
 | {{keyword.core}} (the core pipeline / render / compositing / data flow) | `{{spec.pipeline}}` |
 | {{keyword.dataModel}} (schema, state, persistence walk, presets/projects) | `{{spec.dataModel}}` + `{{spec.persistence}}` |
 | {{keyword.moduleA}} | `{{spec.moduleA}}` |

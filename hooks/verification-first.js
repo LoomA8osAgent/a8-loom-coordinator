@@ -2,7 +2,7 @@
 // A8 Coordinator Stack — MIT License. (c) 2026 contributors.
 //
 // verification-first — PreToolUse gate for browser/app-driving tools.
-//   (generalized from Anim8's anim8-macro-first; OPTIONAL, off by default)
+//   (generalized from a scripted-verification gate; OPTIONAL, off by default)
 //
 // WHY: ad-hoc clicks/evaluates against a live app are unrepeatable and let a
 // model "verify" against a state it hand-drove into existence. This gate forces

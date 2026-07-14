@@ -2,35 +2,33 @@
 // A8 Coordinator Stack — MIT License. (c) 2026 contributors.
 //
 // new-surface-consent — PreToolUse gate for Edit | Write | MultiEdit.
-//   (generalized from Anim8's anim8-ui-consent)
 //
-// WHY: makes it MECHANICALLY HARD to write NEW UI machinery — a hand-rolled
-// slider host, mount/scroll CSS, or a NEW CSS class (new visual chrome) —
-// without the operator's EXPRESS consent. The failure it prevents: a model
-// invents a fresh class/surface next to canon that already provides it, forking
-// the design vocabulary the registry exists to keep single.
+// WHY: makes it MECHANICALLY HARD to HAND-ROLL a NEW reusable surface — a
+// re-implementation of a declared hand-roll shape, or (frontend only) mount/scroll
+// CSS on a framework mount class, or a NEW CSS class — without the operator's
+// EXPRESS consent. The failure it prevents: a model invents a fresh unit next to
+// canon that already provides it, forking the vocabulary the registry keeps single.
+// This is the discover-then-reuse gate — it forces DETERMINISTIC building against
+// an existing codebase's own canon.
 //
-// Three shapes, all via the shared detector so "UI machinery" never drifts:
-//   A. slider-host hand-roll — an inputs.forEach loop building sxCreate sliders
-//      by hand (the registry has a helper for this).
-//   B. mount/scroll CSS — a rule on the framework mount classes touching
-//      position/flex/min-height/overflow/display (the layout family that breaks
-//      panels). Only checked in style/markup files; class names are configurable.
-//   C. NEW CSS class — a rule defining a class ABSENT from the code registry.
+// Three shapes, ALL config-declared so nothing is language/framework-specific:
+//   A. hand-roll shape — a code shape the project declared in machinery.signals[]
+//      (a re-implemented helper the codebase already provides).
+//   B. mount/scroll CSS — FRONTEND ONLY (frontend.enabled): a rule on the project's
+//      mount classes (frontend.mountClassRe) touching layout props
+//      (frontend.layoutPropRe). Empty regexes → skipped.
+//   C. NEW CSS class — FRONTEND ONLY: a class ABSENT from the code registry.
 //
 // New EXPORTED helpers are NOT gated here — extraction is the sanctioned remedy
 // (governed by helper-home.js). OVERRIDE: a consent token in the operator's own
-// most-recent message. Exit 2 → rejected. No config ⇒ no-op.
+// most-recent message. Exit 2 → rejected. No config / nothing declared ⇒ no-op.
 
 'use strict';
 const path = require('path');
 const CFG = require('./lib/config.js');
 const D = require('./lib/detect.js');
 
-// Framework mount classes whose layout props break panels (shape B). Kept small
-// + generic; projects extend via convention (any `*-editor` / overlay / floating).
-const MOUNT_CLASS_RE = /\.(component|[A-Za-z][\w-]*-editor|ws-overlay-panel|ws-floating-panel)\b[^{}\n]*\{/;
-const LAYOUT_PROP_RE = /\b(position|min-height|max-height|flex|overflow|display)\s*:/;
+function _rx(src) { try { return src ? new RegExp(src) : null; } catch (e) { return null; } }
 
 (function main() {
   let data;
@@ -50,20 +48,24 @@ const LAYOUT_PROP_RE = /\b(position|min-height|max-height|flex|overflow|display)
   if (!nc) return;
 
   const shapes = [];
+  const feOn = !!(cfg.frontend && cfg.frontend.enabled);
 
-  // A — slider-host hand-roll.
-  if (D.detectSignals(nc).includes('inputs-forEach-sxCreate')) {
-    shapes.push('A — slider host hand-rolled (an inputs.forEach loop building sxCreate() sliders). Route through the canonical slider-host helper (see the registry task→helper map).');
+  // A — a project-declared hand-roll shape (machinery.signals[]).
+  const fired = D.detectSignals(cfg, nc);
+  if (fired.length) {
+    shapes.push('A — hand-roll shape(s) [' + fired.join(', ') + '] the codebase already provides. Route through the canonical helper (see the registry task→helper map).');
   }
 
-  // B — mount / scroll CSS (style/markup files only).
-  if (D.isStyleOrMarkup(cfg, filePath)) {
-    if (MOUNT_CLASS_RE.test(nc) && LAYOUT_PROP_RE.test(nc)) {
-      shapes.push('B — component-mount / editor-scroll CSS (layout props on framework mount classes). This family breaks panel layout — reuse the existing mount/scroll rule instead of adding a new one.');
+  // B — mount / scroll CSS (FRONTEND ONLY, style/markup files, config regexes).
+  if (feOn && D.isStyleOrMarkup(cfg, filePath)) {
+    const mountRe = _rx(cfg.frontend.mountClassRe);
+    const layoutRe = _rx(cfg.frontend.layoutPropRe);
+    if (mountRe && layoutRe && mountRe.test(nc) && layoutRe.test(nc)) {
+      shapes.push('B — mount/scroll CSS (layout props on a framework mount class). This family breaks panel layout — reuse the existing mount/scroll rule instead of adding a new one.');
     }
   }
 
-  // C — new CSS class not in the registry (new chrome).
+  // C — new CSS class not in the registry (FRONTEND ONLY; newCssClasses is a no-op otherwise).
   const reg = D.loadRegistry(cfg);
   if (reg.ok) {
     const newCls = D.newCssClasses(cfg, filePath, nc, reg);
@@ -79,11 +81,11 @@ const LAYOUT_PROP_RE = /\b(position|min-height|max-height|flex|overflow|display)
   if (D.hasConsent(cfg, data.transcript_path)) { CFG.logGate(cfg, 'new-surface-consent', 'PASS', filePath, 'consent'); return; }
 
   const msg = [
-    'NEW-SURFACE HARD-BLOCK — ' + tool + ' rejected: new UI machinery without express consent.',
+    'NEW-SURFACE HARD-BLOCK — ' + tool + ' rejected: hand-rolled new surface without express consent.',
     '', 'File: ' + path.relative(cfg.__repoRoot, filePath), 'Flagged:',
     ...shapes.map(s => '  • ' + s), '',
-    'You may not write new UI machinery (hand-rolled host / mount-CSS / new chrome',
-    'class) without the operator\'s EXPRESS consent. Do ONE of:',
+    'You may not hand-roll a new reusable surface (a re-implemented helper / mount-CSS',
+    '/ new chrome class) without the operator\'s EXPRESS consent. Do ONE of:',
     '  1. Use the existing helper/class (scan ' + cfg.canon.registryFile + '). Almost always the answer.',
     '  2. If GENUINELY new, STOP and ask. Re-issue only after the operator replies',
     '     ' + (cfg.consent.tokens || []).join(' / ') + ' in their message.'

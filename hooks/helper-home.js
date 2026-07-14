@@ -3,19 +3,22 @@
 //
 // helper-home — PreToolUse gate for Edit | Write | MultiEdit.
 //
-// WHY: makes it IMPOSSIBLE to ship new UI capability as one-off private code. A
-// new named DOM-building function (`function … { … createElement … }`) added to
-// a file that is NOT a registered helper home is blocked UNLESS one of three
-// sanctioned outcomes holds:
-//   (a) it is EXPORTED in the same edit (window.X = …) — you ARE extracting a
-//       shared helper (the correct remedy; the opposite of a hand-roll), OR
-//   (b) its body CONSUMES a shared helper (a canon hint call) — a wiring method
-//       composing canon, not a raw builder, OR
+// WHY: makes it IMPOSSIBLE to ship a new REUSABLE capability as one-off private
+// code. A new named builder/factory function (matching cfg.machinery.builderRe —
+// e.g. a DOM builder, a query builder, a serializer factory) added to a file that
+// is NOT a registered helper home is blocked UNLESS one of three sanctioned
+// outcomes holds:
+//   (a) it is EXPORTED in the same edit (export / module.exports / window.X = …) —
+//       you ARE extracting a shared helper (the correct remedy; the opposite of a
+//       hand-roll), OR
+//   (b) its body CONSUMES an existing canon helper (a hint call) — a wiring method
+//       composing canon, not a fresh reinvention, OR
 //   (c) it carries an explicit one-off marker AND the operator gave consent.
 //
-// This forces the classify-every-new-DOM-builder decision that gets skipped:
-// "shared helper (export it)" or "operator-sanctioned one-off" — never silently
-// a private reinvention. Config-driven (helper homes, hints, consent). Exit 2.
+// This forces the classify-every-new-builder decision that gets skipped: "shared
+// helper (export it)" or "operator-sanctioned one-off" — never silently a private
+// reinvention. Config-driven (machinery.builderRe, helper homes, hints, consent);
+// builderRe empty → this gate no-ops. Exit 2.
 
 'use strict';
 const path = require('path');
@@ -35,15 +38,15 @@ const D = require('./lib/detect.js');
   const cfg = CFG.load(filePath);
   if (!cfg) return;
   if (D.isExemptFile(cfg, filePath)) return;
-  if (!D.isCodeFile(cfg, filePath)) return;          // only source builds DOM fns
+  if (!D.isCodeFile(cfg, filePath)) return;          // only source builds reusable fns
   if (D.isHelperHome(cfg, filePath)) return;         // shared builders belong here
 
   const nc = D.newContentOf(tool, input);
   if (!nc) return;
-  if (!D.domBuildingFn(nc)) return;
+  if (!D.builderFn(cfg, nc)) return;                 // no builderRe / no match → no-op
 
   // escape (a) — exported in the same edit (it IS a shared helper).
-  if (/window\.[A-Za-z_]\w*\s*=/.test(nc) || /module\.exports\b/.test(nc)) {
+  if (/\bexport\b/.test(nc) || /window\.[A-Za-z_]\w*\s*=/.test(nc) || /module\.exports\b/.test(nc)) {
     CFG.logGate(cfg, 'helper-home', 'PASS', filePath, 'exported-helper'); return;
   }
   // escape (b) — composes a shared helper (wiring method).
@@ -56,19 +59,19 @@ const D = require('./lib/detect.js');
   const oneOffNoConsent = D.hasOneOffMarker(cfg, nc);
   const homes = (cfg.canon.helperHomes || []).join(', ');
   const msg = [
-    'HELPER-HOME HARD-BLOCK — ' + tool + ' rejected: new DOM builder as one-off code.',
+    'HELPER-HOME HARD-BLOCK — ' + tool + ' rejected: new reusable builder as one-off code.',
     '', 'File: ' + path.relative(cfg.__repoRoot, filePath) + '  (not a registered helper home)',
-    'Issue: a named function that builds raw DOM (createElement) was added to a',
-    'non-helper file, it is NOT exported, and it does not compose a shared helper.',
-    'New UI capability may not ship as private one-off code.', '',
+    'Issue: a named builder/factory function was added to a non-helper file, it is',
+    'NOT exported, and it does not compose an existing canon helper.',
+    'A new reusable capability may not ship as private one-off code.', '',
     'Resolve with ONE of:',
     '  (a) EXTRACT it as a shared helper — define it in a helper home and export it.',
     '      Homes: ' + homes,
-    '  (b) COMPOSE existing helpers instead of building raw DOM (call a canon helper).',
+    '  (b) COMPOSE existing helpers instead of reinventing (call a canon helper).',
     '  (c) If a JUSTIFIED one-off, add `// ' + (cfg.consent.oneOffMarker) + ': <reason>` in the',
     '      function AND get the operator\'s consent (' + (cfg.consent.tokens || []).join(' / ') + ').',
     oneOffNoConsent ? '      (A one-off marker is present but no operator consent token was found.)' : '',
-    '', 'Make it IMPOSSIBLE to ship new UI without extracting a reusable helper.'
+    '', 'Make it IMPOSSIBLE to ship a new reusable capability without extracting a shared helper.'
   ].filter(Boolean).join('\n');
 
   CFG.logGate(cfg, 'helper-home', 'BLOCK', filePath, 'raw-dom-builder');
