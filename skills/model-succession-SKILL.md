@@ -46,8 +46,17 @@ disk; display vs effect; per-engine copies of shared behavior; geometry derived
 from CSS source instead of measured; agents citing dead reference trees.)
 
 ### 5. What runs without you
-The hook stack (list, one line each — these fire regardless of you). The generators
-and when they run. The autonomy charter (GOAL.md) and where its ledger stands.
+The hook stack (list, one line each — these fire regardless of you), across all four
+moments a gate can fire: edit-time, spawn-time (budget + commit-cadence), commit-time
+(the trailer gates), and turn-boundary (clean-tree + seat-discipline). The generators
+and when they run. The autonomy charter (GOAL.md) and where its ledger stands. Point
+the successor at the floor's OWN integrity checks so they can trust it without
+re-deriving it: the coverage report (maps every failure-pattern to its live executor,
+prints the hole count at session start), the gate self-test corpus (proves each gate
+can actually fail), and the hook-drift check (canonical vs deployed). See
+`ENFORCEMENT.md`. The successor's first act — verify one letter claim against the live
+code — extends here: run the coverage report and confirm the hole count is what this
+letter says it is.
 
 ### 6. Honest degradation assessment
 Where the incoming tier differs from the outgoing one — usually: long uninterrupted

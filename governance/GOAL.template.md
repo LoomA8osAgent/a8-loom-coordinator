@@ -74,11 +74,18 @@ Owner: `{{goal1.ownerSpec}}`. Acceptance: {{goal1.acceptance}}.
 
 `BREAK-WORKING` is the prime rail: anything operator-verified-working is untouchable except
 through its owning SHARED path, with acceptance-test proof BEFORE commit. The hook stack is
-the floor (grep-required, canon-block, ui-consent, doc-sync, persistence-walk, and any
-project gate) — never bypassed; the loops rely on them. One dev-server, no worktrees, local
-`{{project.defaultBranch}}` is delivery. Every increment ships its doc / test / persistence
-duties or declares them `n/a` consciously. When in doubt between speed and the rails: rails
-win; queue the question.
+the floor (grep-required, canon-block, discover-then-reuse consent, doc-sync, persistence-walk,
+spawn-budget, commit-cadence, clean-tree-on-stop, seat-discipline, and any project gate) —
+never bypassed; the loops rely on them. **Commit as you build:** the whole stack fires on
+`git commit`, so the cadence gate forbids advancing (a new spawn / build edit) on uncommitted
+build work and the clean-tree Stop hook forbids ending a turn on a dirty build tree — a
+checkpoint is free (`git commit -m "WIP: <reason>"`), and "ready / done / works" is reserved
+for a non-WIP, full-gate-green commit cited by its hash. Every increment also runs its
+**experience-grade gate** (the effect-grade / perf-floor acceptance test with content loaded,
+plus an eyeball vs the canonical sibling) — "effect-grade test GREEN" alone does not close an
+arc. One dev-server, no worktrees, local `{{project.defaultBranch}}` is delivery. Every
+increment ships its doc / test / persistence duties or declares them `n/a` consciously. When
+in doubt between speed and the rails: rails win; queue the question.
 
 ## 4. Always-on wiring
 

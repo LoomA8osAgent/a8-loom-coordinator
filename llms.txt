@@ -30,6 +30,7 @@
 ## Hooks (the enforcement floor — all config-driven, language-agnostic)
 
 - canon-before-edit, anti-hand-roll (discover-then-reuse consent), doc-sync + state-persistence commit gates, verification-first, session regenerators, service recovery.
+- [ENFORCEMENT.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/ENFORCEMENT.md): the architecture of the floor — the four moments a gate fires (edit / spawn / commit / turn-boundary), the meta-gates that keep the gates honest (self-test / coverage / drift), and the graduation rule (every prose rule that can be mechanical becomes a hook).
 
 ## Install
 

@@ -45,6 +45,37 @@ accumulation). Restart the session after install — hooks do not hot-reload.
 `~/.claude/settings.json`, not a project's) — they are operator preferences, not
 project governance.
 
+## The newer gate classes (spawn / turn-boundary / meta)
+
+The table above is edit-time and commit-time — the floor a codebase needs on day one.
+A hardening arc in the production stack added three more gate *classes* that a mature
+multi-agent workflow grows into. They are documented in full — timing, what they block,
+the holes they close — in [`../ENFORCEMENT.md`](../ENFORCEMENT.md), and summarized here so
+you know they exist before you need them:
+
+- **spawn-time** (PreToolUse Agent/Task): a **spawn-budget** gate denies an agent spawn
+  whose prompt lacks an explicit token estimate + model field (visibility, not
+  permission); a **commit-cadence** gate denies the next spawn while any build file is
+  uncommitted — closing the hole where a session that never commits until arc-end lives
+  entirely in un-gated space. Both are agent-count-aware: they defer while a background
+  agent runs and enforce only at quiescence.
+- **turn-boundary** (Stop hook): a **clean-tree-on-stop** gate blocks turn-end on a dirty
+  build tree, so the operator never receives an un-gated tree to test; a **seat-discipline**
+  gate caps the coordinator's own inline Bash volume (the seat's rule — *reason · spawn ·
+  audit · commit* — made mechanical after prose failed to hold it).
+- **meta** (the gates that gate the gates): a **self-test corpus** proves every gate can
+  actually *fail* (a gate that accepts its own known-bad input is failing open — silence
+  scored as a pass); a **new-gate-lock** refuses a new gate without its red-fixture; a
+  **coverage report** maps every failure-pattern code to its live executor at session
+  start and prints the hole count; a **hook-drift** check diffs canonical registrations
+  against what is actually deployed.
+
+These ship in the production project as first-class hooks; in this repo they are the
+documented pattern (each project wires the commit/spawn cadence to its own branch and
+build-surface conventions). The `pattern→hook` growth gate — a new failure-pattern row
+is refused unless it also ships an enforcing hook — is what keeps this list from ever
+drifting back into prose.
+
 ## Observability
 Every adjudicated edit appends a line to `install.gateLog`:
 ```
@@ -60,3 +91,10 @@ PreToolUse hooks see one edit at a time — they cannot judge reachability. The
 orphan / dead-code check lives in the **code registry generator** instead
 (`tools/gen-code-registry.js` §6: exports with zero live callers). Regenerate at
 session start; grep-confirm before deleting.
+
+Two other gaps were closed by the newer classes above rather than by an edit-time
+hook: the *never-commits-until-arc-end* gap (a session can bypass every commit gate by
+simply not committing) is closed by **commit-cadence** + **clean-tree-on-stop**, which
+force a commit at every spawn and turn boundary; and the *silent pass* gap (a gate that
+accepts bad input scores as green) is closed by the **self-test corpus**. A hook that
+cannot fail is not a floor — it is a decoration.

@@ -110,6 +110,10 @@ hooks/         the enforcement floor (all config-driven, language-agnostic):
                canon-before-edit, anti-hand-roll, discover-then-reuse consent,
                doc-sync + state-persistence commit gates, verification-first,
                session regenerators, caveman mode, service recovery, install script
+ENFORCEMENT.md the architecture of the floor: the four moments a gate fires
+               (edit / spawn / commit / turn-boundary), the meta-gates that keep
+               the gates honest (self-test / coverage / drift), and the graduation
+               rule — every prose rule that CAN be mechanical becomes a hook
 tools/         the anti-drift generators: code registry (+ zero-caller orphan
                report), skills/agents deploy, manifest, changelog, citation linter
 agents/        planner / builder / auditor archetypes with preloaded-canon pattern
@@ -128,7 +132,11 @@ Three design principles run through all of it:
 1. **Hooks are the floor, skills are the ceiling.** Hooks enforce canon
    deterministically, regardless of which model is reasoning. Skills teach the
    practice that makes the work excellent. A weaker model on this stack outperforms
-   a stronger model without it.
+   a stronger model without it. And the ladder runs one way: any standing rule that
+   *can* be mechanical *becomes* a hook — a lesson learned the hard way (a whole
+   session's budget burned on inline work while every hook-backed rule held), and now
+   itself enforced (a new failure-pattern row is refused unless it ships a gate). See
+   [ENFORCEMENT.md](ENFORCEMENT.md) for the full architecture.
 2. **Generated indexes beat memory.** The code registry, manifest, and routing map
    are regenerated every session start. The model never has to remember what
    exists — and the orphan report catches dead code no reviewer will.

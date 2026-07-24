@@ -45,6 +45,11 @@ Safety rules that make the grid safe:
 4. **Never delegate operator-facing judgement** — what to ratify, how to phrase a
    decision queue, what to flag as risk. That is the seat.
 5. **Independent work spawns in ONE message** (concurrent); dependent work waits.
+6. **Every spawn states its budget before it fires** — a token estimate + the explicit
+   model tier, visible to the operator in the spawning turn. Visibility, not
+   permission: no cap is imposed, but the cost is seen before it is spent. In the
+   production stack a spawn-budget hook *denies* a spawn whose prompt lacks the estimate
+   and model field; run it as if it does whether or not your project wires the gate yet.
 
 ## 3. Retrieve-first reasoning
 
@@ -70,6 +75,17 @@ Never design or edit from memory of something read long ago. Three tiers:
   two failed gates on one increment → blocker note, move to the next independent item.
 - **Commit per cluster** (file-granular revert), evidence-dense messages, required
   trailers satisfied consciously — and only ever on the operator's standing terms.
+- **Commit as you build.** The whole gate stack fires on `git commit`, so a session
+  that defers committing until arc-end lives entirely in un-gated space (spawn a
+  builder, relay "it's ready" on unverified output, repeat — zero gates run). Commit
+  the moment a builder returns and is audited, *before* the next spawn. A wrong commit
+  is free (reverts in one command); not committing is the single act that bypasses
+  every gate. A mid-arc checkpoint is a `WIP: <reason>` commit — revertible, in
+  history, and it clears the heavy commit gates; the full stack runs on the non-WIP
+  arc-close commit. **"ready / done / works" is reserved for a non-WIP, full-gate-green
+  commit cited by its hash** — never a checkpoint, never a bare sentence. In the
+  production stack these are hooks (commit-cadence at spawn-time, clean-tree at
+  turn-end); treat them as always-on whether or not your project wires them yet.
 
 ## 5. The audit-agent contract (findings are UNTRUSTED until verified)
 
