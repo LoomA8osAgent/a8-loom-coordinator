@@ -47,6 +47,16 @@ Collect every value `stack.config.json` declares. Group the questions:
   are `@`-imported every turn).
 - **Registry + hooks** — the generated registry file + its generator command; the canonical
   helper source files; the hook install command.
+- **Invariants delivery** — where the invariant set will live (`{{invariants.path}}` — a file
+  that is deliberately NOT `@`-imported) and the lookup command that delivers the governing
+  bullets INTO a refusal (`{{invariants.lookupCommand}}`, e.g. `node tools/canon.js --for
+  <path>`). If the project has no router yet, record the path and note that the canon gate's
+  block message is where those bullets belong.
+- **Work list** — confirm `WORK.tsv` at the repo root and `node tools/work.js --check` wired
+  into the pre-commit hook. There is no second list, no tree, no status column.
+- **Inherited input surfaces** — the agent harness's memory-store path (`{{memory.storePath}}`)
+  and where its versioned mirror lives. These sit outside git and outside every hook, so the
+  handoff names them explicitly (`STALE-MEMORY-AS-CANON`).
 - **Modules** — the module prefix table (CSS / storage / log / code prefix per module), so
   prefixes never collide.
 
@@ -65,6 +75,12 @@ For each `governance/*.template.md` → write the concrete file (drop the `.temp
 with every `{{...}}` replaced from the config. Same for `agents/*.template.md`. Verify ZERO
 `{{` remain in any materialized file (grep proof — `NO-GREP-PROOF`). Wire the always-on set
 (`@`-imports in the materialized CLAUDE.md) to the operator's chosen doc set.
+
+Two files are NOT `@`-imported on purpose, and the materialization must keep it that way: the
+**invariant set** (it arrives inside the canon gate's refusal, resolved for the file being
+edited) and the **work list** (`WORK.tsv`, printed on demand). Seed `WORK.tsv` with the
+operator's real open items during this step — one row each, `id <TAB> title <TAB> body`, no
+nesting — and run `node tools/work.js --check` to prove the file parses.
 
 ## 4. Install the gate stack
 

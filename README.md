@@ -63,10 +63,29 @@ The honest reasons it exists:
   cost ~580K tokens per turn and the relevant rule was buried every time. The
   redesign — a lean always-on core plus keyword-routed on-demand retrieval — is the
   `CLAUDE.template.md` + `ROUTING.template.md` architecture here ("loaded ≠ used").
+  The same move later ate the *invariant set* itself: 107 KB of anti-hand-roll rules,
+  resident on every turn, failed to stop a hand-rolled duplicate that a hook then
+  refused. Measured per file actually edited, the typical edit was governed by under
+  2 KB of it. So the rules moved to **where the refusal happens** — a router resolves
+  the bullets for the file in hand and prints them *inside* the block message. **A
+  rule in context is advice; a rule in a refusal is a wall.**
 - **Agents hallucinate confidence.** Subagent audits fabricated file contents and
   mislabeled dead code as refactoring targets. The answer is the **audit-agent
-  contract**: no finding is trusted until a live-caller grep confirms it, and every
-  worker's product passes a gate sized to how cheap the worker was.
+  contract**: no finding is trusted until a live-caller grep confirms it, every
+  worker's brief must list the greps it actually ran, and every product passes a gate
+  sized to how cheap the worker was.
+- **Verification grew until nobody could pay for it.** Every lesson added a check, and
+  a change to one file ended up paying for every lesson ever learned — three hours and
+  a week's budget in one measured session, on work that needed one comparison. So the
+  economy became mechanical too: every worker brief declares a **proof tier**, the
+  default is ONE comparison that answers "did I break what already worked", a known-good
+  path is never re-proven, and a gate reads the brief's BODY so the light label cannot
+  lie about what it is going to run.
+- **The work list had to become a list.** A goal tree plus a backlog file grew to 185 KB
+  of prose with checkboxes buried in it; every tool that had to find work was a regex
+  over English, so every hole was a parser hole. Both are gone, replaced by one flat
+  `WORK.tsv` — one row per item, no nesting, no status column, and an item leaves only
+  against a real non-checkpoint commit (`tools/work.js`, `governance/WORK.template.md`).
 - **The seat had to become replaceable.** This stack was authored primarily by
   **Claude Fable 5** working as the project's coordinator. Fable's subscription
   availability was ending (July 12, 2026), API tokens were unaffordable at project
@@ -100,23 +119,27 @@ a hundred-session project stays inside them.
 ## What's in the box
 
 ```
-governance/    CLAUDE / OPERATOR / ROUTING / GOAL / SESSION / HANDOFF templates,
+governance/    CLAUDE / OPERATOR / ROUTING / WORK / SESSION / HANDOFF templates,
                FAILURE-PATTERNS ledger (universal core + opt-in frontend appendix),
                ACKNOWLEDGEMENTS
-skills/        coordinator (delegation + audit contract + the model grid),
-               model-succession (the seat-handoff letter), doc-sync,
-               dev-infrastructure, init-interview, skill-creator
+skills/        coordinator (delegation + brief contract + audit contract + the
+               model grid + the git work method), model-succession (the
+               seat-handoff letter), doc-sync, dev-infrastructure,
+               init-interview, skill-creator
 hooks/         the enforcement floor (all config-driven, language-agnostic):
                canon-before-edit, anti-hand-roll, discover-then-reuse consent,
                doc-sync + state-persistence commit gates, verification-first,
                session regenerators, caveman mode, service recovery, install script
 ENFORCEMENT.md the architecture of the floor: the four moments a gate fires
-               (edit / spawn / commit / turn-boundary), the meta-gates that keep
-               the gates honest (self-test / coverage / drift), and the graduation
-               rule — every prose rule that CAN be mechanical becomes a hook
+               (edit / spawn / commit / turn-boundary), the gates on the
+               INSTRUMENTS you verify with, the meta-gates that keep the gates
+               honest (self-test / coverage / drift), and the graduation rule —
+               every prose rule that CAN be mechanical becomes a hook
 tools/         the anti-drift generators: code registry (+ zero-caller orphan
-               report), skills/agents deploy, manifest, changelog, citation linter
+               report), skills/agents deploy, manifest, changelog, citation
+               linter — plus work.js, the one flat work list
 agents/        planner / builder / auditor archetypes with preloaded-canon pattern
+               and the brief contract (BUDGET + PROOF, paths not prose)
 frontend/      OPT-IN CSS/DOM module (backend projects ignore it): the
                design-system-export skill (satellite/standalone-product method)
 integrations/  rtk (60-90% token savings on dev ops), CodeGraph (call-path-aware
@@ -139,10 +162,14 @@ Three design principles run through all of it:
    [ENFORCEMENT.md](ENFORCEMENT.md) for the full architecture.
 2. **Generated indexes beat memory.** The code registry, manifest, and routing map
    are regenerated every session start. The model never has to remember what
-   exists — and the orphan report catches dead code no reviewer will.
-3. **The operator is a role, not a bottleneck.** `GOAL.template.md` defines an
-   autonomy contract: what runs without asking, what stops and queues, and a live
-   evidence ledger so a spot-check takes ten seconds.
+   exists — and the orphan report catches dead code no reviewer will. The corollary
+   the stack learned late: don't make the rules resident either. Deliver them into
+   the refusal, for the file being edited.
+3. **The operator is a role, not a bottleneck.** `WORK.template.md` is the work list
+   plus the autonomy contract: ONE flat `WORK.tsv` (order is the only priority; a row
+   leaves only against a real commit), what runs without asking, what stops and queues,
+   and the rails — so a spot-check takes ten seconds and the backlog can't fork into a
+   second list.
 
 ## Quickstart
 
@@ -154,10 +181,15 @@ Three design principles run through all of it:
    writes `stack.config.json` and fills every `{{placeholder}}`.
 3. `hooks/install-hooks.sh` (or `npx a8-loom-coordinator install`) — deploys the hook
    stack and settings.
-4. Fill the §Invariants buckets in your generated `CLAUDE.md` as your project
-   teaches you its rules — and obey the harvest discipline: every session that
-   surfaces a cross-cutting rule writes it down before it closes.
-5. Optional but recommended: install [rtk](integrations/rtk.md) and
+4. Seed `WORK.tsv` with your real open items (`node tools/work.js add "<title>"
+   "<body>"`) and wire `node tools/work.js --check` into your pre-commit hook. One
+   list, no tree, no status column.
+5. Fill the invariant buckets (Identifiers / Helpers / Integrity / Never) in the
+   invariants file as your project teaches you its rules — keep it OUT of the
+   always-on set and deliver it by subject into the gate's refusal — and obey the
+   harvest discipline: every session that surfaces a cross-cutting rule writes it down
+   before it closes, along with the executor that will enforce it.
+6. Optional but recommended: install [rtk](integrations/rtk.md) and
    [CodeGraph](integrations/codegraph.md); enable [caveman mode](integrations/caveman.md).
 
 ## Authors

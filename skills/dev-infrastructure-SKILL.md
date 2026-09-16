@@ -41,13 +41,33 @@ The tooling that runs + polices the build. Three verification laws govern everyt
    value comes from the running system, never from arithmetic on source. Measure, apply,
    re-measure to confirm.
 
-## 1. The one dev-server
+## 1. The one dev-server — and the one exception
 
-`{{devServer.command}}` on `{{devServer.url}}` is the ONLY server the agent runs. It serves
-the app + the disk-backed persistence endpoints. The agent NEVER starts a second http server
-(no alternate static server, no mock API, no preview-tool server run as a parallel canonical
-server — point any preview tool AT `{{devServer.url}}`). The agent may restart the one server
-(it is the dev) but never spawns a second.
+`{{devServer.command}}` on `{{devServer.url}}` is the CANONICAL server: the operator and the
+coordinator look at the SAME running system, same port, same state, same bug. **The intent is
+shared sight, not server scarcity.** The coordinator starts no second server and never
+redirects that one; any preview tool is pointed AT it, never run as a parallel canonical.
+
+The exception, and its rules: **a WORKER may start its own isolated server on its own port**
+for verification work — that is what makes falsification possible (serve a pre-change copy,
+prove the new test goes RED there) without touching the tree the operator is watching.
+
+- Take the port **from the kernel**, do not guess: probe it first, or bind 0 and read back what
+  you got. If a launch loses the race and reports `EADDRINUSE`, pick another port and **leave
+  that one alone, including at teardown** — a port that refused you is someone else's.
+- Tear down **by the PID you started** (keep the child handle). Never `pkill` a process NAME:
+  one lane's pattern-kill killed the operator's server, the coordinator's audit copy, and four
+  sibling lanes' copies at once. Never resolve "your" pid from a port either — on a shared box
+  the command line, the cwd and the port all collide between lanes.
+- Name scratch copies after the LANE. A shared scratch path with a canonical name gets reset
+  under a running lane, which produces whole runs of false reds before anyone notices.
+
+**Pre-flight belongs IN the runner, not in a document.** Before any run opens a browser, the
+runner itself refuses unless: the server name resolves to ONE setting and a known asset fetches
+200 · the store/data root is the tree that server actually serves (proved by a nonce — identity,
+not equality) · no other runner is driving that server · the ids were passed as separate
+arguments. A learnings doc whose findings are not built into the testing is worthless; every new
+harness failure earns a pre-flight check first and a written note second.
 
 ## 2. Storage = disk only
 
@@ -72,6 +92,20 @@ no-new-class-without-consent, and the string-pattern bans. SessionStart hooks en
 no-worktree + registry refresh. Every adjudicated edit logs to the gate log (gates are silent
 on pass — tail the log to see why one fired).
 
+Three rules for anyone TOUCHING the stack (full architecture: `ENFORCEMENT.md`):
+
+- **Writes go through the edit tools.** Every gate above fires on Edit/Write/MultiEdit only, so
+  a shell redirect walks past all of them at once. The route ban refuses that and redirects; it
+  has no inline escape, because a comment marker is forged as easily as the write it excuses.
+- **A new gate ships with its red-fixture** — hand it the input it must reject and watch it
+  block, then confirm the fixture goes RED against a pre-change copy of the gate. A gate nobody
+  has watched fail is a decoration, and a gate that accepts its own known-bad input cannot
+  report that itself (`GATE-FAILS-OPEN`).
+- **The canon arrives inside the refusal.** The rules a gate enforces are resolved for the file
+  being edited and printed IN the block message — not `@`-imported into every turn. When the
+  lookup has nothing for a file, it must SAY SO and name what it looked for; silence reads as
+  "no rule governs this file".
+
 ## 5. The generated registry
 
 `{{registry.index}}` is the generated index of every helper / class / component / reusable
@@ -83,6 +117,9 @@ generated counts didn't collapse after any refactor that moves source around.
 
 ## 6. Commit discipline
 
-Commit ONLY when the operator asks; work on `{{project.defaultBranch}}`; the protected branch
-is deny-gated at the harness level. The dev-server is loopback-only — privacy intact, zero
-telemetry.
+Work on `{{project.defaultBranch}}`; the protected branch is deny-gated at the harness level.
+**Commit as you build** — the gate stack fires on `git commit`, so uncommitted work is un-gated
+work; a checkpoint (`WIP: <reason>`) is free and clears the heavy gates, and the full stack runs
+on the non-checkpoint arc-close commit. The operator's word gates a RELEASE, not a checkpoint.
+"Ready / done / works" is reserved for a non-checkpoint, gate-green commit cited by its hash.
+The dev-server is loopback-only — privacy intact, zero telemetry.

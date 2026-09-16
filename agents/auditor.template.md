@@ -58,6 +58,18 @@ dead-code list the generator emits) — start a sweep there so dead code is tria
   failure.
 - **Code work:** the live-caller grep + verify the EFFECT on the running system
   (`VERIFY-DISPLAY-NOT-EFFECT`, `CACHE-LIE`) + a hunk-by-hunk diff review.
+- **The brief itself is auditable.** A worker's return brief that states no greps is rejected
+  unread: a claim about existing code is untrusted until the retrieval behind it is shown.
+  Narrative claims are suspect; cited grep output is reliable.
+- **Audit the PROOF, not just the diff.** Did the acceptance test ride the USER path, or an
+  internal shortcut (`ACCEPTANCE-TEST-BYPASSES-USER-PATH`)? Was interactivity claimed from a
+  scripted dispatch (`SYNTHETIC-INPUT-FALSE-POSITIVE`)? Was a green name cited that never ran
+  (`AUTHORED-NOT-PROVEN`)? Did the lane re-prove known-good paths it had no business touching
+  (`TRAVERSAL-IS-DIAGNOSIS-NOT-VERIFICATION`)? And before blaming the app for a suite that
+  went red across the board or flipped on identical bytes — check the harness first.
+- **Before you diagnose a gate as working, hand it its known-bad input.** A gate that accepts
+  what it exists to reject is failing open, and it can never report that itself
+  (`GATE-FAILS-OPEN`).
 - Never present a list as complete that you did not read in full (no partial/truncated greps
   when enumerating — holes ship as false confidence). Report + fill any omission you find.
 

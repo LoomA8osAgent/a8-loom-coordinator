@@ -109,7 +109,7 @@ A commit staging any file listed in `manifestFile` (JSON:
 `{ "satellites": [{ "files": [...] }], "prefixes": [...] }`) must carry a
 `<trailerName>: parity-measured (<how>)` or `<trailerName>: n/a (<why>)`
 trailer. Enforces the host-first law for satellite products built from a
-composed design system — see `skills/design-system-export-SKILL.md` and the
+composed design system — see `frontend/design-system-export-SKILL.md` and the
 `STRIPPED-SHELL-HOST-MISMATCH` failure pattern. No manifest ⇒ no-op.
 
 ### `canonBlock` — string-pattern bans (`canon-block.js`)

@@ -18,19 +18,20 @@
 
 ## Governance
 
-- [FAILURE-PATTERNS.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/governance/FAILURE-PATTERNS.md): the enforced catalogue of failure modes + their mechanical prevention (universal core + opt-in frontend appendix).
-- Templates: CLAUDE / OPERATOR / ROUTING / GOAL / SESSION / HANDOFF (in `governance/`).
+- [FAILURE-PATTERNS.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/governance/FAILURE-PATTERNS.md): the enforced catalogue of failure modes + their mechanical prevention, each row naming its executor — hook, generator, or judgment (universal core + opt-in frontend appendix).
+- [WORK.template.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/governance/WORK.template.md): the work list + the rails — ONE flat `WORK.tsv` (`tools/work.js`), no tree, no status column, order is the only priority, and a row leaves only against a real non-checkpoint commit.
+- Templates: CLAUDE / OPERATOR / ROUTING / WORK / SESSION / HANDOFF (in `governance/`). The invariant set is deliberately NOT always-on — it is delivered by subject, inside the gate's refusal.
 
 ## Skills (the practice)
 
-- [coordinator-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/coordinator-SKILL.md): the cost/competency model grid + delegation + audit contract.
+- [coordinator-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/coordinator-SKILL.md): the cost/competency model grid + the brief contract (BUDGET in tokens + PROOF tier + paths-not-prose) + delegation + audit contract + the git work method.
 - [model-succession-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/model-succession-SKILL.md): the seat-handoff letter — how the coordinator seat survives a model change.
 - Also: doc-sync, dev-infrastructure, init-interview, skill-creator.
 
 ## Hooks (the enforcement floor — all config-driven, language-agnostic)
 
 - canon-before-edit, anti-hand-roll (discover-then-reuse consent), doc-sync + state-persistence commit gates, verification-first, session regenerators, service recovery.
-- [ENFORCEMENT.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/ENFORCEMENT.md): the architecture of the floor — the four moments a gate fires (edit / spawn / commit / turn-boundary), the meta-gates that keep the gates honest (self-test / coverage / drift), and the graduation rule (every prose rule that can be mechanical becomes a hook).
+- [ENFORCEMENT.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/ENFORCEMENT.md): the architecture of the floor — the four moments a gate fires (edit / spawn / commit / turn-boundary), the gates on the INSTRUMENTS you verify with (scripted-API-only, the synthetic-input ban, the route ban), the spawn-time economy (budget line, model pin, proof tier, and the body check that refuses a heavy body under a light label), the commit-time receipts (a machine-written watched-run receipt, not a claim), the meta-gates that keep the gates honest (self-test / coverage / drift), and the graduation rule (every prose rule that can be mechanical becomes a hook).
 
 ## Install
 

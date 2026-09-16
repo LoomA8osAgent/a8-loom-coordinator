@@ -47,11 +47,32 @@ machinery under different names. So:
   View source at exact lines; never edit from memory. Syntax-check after each edit
   (`{{syntaxCheck.command}}`); do the project's cache-bust step for any touched file.
 - New persistable state → wire it into the save/recall walk the SAME change
-  (`STATE-NOT-PERSISTED`).
-- ONE dev-server (`{{devServer.url}}`), no second server, no worktree. Verify on the RUNNING
-  system (`CACHE-LIE`) — verify the EFFECT, not the display (`VERIFY-DISPLAY-NOT-EFFECT`).
+  (`STATE-NOT-PERSISTED`); a control the user can set but a recall cannot restore is broken
+  (`PERSISTENCE-HOLE`).
+- **Read the PATHS your brief names, in full.** Your brief carries paths to executable sources
+  of truth and the task as diff-and-implement against them. If it hands you a described value
+  instead of a path, say so and stop — implementing a summary ships its distillation loss and
+  nothing downstream can catch it (`PROSE-BRIEF-TO-A-BUILDER`).
+- **Honor the proof tier your brief declares.** `PROOF: light` means ONE comparison that
+  answers "did I break what already worked" — one instrument, one acceptance test, and a
+  known-good path is NOT re-proven. If the work genuinely needs more, STOP and say why rather
+  than quietly running a suite; a heavier tier is the coordinator's call and needs a written
+  reason (`TRAVERSAL-IS-DIAGNOSIS-NOT-VERIFICATION`).
+- Verify on the RUNNING system (`CACHE-LIE`) — the EFFECT, not the display
+  (`VERIFY-DISPLAY-NOT-EFFECT`) — through the project's scripted test API, on the USER path
+  (`ACCEPTANCE-TEST-BYPASSES-USER-PATH`). Prove interactivity with REAL input only; a scripted
+  `dispatchEvent` / `.click()` succeeds on a dead input path and is never evidence
+  (`SYNTHETIC-INPUT-FALSE-POSITIVE`).
+- The shared dev server (`{{devServer.url}}`) belongs to the operator — do not restart it, do
+  not redirect it. If you need isolation, start your OWN server on your OWN port and tear it
+  down **by the PID you started**: never `pkill` a process name, never kill a pid you resolved
+  from a port. No worktrees.
 - **NEVER touch git.** Edit files, return your diff + summary; the coordinator commits.
 
 Report: the shared home you extended (with `file:line`), every sibling you checked for the same
-shape, the consumers/modes you re-tested, and anything you could NOT do without a per-module
-patch or an invented abstraction (STOP and report rather than fork the canon).
+shape, **the greps you actually ran** (mandatory — a claim about existing code is untrusted
+until the retrieval behind it is shown), the consumers/modes you re-tested, and anything you
+could NOT do without a per-module patch or an invented abstraction (STOP and report rather than
+fork the canon). If you refuse for a MECHANICAL reason — a file you do not own, a unit that did
+not fit, a missing prerequisite — name the refusal AND its unblock condition, so the coordinator
+can clear it and re-fire you.

@@ -41,10 +41,19 @@ Start from the example nearest your project: `stack.config.example.backend.json`
 - **Fix at the shared level.** A behavior in ≥2 places is fixed in ONE home and the
   copies deleted (`PATCH-NOT-ESCALATED-TO-SHARED`).
 - **Verify the running system, not the file on disk** (`CACHE-LIE`); verify the
-  effect, not the display (`VERIFY-DISPLAY-NOT-EFFECT`).
+  effect, not the display (`VERIFY-DISPLAY-NOT-EFFECT`); ride the user path, and prove
+  interactivity with real input only (`SYNTHETIC-INPUT-FALSE-POSITIVE`).
+- **One proof instrument per change.** Test at the seam you touched; a known-good path
+  is not re-proven (`TRAVERSAL-IS-DIAGNOSIS-NOT-VERIFICATION`).
 - **Config-driven, always.** Nothing in `hooks/` assumes a language or framework —
   new behavior is a config key, not a hardcoded idiom. Keep it that way.
 - **Syntax-check** every hook edit (`node --check`); validate JSON.
+- **A new gate ships with its red-fixture** — prove it blocks the input it exists to
+  reject, or it is failing open (`GATE-FAILS-OPEN`).
+- **Write through the edit tools**, never a shell redirect: every gate fires on
+  Edit/Write only.
+- **Commit as you build**, and reserve "done" for a non-checkpoint, gate-green commit
+  cited by its hash (`DONE-WITHOUT-A-HASH`).
 - **Never invent** a language/framework assumption into the core. The CSS/DOM pieces
   live only in `frontend/` and run only when `frontend.enabled`.
 
@@ -52,8 +61,14 @@ Start from the example nearest your project: `stack.config.example.backend.json`
 
 - `README.md` — what/why/install (the launch narrative).
 - `governance/FAILURE-PATTERNS.md` — the enforced catalogue (universal core + opt-in
-  frontend appendix). The shared vocabulary; cite the codes in commits.
-- `skills/coordinator-SKILL.md` — the model grid + delegation + audit contract.
+  frontend appendix), each row naming its executor: hook, generator, or judgment. The
+  shared vocabulary; cite the codes in commits.
+- `governance/WORK.template.md` + `tools/work.js` — the work list: ONE flat `WORK.tsv`,
+  order is the priority, a row leaves only against a real commit.
+- `ENFORCEMENT.md` — every moment a gate fires, and the meta-gates that keep the gates
+  honest.
+- `skills/coordinator-SKILL.md` — the model grid + the brief contract (BUDGET + PROOF,
+  paths not prose) + delegation + audit contract + the git work method.
 - `skills/model-succession-SKILL.md` — the seat-handoff letter (how the seat survives
   a model change).
 - `stack.config.README.md` — every config key, annotated.

@@ -69,8 +69,17 @@ Before adding any new module:
 
 Delivery = a commit on `{{project.defaultBranch}}` (the coordinator runs git; subagents never
 touch it).
-1. Never commit without explicit instruction. "p" means proceed, not commit.
-2. Run the test harness ({{testApi.command}}) — zero failures before committing.
-3. Syntax-check every modified file.
-4. Grep for stale/retired reference terms — zero occurrences.
-5. Be aware of the FULL project, not just changed files.
+1. **Commit as you build.** The gate stack fires on `git commit`, so uncommitted work is
+   un-gated work: commit each audited unit BEFORE advancing. A checkpoint (`WIP: <reason>`) is
+   free and clears the heavy gates; the full stack runs on the non-checkpoint arc-close commit.
+   The operator's word gates a RELEASE, not a checkpoint. "p" means proceed, not publish.
+2. **"Ready / done / works" cites a hash** — a non-checkpoint, gate-green commit. A partial
+   (a red, a deferral, a remainder) is not a result and does not get a completion word.
+3. Run the test harness ({{testApi.command}}) before the arc-close commit — zero failures, and
+   scoped to what the diff can reach. ONE proof instrument per unit of work; a known-good path
+   is not re-proven because a change rode it.
+4. Syntax-check every modified file.
+5. Grep for stale/retired reference terms — zero occurrences, across docs AND code, not only
+   the retired surface's own files.
+6. Commit by explicit path list, not a whole-index sweep, so one cluster can be reverted alone.
+7. Be aware of the FULL project, not just changed files.

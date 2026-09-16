@@ -15,9 +15,11 @@
 
 > The big specs are Read/grep on demand — they are not `@`-imported into every turn (that
 > cost ~580K tokens/turn in the ancestor project and buried the relevant rule; "loaded ≠
-> used"). This map routes a task keyword to its file. The §Invariants buckets (root
-> `CLAUDE.md`) + §Enforced Failure Patterns (`FAILURE-PATTERNS.md`) stay always-on — that is
-> the anti-handroll core.
+> used"). This map routes a task keyword to its file. §Enforced Failure Patterns
+> (`FAILURE-PATTERNS.md`) stays always-on; **the invariant set does NOT** — it is delivered
+> BY SUBJECT, resolved for the file being edited and printed inside the canon gate's refusal
+> (`{{invariants.lookupCommand}}`). Same doctrine, applied to the anti-handroll core itself:
+> residency never made a rule binding — a refusal does.
 
 ## ⛔ BEFORE BUILDING ANY REUSABLE UNIT — scan `{{registry.index}}` (MANDATORY)
 
@@ -36,8 +38,9 @@ helper already provides.
 For any non-trivial reasoning, design, or "how does X work" question: do not reason from
 training prior or buried context — **retrieve first, at the moment of the claim.** Three tiers:
 
-- **Trivial claim** ("is there a helper for X", "what's the rule on Y") → it's in the
-  always-on §Invariants buckets or §Enforced Failure Patterns. Check there.
+- **Trivial claim** ("is there a helper for X", "what's the rule on Y") → §Enforced Failure
+  Patterns is always on; the invariants are ONE LOOKUP away, keyed to the file you are about
+  to touch (`{{invariants.lookupCommand}}`). Run it — it is a command, not a memory.
 - **Specific fact** (a name, an exact signature, a `file:line`) → grep the **code** —
   **code is canon; specs drift.** Then the matching spec section below for the WHY.
 - **Deep subsystem design** (multi-file, "how should A interact with B", planning an
@@ -60,10 +63,13 @@ the claim.
 | {{keyword.moduleB}} | `{{spec.moduleB}}` |
 | diagnostic / observability / state-for-diag | `{{spec.diagnostic}}` |
 | security / privacy / credentials / network | `{{spec.security}}` |
-| roadmap / phases / what's next | `{{spec.roadmap}}` |
+| what needs doing / what's next / priority | `WORK.tsv` via `node tools/work.js` (order IS the priority; `show <id>` for the body) |
+| the rules governing THIS file (identifiers, helpers, integrity, bans) | `{{invariants.lookupCommand}}` — not a document to load, a lookup to run |
+| roadmap / phases | `{{spec.roadmap}}` |
 | failure history / "why did X break before" | `{{spec.projectMemory}}` (grep the pattern code) |
 | full file inventory / agent read-order | `{{spec.fileManifest}}` |
 | acceptance test / demo path / macro id | `{{spec.acceptanceTests}}` |
+| running a gate / a suite that went red across the board / which receipt is which | `{{spec.harnessLearnings}}` — the pre-flight checklist; suspect the harness before the system |
 
 > Fill this table with YOUR project's real specs. Delete rows you don't have; add rows for
 > every module with enough domain rules to warrant its own file.

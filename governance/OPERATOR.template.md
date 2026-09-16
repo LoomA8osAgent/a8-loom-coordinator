@@ -36,12 +36,14 @@ reproduce, expected vs actual, and a screenshot or console paste if applicable.
 Implement the X layer. Build mode." If any element is missing, the agent asks for it before
 any tool call.
 
-### 4. Modes are gates, not blends
+### 4. Modes are context, not cages
 Declare the primary mode at open (build / spec-dictation / design-review / bug-fix-testing /
-organization / handoff-packaging). To switch mid-session, say "switching to [mode]"
-explicitly, and switch back explicitly. **Cross-cutting edits are NOT mode switches** —
-editing a spec + a style file + the code + the entry file in one task is one build activity.
-The mode is set by the primary deliverable's intent, not the count of files touched.
+organization / handoff-packaging). Drift between them inside one session is expected and
+normal — **cross-cutting edits are NOT mode switches**; editing a spec + a style file + the
+code + the entry file in one task is one activity. The mode is set by the primary
+deliverable's intent, not the count of files touched. The agent flags a mode mismatch only
+when it changes the deliverable's NATURE (e.g. "this is app code now, not spec — the build
+gates apply"). What matters is not the label but the landing discipline in rule 10.
 
 ### 5. Phase gates
 No Phase N+1 work begins until the Phase N gate checklist is complete. The coordinator
@@ -71,12 +73,15 @@ Every session is a fresh instance. Point to the repo, or at minimum name which s
 "Continue where we left off" is not a valid opener — a fresh session has zero context beyond
 what is committed and written down.
 
-### 10. One primary focus per session
-One focus (e.g. "land the X layer", "wire the router"). Cross-cutting ripples across many
-files are expected and in-focus IF declared in a drift report before editing. Adding a NEW
-tangential module mid-session is a scope change, not a ripple: fold it into the next-session
-handoff, or finish the current focus first then open the new one explicitly. Don't let one
-task quietly become another.
+### 10. Pivots land, or they didn't happen
+Open on one focus (e.g. "land the X layer", "wire the router"), and expect to pivot: in
+practice a mid-session correction usually UNBLOCKS work already in motion — a naming
+correction fixes five documents at once, a storage ruling lands in the architecture before it
+calcifies. So pivots are not policed. What IS policed is the LANDING: **every ratified
+decision is baked into its owning document the same turn, marked RATIFIED with the date** — a
+decision that exists only in the conversation is a lost design input. An open item that is not
+being worked now goes on the work list as a row; it never lives in a session's memory. Silent
+scope creep is still a failure (rule 12); an announced pivot that landed is not.
 
 ### 11. Corrections carry signal
 Corrections include direction + magnitude, or an explicit target. Pure vent is OK as a first
@@ -110,6 +115,33 @@ user-touchable feature ships WITH its spec section, user-doc, and acceptance tes
 commit (`LIVE-FEATURE-UNDOCUMENTED`). Appending a harvest to the bottom of a spec while stale
 claims stand above it is the failure.
 
+### 16. Lived behavior outranks a cited mechanism
+The operator's experiential statements about what the system actually does beat any agent's
+citation of code saying it could. "This doesn't happen" wins; the mechanism gets marked
+TO-VERIFY / TO-BUILD and the docs are corrected to reality. The agent still flags factual risk
+honestly — including against the operator's own recollection of names, dates, and public
+history — and the operator's lived correction is the resolution path.
+
+### 17. Half-built is expected — and "I don't use it" is NOT a verdict on value
+Whole surfaces are unfinished because the operator moved on to what they needed next; that is
+the shape of the project, not decay. A hole found in an unexercised surface is an **unbuilt
+edge, not a regression**, and finding one is a good day — report it flatly (what, where, what
+it would cost), with no alarm and no tragedy framing. The trap, and it is the load-bearing
+half: the operator builds for users whose workflows they know about but have not personally
+lived, so **their non-use is evidence of UNTESTEDNESS, never of unimportance.** "This is dead,
+retire it" is a ruling only they can give; "I've never used it" is not that ruling, and the
+agent must never infer one from the other. **Ask.** Tooling cannot answer "is this used?" —
+a registered surface with nothing bound to it looks alive to every grep.
+
+### 18. Canon is a snapshot of a design still being found
+Rules that encode a MEASURED FAILURE bind, and the agent refuses and cites them — those
+lessons cost real money and may not be re-bought. Rules that encode a DESIGN CHOICE (what a
+thing is called, what is user-visible, how a menu is shaped) are snapshots, often of the
+operator's own earlier words: when their present input conflicts with one, the agent SURFACES
+the conflict with its measurement and stops — it does not rule the input out of bounds, and it
+does not quietly comply either. The tell is one question: *was this rule learned from a
+failure, or chosen from a preference?*
+
 ---
 
 ## The agent's enforcement rights and obligations
@@ -118,10 +150,13 @@ The agent will:
 - Refuse to start work without a skill reference (rule 1).
 - Ask for version confirmation on bug reports (rule 2).
 - Ask for missing opener elements — skill, task, or mode (rule 3).
-- Request explicit mode switches on actual mode drift, not cross-cutting ripples (rule 4).
+- Flag a mode mismatch only when it changes the deliverable's nature, never on cross-cutting
+  ripples (rule 4).
 - Block Phase N+1 work when the Phase N gate is incomplete (rule 5).
 - Call for wrap-up on exhaustion signals (rule 7).
 - Request read-order / context when a session opens context-free (rule 9).
+- Land every ratified decision in its owning document the same turn, and put anything not
+  being worked now on the work list as a row (rule 10).
 - Flag scope expansions as "scope change — confirm?" and wait (rule 12).
 - Ask for measured targets or element specifics on vent-corrections (rule 11).
 - Run proactive audits (grep for stale tokens, cross-reference + parallel-path checks) after
@@ -129,6 +164,10 @@ The agent will:
   audit shown.
 - Push back with "specs first" / "canonical first" on premature-build or re-derivation (rule 13).
 - Redirect standalone-prototype attempts back into the live app (rule 14).
+- Search the owning document before asking a question, and show the search — an escalation the
+  docs already answer spends the operator's scarcest resource.
+- Surface a design-choice conflict rather than refusing the operator with a citation (rule 18),
+  and ask rather than infer a retirement from non-use (rule 17).
 
 ---
 
