@@ -50,6 +50,26 @@
       "mcp__playwright__browser_evaluate",
       "mcp__playwright__browser_click",
       "mcp__playwright__browser_type"
+    ],
+    "instruments": [
+      {
+        "_readme": "The browser instrument — the existing behaviour, stated as an entry. Its driver runs flows from the scripted library against the dev server, captures frames, and writes one receipt per run.",
+        "id": "browser",
+        "kind": "browser",
+        "driver": "node tools/run-flows.js",
+        "launch": "http://localhost:8080/ (the one dev server of devServer.url)",
+        "receipt": "verification/receipts/<treeHash>.json",
+        "enabled": true
+      },
+      {
+        "_readme": "The desktop instrument — the SHAPE, off by default. Same receipt, same findings field; only the frame source differs (an OS-level automation CLI launches the built app bundle and captures its own window). See hooks/native-instrument.example.sh before enabling: an OS automation tool runs on the operator's machine with input and capture rights, so it is checksum- and signature-verified and has its outbound channels pinned off.",
+        "id": "native",
+        "kind": "native-desktop",
+        "driver": "bash hooks/native-instrument.example.sh",
+        "launch": "dist/MyApp.app (the built bundle, launched by bundle id)",
+        "receipt": "verification/receipts/<treeHash>.json",
+        "enabled": false
+      }
     ]
   },
   "statePersistence": {

@@ -32,6 +32,7 @@
 ## Hooks (the enforcement floor — all config-driven, language-agnostic)
 
 - canon-before-edit, anti-hand-roll (discover-then-reuse consent), doc-sync + state-persistence commit gates, verification-first, session regenerators, service recovery.
+- verification-first also carries the INSTRUMENT ROSTER: anything allowed to vouch for a run — a browser driver, a desktop driver against the built app bundle — is DECLARED in `verification.instruments[]` (id / kind / driver / launch / receipt / enabled); every instrument writes ONE receipt shape, and a receipt naming an undeclared or disabled instrument is refused (fail closed). Example desktop driver, with its install audit: `hooks/native-instrument.example.sh`.
 - [ENFORCEMENT.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/ENFORCEMENT.md): the architecture of the floor — the four moments a gate fires (edit / spawn / commit / turn-boundary), the gates on the INSTRUMENTS you verify with (scripted-API-only, the synthetic-input ban, the route ban), the spawn-time economy (budget line, model pin, proof tier, and the body check that refuses a heavy body under a light label), the commit-time receipts (a machine-written watched-run receipt, not a claim), the meta-gates that keep the gates honest (self-test / coverage / drift), and the graduation rule (every prose rule that can be mechanical becomes a hook).
 
 ## Install

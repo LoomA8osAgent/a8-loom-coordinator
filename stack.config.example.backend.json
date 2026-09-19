@@ -32,7 +32,11 @@
     "reusableExportRe": ""
   },
   "frontend": { "enabled": false },
-  "verification": { "enabled": false },
+  "verification": {
+    "_readme": "OFF here: this service has no app to drive, so neither the scripted-API gate nor an instrument roster has a subject. A backend that DOES have one (a CLI run under a harness, a container smoke run) declares it the same way — id / kind / driver / launch / receipt / enabled — and its receipts are read by the same reader.",
+    "enabled": false,
+    "instruments": []
+  },
   "statePersistence": { "enabled": false },
   "docSync": {
     "enabled": true,

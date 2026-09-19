@@ -247,6 +247,30 @@ The four moments police what the agent *writes*. A parallel class polices what t
 - **scripted-API-only verification [shipped]** — app interaction routes through the
   project's scripted, replayable test API; ad-hoc pokes at the running system are denied.
   A verification you cannot re-run is an anecdote.
+- **a declared instrument, and one receipt shape [shipped]** — a run that vouches for a
+  change writes a **receipt**, and the receipt names the **instrument** that wrote it.
+  Instruments are **declared** in config (`verification.instruments[]`: id · kind ·
+  driver · launch · receipt · enabled), and a receipt naming an instrument nobody
+  declared is refused — because a gate that *lists* instruments silently exempts every
+  instrument added after it was written, so the roster enumerates the permitted set and
+  anything else is taxed by default. Adding a second instrument (a desktop driver beside
+  a browser driver) adds **no second shape and no second runner**: the two differ only in
+  where a frame comes from, so the frame verdict is FACTORED the moment the second one
+  appears rather than copied — two copies of *what counts as black* drift on their first
+  edit. The watching law rides along unchanged: the driving agent **looks at** the
+  captured frames and judges them as a user would; a verdict the instrument cannot
+  measure is recorded `null`, never "clean"; and a flow that captured no frame at all
+  earns an auto-RED rather than a receipt reading *0 frames … clean*. A native leg counts
+  only once its probe has been **watched going RED on a black frame**, measured through
+  the same decode path the driver uses. The synthetic-input ban below applies to a desktop
+  driver identically — input is synthesised through the automation framework's OS-level
+  path, never by asking the application to act on itself. Reader:
+  `node hooks/verification-first.js --receipt <path>` (fixture:
+  `hooks/verification-first.selftest.js`, whose three load-bearing legs are the same
+  receipt bytes under three instrument names). Example driver, with its install audit —
+  checksum *and* signature, both outbound channels pinned off and read back, and the fact
+  that a GPU surface must be foregrounded and therefore takes the operator's pointer —
+  `hooks/native-instrument.example.sh`.
 - **no synthetic input [pattern]** — *absolute.* A page whose real input path is dead (an
   overlay swallowing clicks, a hole in hit-testing, an unwired listener) still responds to
   an event dispatched from script, because synthetic dispatch targets the element directly

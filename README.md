@@ -129,7 +129,10 @@ skills/        coordinator (delegation + brief contract + audit contract + the
                dev-infrastructure, init-interview, skill-creator
 hooks/         the enforcement floor (all config-driven, language-agnostic):
                canon-before-edit, anti-hand-roll, discover-then-reuse consent,
-               doc-sync + state-persistence commit gates, verification-first,
+               doc-sync + state-persistence commit gates, verification-first
+               (incl. the instrument roster: a receipt vouches only if it names a
+               DECLARED instrument — browser or native-desktop, one receipt shape,
+               plus a documented example desktop driver),
                session regenerators, caveman mode, service recovery, install script
                — plus the OPT-IN judgment layer: judgment-gate + the one
                decision-model client (loopback-only, fail-closed, typed errors)

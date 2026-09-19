@@ -50,6 +50,9 @@ Start from the example nearest your project: `stack.config.example.backend.json`
 - **Syntax-check** every hook edit (`node --check`); validate JSON.
 - **A new gate ships with its red-fixture** — prove it blocks the input it exists to
   reject, or it is failing open (`GATE-FAILS-OPEN`).
+- **An instrument is declared, never assumed.** Anything allowed to vouch for a run is
+  listed in `verification.instruments[]`; every instrument writes ONE receipt shape, and
+  a receipt naming an undeclared (or disabled) instrument is refused.
 - **Constrain before, don't only refuse after.** Where a surface can be expressed as a
   spec over things the codebase already has, make that the only expressible form: the
   agent names catalog entries, a compiler emits the real calls, and a receipt is what

@@ -91,6 +91,38 @@ DENIED unless they invoke a call in `allowedCalls` (functions beginning with
 interaction through your project's scripted, replayable test API instead of
 ad-hoc clicks.
 
+**`instruments` — the second half: who is allowed to vouch.** A verification run
+writes a **receipt**, and the receipt names the **instrument** that wrote it. One
+shape serves every instrument (a browser driver and a desktop driver differ only in
+where a frame comes from, never in what a receipt says), so there is one reader:
+
+```bash
+node hooks/verification-first.js --receipt verification/receipts/<hash>.json
+# exit 0 = this receipt may vouch · exit 2 = refused, with the reason
+```
+
+| key | meaning |
+|---|---|
+| `id` | The name a receipt's `instrument` field must equal. |
+| `kind` | What class of instrument it is — `browser`, `native-desktop`, or your own word. Documentation for a reader; nothing is refused on `kind`. |
+| `driver` | The command or module that drives it (`node tools/run-flows.js`, `bash hooks/native-instrument.example.sh`). |
+| `launch` | How the instrument brings the app up — a URL for a browser, an app bundle / binary for a desktop run. |
+| `receipt` | Where its receipts are written (a path pattern, usually keyed by a build hash). |
+| `enabled` | `false` ⇒ **declared but inert**; its receipts are refused. An instrument is turned ON deliberately, once its driver exists and its probe has been watched going red. |
+
+**The reader fails closed, five ways**: an unparseable receipt, a receipt with no
+`instrument` field, an instrument not in this array, a declared-but-disabled
+instrument, and a receipt with no `autoReds` array (a receipt with no findings field
+is not a clean run — it is a run whose findings were never recorded). It does not
+judge the run's content: freshness, tree-hash binding, and unacknowledged-red policy
+belong to your project's commit gate, which reads the same accepted object.
+
+Declaring an instrument is what stops the *enumeration* failure — a gate that lists
+instruments silently exempts every instrument added after it, so this array
+enumerates the **permitted** set and anything else is refused by default. The example
+driver for a desktop instrument, with its install-audit caveats, is
+`hooks/native-instrument.example.sh` (documentation; nothing runs it).
+
 ### `statePersistence` — the save-walk gate (`state-persistence-commit.js`)
 A commit that adds a new user-selectable/persistable control (matched by
 `signals` regexes in the added diff of `stateFileGlobs`) must carry a

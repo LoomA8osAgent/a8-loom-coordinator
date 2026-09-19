@@ -41,10 +41,29 @@
   },
   "devServer": { "command": "", "port": 8080, "url": "http://localhost:8080/" },
   "verification": {
+    "_readme": "TWO halves. (1) the scripted-API-only gate: a call on a browserTool is denied unless it invokes an allowedCalls function. (2) instruments[]: the roster of things allowed to VOUCH for a run. A run writes a RECEIPT; the receipt names its instrument; a receipt naming an instrument nobody declared is REFUSED (fail closed). ONE receipt shape serves every instrument — a browser driver and a desktop driver differ only in where a frame comes from, never in what a receipt says. An entry with enabled:false is declared but inert and its receipts are refused. Read the reader with: node hooks/verification-first.js --receipt <path>",
     "enabled": false,
     "testApiPrefix": "",
     "allowedCalls": [],
-    "browserTools": []
+    "browserTools": [],
+    "instruments": [
+      {
+        "id": "browser",
+        "kind": "browser",
+        "driver": "",
+        "launch": "",
+        "receipt": "",
+        "enabled": false
+      },
+      {
+        "id": "native",
+        "kind": "native-desktop",
+        "driver": "",
+        "launch": "",
+        "receipt": "",
+        "enabled": false
+      }
+    ]
   },
   "statePersistence": {
     "enabled": false,

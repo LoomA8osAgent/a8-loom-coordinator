@@ -57,7 +57,12 @@ const DEFAULTS = {
   // never touch this block. See frontend/README.md.
   frontend: { enabled: false, mountClassRe: '', layoutPropRe: '', newClassRe: '' },
   devServer: { command: '', port: 8080, url: 'http://localhost:8080/' },
-  verification: { enabled: false, testApiPrefix: '', allowedCalls: [], browserTools: [] },
+  // verification — the scripted-API-only gate AND the roster of INSTRUMENTS allowed to
+  // vouch for a run. `instruments` is a DECLARATION: a receipt names the instrument that
+  // wrote it, and a receipt naming an instrument nobody declared is REFUSED (fail closed).
+  // Empty ⇒ the receipt reader refuses every receipt, which is the correct floor: an
+  // undeclared instrument has no declared shape, driver, or launch path to verify against.
+  verification: { enabled: false, testApiPrefix: '', allowedCalls: [], browserTools: [], instruments: [] },
   statePersistence: { enabled: false, walkName: 'save walk', trailerName: 'State',
     exemptMarker: 'state-walk-exempt', stateFileGlobs: [], signals: [] },
   docSync: { enabled: false, trailerName: 'Docs', exemptMarker: 'docsync-exempt',
