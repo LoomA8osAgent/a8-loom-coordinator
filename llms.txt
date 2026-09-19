@@ -5,7 +5,7 @@
 > software project — any language, any framework, frontend or backend. Its enforced
 > idea: **discover-then-reuse** — retrieve what the codebase already provides and
 > reuse it, never hand-roll a fresh version. That is how you make LLM building
-> deterministic against an existing codebase. Distilled from three months of daily
+> deterministic against an existing codebase. Distilled from six months of daily
 > production sessions by [exiledsurfer](https://github.com/exiledsurfer) (operator)
 > and the Loom coordinator seat (Claude). MIT licensed. A reusable seat — the first
 > of the `a8-loom-*` line.

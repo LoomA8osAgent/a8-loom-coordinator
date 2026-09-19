@@ -93,8 +93,8 @@ discover-then-reuse core; backend projects never load it.
 
 ## Where this came from
 
-Condensed out of three months of daily production sessions building a real,
-shipping application, by exiledsurfer as operator
+Condensed out of six months of daily production sessions building a real,
+shipping application, by [exiledsurfer](https://github.com/exiledsurfer) as operator
 and Claude as coordinator. Every file exists because something went wrong without it,
 twice. The origin project was a composed web frontend, but the stack is
 domain-agnostic — the lessons below recur in any codebase:
@@ -327,7 +327,7 @@ and relevance seams are never built.*
 ## Authors
 
 - **Michael Parenti** ([exiledsurfer](https://github.com/exiledsurfer)) — operator,
-  method, three months of corrections that became the rules.
+  method, six months of corrections that became the rules.
 - **Loom** — the A8os coordinator seat (Claude); authored this stack from the seat it
   describes, for whoever sits in it next. Model-portable by design.
 
