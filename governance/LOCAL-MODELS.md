@@ -25,6 +25,15 @@ trusted with a refusal, what it costs, and what has to be measured before a band
 runtime and no inference library. The contract is the wire — `POST /v1/systemone` with
 `{ model, state, questions }` — so a provider is a choice a project makes and revises.
 
+> **Names here are VENDORS and MODELS — facts, with dates and sources.** Nobody can install
+> "a TRAINED 421M encoder-scorer"; they install **Laya**, from **convaiinnovations**, under
+> **Apache-2.0**, served by **von**. What this package stays free of is PROJECT nouns — the
+> repos, lanes and internal identifiers of the codebase these measurements came out of.
+> That is what "unbranded" means here; it was never meant to strip the facts.
+
+**Operator quickstart — a provider running end to end, with the commands:**
+[`integrations/judgment.md`](../integrations/judgment.md).
+
 ---
 
 ## 0. What expires, and how to tell
@@ -52,12 +61,12 @@ this whole layer runs on — **whether the returned distribution is a calibrated
 or merely an ordering** — and the difference is architectural rather than a matter of
 size or score.
 
-| Class | What it is | Calibration | May it arm a `refuse` band? |
-|---|---|---|---|
-| **TRAINED** | a scoring head trained against proper scoring rules — the training objective IS the calibration | trustworthy in principle, still measured per §5 | **YES**, after calibration |
-| **DECODE** | option logits read off a stock generative LLM. The argmax is usable; the probabilities are a decoder's token likelihoods wearing a distribution's shape | **not trustworthy.** The tracker's measured line: *confidence does not reliably flag errors* | **NO** — advisory routing / classification only |
-| **DIFFUSION** | an option read off a diffusion canvas | unestablished | research only |
-| **FIXTURE** | a deterministic stub answering from a planted map | n/a — synthetic | neither; every answer is labeled `provenance: synthetic` |
+| Class | What it is | Calibration | Named examples | May it arm a `refuse` band? |
+|---|---|---|---|---|
+| **TRAINED** | a scoring head trained against proper scoring rules — the training objective IS the calibration | trustworthy in principle, still measured per §5 | **Jev 1.13.0** (TypeSafe AI, commercial, remote) · **Laya 421M** (`convaiinnovations/laya`, Apache-2.0) · **Verdict / OpenJev 151M** (`heman10x/rlcd-modernbert-151m`, Apache-2.0) · NanoJev 0.6B · `Mapika/decider-2b` · Bespoke Nimble 9B | **YES**, after calibration |
+| **DECODE** | option logits read off a stock generative LLM. The argmax is usable; the probabilities are a decoder's token likelihoods wearing a distribution's shape | **not trustworthy.** The tracker's measured line: *confidence does not reliably flag errors* | `snapjudge` (MIT, MLX) · `jevmlx` (MIT, explicitly *"not a trained head"*) · `system-one` Lite (MIT, logit-reading on stock Qwen3 1.7B/4B) · `kshetrajna12/reflex` (MIT) | **NO** — advisory routing / classification only |
+| **DIFFUSION** | an option read off a diffusion canvas | unestablished | DiffusionGemma canvas readout (vLLM PR #57250) | research only |
+| **FIXTURE** | a deterministic stub answering from a planted map | n/a — synthetic | `provider.kind:"fixture"` in this package | neither; every answer is labeled `provenance: synthetic` |
 
 **THE RULE, and it is the load-bearing one here: only a TRAINED provider may arm a
 `refuse` band.** A refusal band is a cut on a confidence NUMBER. A DECODE provider's
@@ -198,19 +207,125 @@ edit, and most rules govern what LANDS rather than what is typed.
 
 ## 4. The current pick — 2026-09-19
 
-**A TRAINED 421M-parameter encoder-scorer (Apache-2.0), served over the wire by its
-vendor's own loopback HTTP server, on the PyTorch runtime.** It answers all three
-primitives, at roughly half the in-process ONNX latency, for one ~25 s load per session.
-The in-process ONNX export of the same weights is a **Noul-only fallback** — useful when
-no Python lane is installed, unusable for any Score or wide Choice (§2).
+- 🔭 **WATCH THIS ONE PAGE for what replaces everything below:** the community
+  reproductions tracker,
+  <https://huggingface.co/spaces/multimodalart/jev-reproductions-tracker> (45 entries at
+  the time of writing). It catalogues open attempts at this model class, sorted by how
+  they work — **decoding** (logits off a stock LLM), **diffusion** (a canvas readout),
+  **trained** (a real scoring head), plus **prior art** and **explainers**. Its own
+  standing ceiling line: **no open model yet matches Jev's calibration claims.** And only
+  the **TRAINED** rows are even candidates for a band (§1) — a new entry in the decoding
+  column is never a new judge, however good its accuracy column looks.
 
-**For in-browser / zero-server use**, a TRAINED 151M-parameter ModernBERT-class scorer
-(Apache-2.0) loads unmodified in a JS ONNX runtime, carries 25 candidate slots, ships its
-own temperature calibrator, and measured 196.8 ms p50 / 851 MB RSS on a 2-slot Choice.
-**⚠ Choice-only until Noul and Score are evidenced on it** — its prompt encoding was
-reconstructed from its own config rather than cross-checked against the vendor's engine,
-so its timing is measured and its SEMANTICS are unverified. Do not design a Noul or Score
-seam onto it before someone establishes both.
+### 4.1 The commercial reference — Jev, by TypeSafe AI (optional)
+
+The working implementation of this shape, and the one every open reproduction reports
+against. `POST https://api.typesafe.ai/v1/systemone`, `Authorization: Bearer <key>`,
+model pinned as **`jev-1.13.0`** (never `jev-latest` / `jev-preview`). ~100 ms typical
+(70–500 ms from US West); errors `401` / `422` / `429` / `529`; rate 1,200 req/min.
+SDKs: **`@typesafe-ai/sdk`** (Node — `choice()` / `noul()` / `score()` builders +
+`TypeSafeClient.systemOne({state, questions})`) and **`typesafe-sdk`** (Python). Docs:
+<https://docs.typesafe.ai> — an `llms.txt` index at the root, and `.md` appended to any
+page gives the machine-readable form.
+
+**Why it is OPTIONAL here, and cannot serve a repo gate:** it needs a key and a remote
+call. `hooks/lib/decision-provider.js` refuses a non-loopback base URL outright, so a
+brief, a diff or a commit message cannot be sent off-device by a configuration mistake. A
+gate must never depend on a key being present or a service being up. Use it app-side or
+author-time; gates run local or fixture.
+
+**Price contrast, one line:** Jev is **$0.042 per million input tokens, output free**; a
+local model has **zero marginal cost after a ~25 s load per session**.
+
+### 4.2 The open primary — Laya 421M, served by von
+
+**`convaiinnovations/laya`, Apache-2.0.** ModernBERT-large backbone (395M, bidirectional,
+fully fine-tuned) plus a decision head trained from scratch against proper scoring rules —
+so it is genuinely TRAINED, non-autoregressive, "it never generates text". It speaks the
+same three primitives natively, answers all of them, and runs on PyTorch with an MPS
+backend on Apple silicon (`cuda → mps → cpu`; there is no MLX path). 512 input tokens per
+question.
+
+It has **no HTTP server of its own**. **`von`** (`github.com/wfzyx/von`, Apache-2.0) is
+what serves it behind `POST /v1/systemone`:
+
+```
+von serve --host 127.0.0.1 --port 8493 --backend laya --device auto
+```
+
+Measured here (§3): 115.5 ms per Noul, 165.8 ms 5-way Choice, 122.4 ms 3-level Score, one
+~25.4 s cold load per server lifetime, ~3.3 GB resident on the GPU path.
+
+**Two traps, both measured, both load-bearing:**
+
+1. **`pip install von` INSTALLS THE WRONG PACKAGE.** PyPI `von` is `von 0.1a0`, MIT,
+   2.5 KB, summary *"test pip package"*, by an unrelated author. Install from the git
+   remote: `"von[all] @ git+https://github.com/wfzyx/von@master"`. Any instruction quoting
+   the upstream README's install line is quoting a supply-chain hazard.
+2. **`von serve` defaults to `--host 0.0.0.0`** — a LAN-exposed decision server with no
+   auth unless `VON_API_KEY` is set. Pass `--host 127.0.0.1` explicitly, every time.
+
+The in-process **ONNX export** of the same weights (`Mattepiu/laya-onnx`, Apache-2.0) is a
+**Noul-only fallback** — useful when no Python lane is installed, unusable for any Score or
+wide Choice, because the export froze its option axis at 2 (§2).
+
+### 4.3 The in-browser option — Verdict / OpenJev 151M
+
+**`heman10x/rlcd-modernbert-151m`, Apache-2.0.** ModernBERT-base (151,378,177 params) plus
+a GLiClass bi-encoder head, non-autoregressive; composite Cross-Entropy + Brier loss, then
+post-hoc L-BFGS temperature scaling (T = 1.0716); published ECE 3.35% (on a 1,000-case
+Banking77 / CLINC150 intent set — generic NLP, nothing like your content). It loads
+unmodified in `onnxruntime-node`, carries **25 candidate slots**, and measured **196.8 ms
+p50 / 211.8 p95, 851 MB RSS** on a 2-slot Choice over a 289-token state.
+
+**⚠ Choice-only until Noul and Score are evidenced on it.** Its prompt encoding was
+reconstructed from its own `config.json` rather than cross-checked against the vendor's
+own engine: the timing is measured, the SEMANTICS are unverified. Do not design a Noul or
+Score seam onto it before someone establishes both.
+
+### 4.4 The also-rans, one line each
+
+| Candidate | Verdict |
+|---|---|
+| **NanoJev 0.6B** (`TianyuCodings/NanoJev`) | a training-pipeline RESEARCH repo, not a provider: torch-only, no server, **no licence file found** — unusable as shipped |
+| **Reflex** (`kshetrajna12/reflex`, MIT) | DECODE class (direct logits off a stock Qwen) **and NVIDIA-only** — not runnable on Apple silicon |
+| **"System-One 4B"** | LICENCE-BLOCKED: no 4B model exists under that name; the closest same-named family is non-commercial. `system-one` **Lite** (MIT) is a different, DECODE-class thing, worth exactly one job: a transport smoke target for the `/v1/systemone` adapter before real weights are downloaded |
+| **Bespoke Nimble 9B** (`bespokelabs/Bespoke-Nimble-9B`) | genuinely TRAINED, and a real fine-tuning RECIPE (LoRA r16, lr 5e-5, batch 8, ONE epoch, 2,676 labelled examples) — but **not runnable on a 16 GB machine**: trained on rented L40S/H100, no quantised build verified to exist, and the Qwen base licence governs what you actually load even though the adapter is Apache-2.0 |
+| **`Mapika/decider-2b`** | Apache-2.0 adapter over a Qwen-licensed base — same base-licence caveat, unmeasured here |
+
+### 4.5 Laya vs Jev — the vendor's own numbers, and what they license you to build
+
+> **⚠ SOURCE: VENDOR-CLAIMED, and not a same-set comparison.** The rows below are Laya's
+> own evaluation (23,024 questions) placed beside Jev's PUBLISHED figures. Nothing in it
+> is independently verified, and no threshold anywhere may be trusted on its strength. It
+> is used for ONE thing: deciding, before any build, which seams are even CANDIDATES for a
+> refusal.
+
+**Latency (vendor-claimed):** Laya ~38 ms for a single question on their hardware, against
+~150–400 ms for a hosted API round trip. Measured here on an Apple M4, the same checkpoint
+answered in **115.5 ms** including the loopback hop (§3.4: treat a published latency as an
+upper bound on hope).
+
+| Task family | Claimed accuracy | What a seam in it may do |
+|---|---|---|
+| intent / routing | **99.1** | refuse-grade, after calibration |
+| moderation | 96.7 | refuse-grade, after calibration |
+| topic classification | **93.9** | refuse-grade, after calibration |
+| emotion / tone | 90.6 | advisory |
+| inference / fact-check | **88.3** | **advisory, and it stays advisory** |
+| instruction following | 87.8 | advisory |
+| robustness (adversarial) | 85.1 | the ceiling on all of them — §5.4 |
+| reading comprehension | 84.7 | advisory |
+| search relevance | **62.8** | **not built** |
+| response quality | **58.1** | **not built** |
+
+**Selective automation (vendor-claimed):** 92.2% accuracy at 50% coverage vs 83.8% at
+100% — the shape §5.3 is built on.
+
+**The consequence, in one line:** *routing and classification seams may become
+refuse-grade; fact-check seams advise first and keep advising; quality and relevance seams
+are never built at all.* Refusing on an 88%-accurate reading of a paragraph blocks correct
+work about one time in eight, and a gate that cries wolf gets switched off.
 
 **What is NOT a decision provider, stated so nobody tries:**
 
@@ -245,7 +360,7 @@ table, not an opinion:
 
 ### 5.1 The instrument is VENDORED, never written
 
-Library-first applies to the gate itself. A published, Apache-2.0 benchmark harness
+Library-first applies to the gate itself. **`AbdelStark/jev-benchmarks` (Apache-2.0)**
 already measures exactly what criterion 3 needs — accuracy and macro-F1
 (discrimination), multiclass Brier / NLL / top-label ECE (probability quality, which is
 what makes the TRAINED-vs-DECODE distinction *measurable* rather than merely
@@ -258,11 +373,18 @@ reads as a better model, and the definition is the hard part.
 gate is YOUR content. Adopt the harness, the metric definitions and its manifest format;
 supply your own manifests.
 
-**Seed on public data before spending a human's labelling pass.** The leading vendor
-publishes ~20 public cases / 373 decisions, which is the set the whole reproduction
-cohort reports against — so your numbers become comparable with theirs. A candidate that
-fails on 373 public decisions never earns a pass over your own corpus. It is not a
-substitute for your own labeled set.
+It takes a **JSONL manifest** (ordered label tuples + a target index), runs via **`uv`**,
+is TypeSafe-SDK-only on the wire but **honours `TYPESAFE_BASE_URL`** — so it points at any
+loopback `/v1/systemone` server (von, snapjudge, `system-one` Lite) without a fork — and
+its backend interface (`warmup` / `predict` / `close` → a common `Prediction`) means an
+in-process provider is a backend CLASS rather than a fork. ⚠ Its own terms were not
+fetched: UNVERIFIED before any redistribution.
+
+**Seed on public data before spending a human's labelling pass.** TypeSafe publishes ~20
+public cases / 373 decisions at <https://evals.typesafe.ai> — the set the whole
+reproduction cohort reports against, which is what makes your numbers comparable with
+theirs. A candidate that fails on 373 public decisions never earns a pass over your own
+corpus. It is not a substitute for your own labeled set.
 
 ### 5.2 A threshold is keyed by (provider, ARITY) — never by provider alone
 
@@ -338,3 +460,25 @@ than documentary:
 - The telemetry MUSTs in `hooks/judgment-server.example.sh` are measured in both
   directions, not assumed. A runtime you cannot prove silent is one you have not finished
   evaluating.
+
+**The two measured findings, named:**
+
+- **⚠ ONNX Runtime.** The `onnxruntime-node` npm package is clean at install on
+  darwin/arm64 (the `postinstall` downloads nothing), but the native
+  `libonnxruntime.*.dylib` embeds the **Microsoft 1DS / OneCollector** telemetry client —
+  including the ingestion URL `https://mobile.events.data.microsoft.com/OneCollector/1.0`.
+  Measured in both directions: a plain `InferenceSession.create` CREATES
+  `~/Library/Application Support/Microsoft/DeveloperTools/.onnxruntime/` with a persistent
+  **36-byte `deviceid` UUID** plus an event DB; with **`ORT_DISABLE_TELEMETRY=1`** set
+  before the module loads, that directory is never created at all. The queue was empty
+  after ~130 inferences and no socket ever opened — so nothing was observed leaving the
+  machine, and *a persistent device identifier written to disk unasked is already the
+  violation.* **Any consumer of `onnxruntime-node` sets the variable before the require**;
+  the addon reads it at dylib init, so "before" is load-bearing.
+- **✅ von + Laya are clean, and that is measured too.** No telemetry client, beacon or
+  analytics import in either package. `laya`'s only network call is
+  `huggingface_hub.snapshot_download`, guarded by `os.path.exists(model_dir)` — point it at
+  a local weights directory and no network code executes. Across a full session (cold load,
+  270 timed requests, both backends) `lsof -nP -a -p <pid> -i` showed **exactly one socket:
+  the loopback listener**. `HF_HUB_OFFLINE=1` + `HF_HUB_DISABLE_TELEMETRY=1` belt-and-brace
+  it; no `~/.cache/huggingface` was ever created.

@@ -115,15 +115,15 @@
     "autofixSelector": "distance"
   },
   "judgment": {
-    "_readme": "THE FOURTH EXECUTOR CLASS (skills/judgment-SKILL.md + governance/LOCAL-MODELS.md). A decision model answers a CLOSED question at a gate boundary, where no matcher can reach the signal — meaning. Code enumerates, the model picks one of the things code enumerated, code renders. It never generates, counts, orders dates, measures geometry, or judges a render. enabled:false (the default) => hooks/judgment-gate.js is a silent no-op.",
-    "enabled": false,
+    "_readme": "A HOOK — hooks/judgment-gate.js, registered at the edit / commit / spawn matchers of hooks/settings.template.json and deployed by hooks/install-hooks.sh like every other gate — that consults a DECISION MODEL. 'Fourth executor class' (governance/FAILURE-PATTERNS.md) is about the kind of evidence an executor can read (meaning, not tokens), never a different mechanism. Code enumerates, the model picks one of the things code enumerated, code renders. It never generates, counts, orders dates, measures geometry, or judges a render. ON BY DEFAULT: with no provider.kind every fire at a declared seam PRINTS 'not engaged — no provider declared' and passes; a declared provider that cannot be reached DENIES with a typed code; a provider that answers advises or refuses per the seam's band. enabled:false is the ONLY way to make the line disappear, and it turns OFF an executor class. Quickstart: integrations/judgment.md. Providers + calibration: governance/LOCAL-MODELS.md.",
+    "enabled": true,
     "roster": "hooks/judgment-roster.js",
     "stateMaxChars": 2000,
     "timeoutMs": 8000,
     "commitRe": "\\bgit\\b[^|;&]*\\bcommit\\b",
     "provider": {
-      "kind": "",
-      "baseUrl": "http://127.0.0.1:8497",
+      "kind": null,
+      "baseUrl": "http://127.0.0.1:8493",
       "modelId": "",
       "fixturePath": "",
       "providerClass": ""

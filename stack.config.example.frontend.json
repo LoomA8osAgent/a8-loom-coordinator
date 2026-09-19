@@ -148,15 +148,15 @@
     "autofixSelector": "distance"
   },
   "judgment": {
-    "_readme": "Shown WIRED but DISENGAGED — provider.kind is empty, so the gate prints 'not engaged' and passes. That is the shipping state of every seam: a band arms only after a labeled set measures it AND a hostile-input leg is green (governance/LOCAL-MODELS.md §5). To engage on the deterministic stub: provider.kind='fixture' + a fixturePath. To engage on a real judge: provider.kind='systemone' + a loopback baseUrl (hooks/judgment-server.example.sh).",
+    "_readme": "ON (the default) but DISENGAGED — provider.kind is null, so the gate prints 'not engaged — no provider declared' and passes. That is the shipping state of every seam: a band arms only after a labeled set measures it AND a hostile-input leg is green (governance/LOCAL-MODELS.md §5). To engage on the deterministic stub: provider.kind='fixture' + a fixturePath. To engage on a real judge: provider.kind='systemone' + a loopback baseUrl — e.g. http://127.0.0.1:8493 for an open decision model served locally, per integrations/judgment.md and hooks/judgment-server.example.sh.",
     "enabled": true,
     "roster": "hooks/judgment-roster.js",
     "stateMaxChars": 2000,
     "timeoutMs": 8000,
     "commitRe": "\\bgit\\b[^|;&]*\\bcommit\\b",
     "provider": {
-      "kind": "",
-      "baseUrl": "http://127.0.0.1:8497",
+      "kind": null,
+      "baseUrl": "http://127.0.0.1:8493",
       "modelId": "",
       "fixturePath": "",
       "providerClass": ""

@@ -32,15 +32,17 @@
 # ═══════════════════════════════════════════════════════════════════════════════
 #
 #  1. NAME COLLISIONS ON PUBLIC PACKAGE INDEXES ARE REAL, AND ONE BIT US.
-#     A runtime whose README says `pip install <name>` may not own `<name>` on PyPI. In
-#     the case measured here the published package under that name was an unrelated
-#     2.5 KB stub by a different author, and following the README verbatim installs it.
+#     `von` (github.com/wfzyx/von, Apache-2.0 — the server used below) says
+#     `pip install von` in its README. THE PyPI PACKAGE NAMED `von` IS NOT THIS PROJECT:
+#     it is `von 0.1a0`, MIT, 2.5 KB, summary "test pip package", by an unrelated author.
+#     Following that README verbatim installs the stub.
 #     INSTALL FROM THE PROJECT'S OWN GIT REMOTE, pinned, and verify the repo you got.
 #     Any instruction that quotes a README's install line without checking the index is
 #     quoting a supply-chain hazard.
 #
-#  2. DECISION SERVERS TEND TO DEFAULT TO 0.0.0.0.
-#     That is a LAN-exposed judge with no authentication. `--host 127.0.0.1` is MANDATORY
+#  2. DECISION SERVERS TEND TO DEFAULT TO 0.0.0.0 — `von serve` DOES.
+#     That is a LAN-exposed judge with no authentication (unless VON_API_KEY is set).
+#     `--host 127.0.0.1` is MANDATORY
 #     and is passed EXPLICITLY on every launch below. A bind argument is a promise; if you
 #     write your own server, also re-check every request's peer address, because a peer
 #     check is a fact. `hooks/lib/decision-provider.js` refuses a non-loopback base URL
@@ -67,24 +69,36 @@
 
 set -euo pipefail
 
-PORT="${A8_DECISION_PORT:-8497}"
+PORT="${A8_DECISION_PORT:-8493}"
+MODELS_DIR="${A8_DECISION_MODELS_DIR:-.judgment/models}"
 HOST=127.0.0.1                      # NEVER parameterise this. See hazard 2.
 
 export ORT_DISABLE_TELEMETRY=1      # before anything loads a native inference addon
 export HF_HUB_OFFLINE=1             # if your runtime uses a model hub client
 export HF_HUB_DISABLE_TELEMETRY=1
 
-# ── 1. A reference PyTorch runtime served over the wire ───────────────────────
-# Install FROM GIT (hazard 1), into a project-local virtualenv, and download the weights
-# to a local directory so the hub is bypassed by path:
+# ── 1. Laya 421M (Apache-2.0), served over the wire by von (Apache-2.0) ───────
+# The measured primary. Install FROM GIT (hazard 1), into a project-local virtualenv, and
+# download the weights to a local directory so the hub client never runs:
 #
 #   python3 -m venv .judgment/venv
-#   .judgment/venv/bin/pip install "<project>[all] @ git+https://<host>/<owner>/<repo>@<pinned-ref>"
-#   # weights -> .judgment/models/<model>/   (curl each file from the model's own host)
+#   .judgment/venv/bin/pip install "von[all] @ git+https://github.com/wfzyx/von@master"
 #
-# Then launch, loopback ONLY:
+#   mkdir -p "$MODELS_DIR/laya/encoder" "$MODELS_DIR/laya/tokenizer"
+#   B=https://huggingface.co/convaiinnovations/laya/resolve/main
+#   for f in rl_agent_config.json encoder/config.json tokenizer/tokenizer.json \
+#            tokenizer/tokenizer_config.json model.safetensors; do
+#     curl -sL "$B/$f" -o "$MODELS_DIR/laya/$f"
+#   done
 #
-#   .judgment/venv/bin/<serve-cmd> --host 127.0.0.1 --port "$PORT" --device auto
+# Then launch, loopback ONLY (hazard 2 — von's own default is 0.0.0.0):
+#
+#   .judgment/venv/bin/von serve --host 127.0.0.1 --port "$PORT" --backend laya --device auto
+#
+# `--device auto` resolves cuda → mps → cpu; there is no MLX path. CPU is 2.2–2.9× slower
+# and saves ~1.4 GB. If you run an ONNX export in-process instead (Noul-only — the
+# published export froze its option axis at 2), `ORT_DISABLE_TELEMETRY=1` above is what
+# keeps its native dylib from writing a persistent device-id UUID to disk.
 #
 # Measured on an Apple M4 / 16 GB / 2026-09-19: launch → /health in ~0.8 s, first request
 # (weights + device transfer) ~24.6 s, total cold-to-first-answer ~25.4 s, then 115 ms per
@@ -109,12 +123,18 @@ export HF_HUB_DISABLE_TELEMETRY=1
 #     holding gigabytes is a leak someone finds at exactly the wrong moment
 
 # ── 3. Point the gate at it ───────────────────────────────────────────────────
-# In stack.config.json:
+# In stack.config.json (`judgment.enabled` is TRUE by default — until a provider is
+# declared the gate simply prints "not engaged" on every fire and passes):
 #   "judgment": { "enabled": true,
 #                 "provider": { "kind": "systemone",
-#                               "baseUrl": "http://127.0.0.1:8497",
-#                               "modelId": "<the pinned checkpoint>",
+#                               "baseUrl": "http://127.0.0.1:8493",
+#                               "modelId": "laya",
 #                               "providerClass": "" } }
+#
+# The remote alternative, for app-side or author-time work where a key is acceptable, is
+# Jev by TypeSafe AI: baseUrl "https://api.typesafe.ai", modelId "jev-1.13.0",
+# $0.042 per million input tokens, output free. It CANNOT serve a gate here —
+# hooks/lib/decision-provider.js refuses a non-loopback base URL outright.
 #
 # Leave `providerClass` empty until you have MEASURED calibration on your own labeled set
 # (`governance/LOCAL-MODELS.md`). Undeclared is not TRAINED, and only TRAINED arms a
@@ -126,7 +146,7 @@ export HF_HUB_DISABLE_TELEMETRY=1
 #
 #   curl -s -X POST "http://127.0.0.1:${PORT}/v1/systemone" \
 #     -H 'Content-Type: application/json' -d '{
-#     "model":"<pinned>",
+#     "model":"von-latest",
 #     "state":"The production database is locked and customer writes are failing.",
 #     "questions":{
 #       "urgent":{"type":"noul","instructions":"Is this urgent?"},

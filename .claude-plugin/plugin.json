@@ -1,7 +1,7 @@
 {
   "name": "a8-loom-coordinator",
   "description": "Run Claude as an autonomous senior engineer on any codebase — config-driven hooks that enforce discover-then-reuse, plus the coordinator/succession/doc-sync skills and planner/builder/auditor agents. Frontend or backend, any language.",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": {
     "name": "exiledsurfer",
     "url": "https://github.com/exiledsurfer"

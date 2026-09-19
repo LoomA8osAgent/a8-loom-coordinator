@@ -325,14 +325,28 @@ Measured 2026-09-18: a resident governance paragraph described a hook's behaviou
 had changed three days earlier, and every seat reading it reasoned from a sentence that was
 already false.
 
+**THE JUDGMENT LAYER IS A HOOK** — `hooks/judgment-gate.js`, registered at the
+`Edit|Write|MultiEdit`, `Bash` and `Agent|Task` matchers of `hooks/settings.template.json`
+(lines 27 / 36 / 42) and deployed by `hooks/install-hooks.sh` exactly like every other
+gate. *"Fourth executor class"* is the `governance/FAILURE-PATTERNS.md` ledger's word for
+WHAT enforces a row — a hook (regex/structure), a generator (a regenerated index), human
+judgment (unenforced), and now a hook that consults a decision model. The class is about
+the kind of EVIDENCE the executor can read — meaning, not tokens — not about a different
+mechanism.
+
 A **judgment seam** gives those rules an executor: a small on-device DECISION MODEL — not a
 generator — answers ONE closed question at a gate boundary. Code enumerates the options,
 the model picks one of them, code renders the outcome. It never writes, counts, orders
 dates, measures geometry, or judges a render (it has no image input at all), so the
 acceptance tests, the pixel probes and the human's eyes are untouched by any of it. Shipped
-here as **`hooks/judgment-gate.js` + `hooks/lib/decision-provider.js`, opt-in**
-(`judgment.enabled`, off by default); the practice is `skills/judgment-SKILL.md` and the
-provider side is `governance/LOCAL-MODELS.md`.
+as **`hooks/judgment-gate.js` + `hooks/lib/decision-provider.js`, installed and ON by
+default** (`judgment.enabled: true`): the gate SPEAKS on every fire, and declaring a
+provider is what makes it judge. `enabled:false` is the only way to silence it, and that is
+switching OFF an executor class rather than skipping an optional extra. Quickstart, with
+the commands: `integrations/judgment.md`. Practice: `skills/judgment-SKILL.md`. Providers:
+`governance/LOCAL-MODELS.md` — **Jev** (TypeSafe AI, remote, keyed, unusable from a gate by
+construction) or an open decision model on your own machine (**Laya 421M** served by
+**von** on loopback), plus the **fixture** stub for every test.
 
 **The four moments it can fire at** are the ones this document already names, with a
 measured verdict for each (an Apple M4, 16 GB, 2026-09-19, against a RESIDENT warm
@@ -359,10 +373,12 @@ question.
    earlier and never reaches the seam; what the seam reads is the residue — and an
    enumeration of instruments *always* has residue, because it silently exempts every
    instrument added after it.
-2. **Fail closed, and print the state.** Four states, all printed, never inferred from
-   silence: NOT ADOPTED (silent no-op) · NOT ENGAGED (no provider configured — one line
-   saying exactly that, and a pass) · ENGAGED (asks; **cannot reach its provider ⇒
-   DENIES**, with the typed error code printed verbatim) · ENGAGED+ARMED. *Failing open is
+2. **Fail closed, and print the state.** Five states, all printed, never inferred from
+   silence: NOT ADOPTED (`enabled:false` — a silent no-op, and NOT the default) · NO SEAMS
+   (ON with no roster file written — one line, a pass; a roster that EXISTS and will not
+   load still DENIES) · NOT ENGAGED (no provider declared — one line saying exactly that,
+   and a pass) · ENGAGED (asks; **cannot reach its provider ⇒ DENIES**, with the typed
+   error code printed verbatim) · ENGAGED+ARMED. *Failing open is
    asking, failing, and approving anyway* — that never happens. *Not engaged* is no
    question asked and none promised, which is a state every seam must pass through before
    any band arms. The property that makes it auditable: a reader of the gate's own output

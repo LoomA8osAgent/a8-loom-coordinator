@@ -287,16 +287,30 @@ try {
       return { code: r.status, stdout: r.stdout || '', stderr: r.stderr || '' };
     })(), 0);
 
-  // (i) RED — the layer is ADOPTED and its roster is UNREADABLE. A gate that cannot load
-  // its own roster has not found "no seam applies", it has found NOTHING, and reporting
-  // that as a pass is fail-open by construction.
+  // (i) RED — the layer is ON and its roster EXISTS but will not load. A gate that cannot
+  // load a roster somebody DECLARED has not found "no seam applies", it has found NOTHING,
+  // and reporting that as a pass is fail-open by construction.
+  fs.writeFileSync(path.join(tmp, 'broken-roster.js'), 'module.exports = {  // unterminated\n');
   const badRoster = writeConfig('stack.badroster.json', {
-    enabled: true, roster: 'nope/missing-roster.js',
+    enabled: true, roster: 'broken-roster.js',
     provider: { kind: 'fixture', fixturePath: ALL_PRESENT }
   });
-  const i2 = expect('RED (i) an adopted layer with an unreadable roster DENIES',
+  const i2 = expect('RED (i) an ON layer with an unreadable roster DENIES',
     runGate(spawnOf(LIGHT_BRIEF), fixEnv(ALL_PRESENT), badRoster), 2);
   mustSay('(i)', i2, ['judgment roster is unreadable', 'judgment-roster.example.js']);
+
+  // (i2) GREEN — the layer is ON (the default) and NO roster file was ever written. That
+  // is "nothing declared", which is a different state from "cannot read what was
+  // declared": one printed line, exit 0. This leg is what makes ON-BY-DEFAULT safe —
+  // without it, installing the stack would DENY every spawn in a project that has not yet
+  // written a seam, which is how a gate gets switched off in week one.
+  const noRoster = writeConfig('stack.noroster.json', {
+    enabled: true, roster: 'nope/never-written.js',
+    provider: { kind: 'fixture', fixturePath: ALL_PRESENT }
+  });
+  const i3 = expect('GREEN (i2) ON with NO roster file prints one line and passes',
+    runGate(spawnOf(LIGHT_BRIEF), fixEnv(ALL_PRESENT), noRoster), 0);
+  mustSay('(i2)', i3, ['no seams declared', 'Nothing was asked and nothing was promised']);
 
   console.log('\n' + (failed ? 'FAIL' : 'PASS') + '  judgment-gate — ' + passed + ' ok, ' + failed + ' failed');
 } finally {

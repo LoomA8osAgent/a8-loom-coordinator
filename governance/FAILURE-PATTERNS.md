@@ -19,7 +19,7 @@ Patterns the agent must ACTIVELY prevent. Cite the code in commit messages and r
 codes are shared vocabulary. Each row: the CODE, what happens if unchecked, the prevention,
 and **the executor** — *who actually stops it.*
 
-The executor column is the honest half of this table. Three values:
+The executor column is the honest half of this table. Four values:
 
 - **hook / gate** — a mechanical refusal fires (edit, spawn, commit, instrument or
   turn-boundary). The rule holds regardless of which model is reasoning.
@@ -28,6 +28,13 @@ The executor column is the honest half of this table. Three values:
 - **judgment** — inherently un-gateable: it lives in a review, a design call, or an author's
   intent. Naming it *judgment* is a commitment to review it, not a shrug — and a row that
   could be mechanical but is not yet is a **hole**, which the coverage report prints loud.
+- **hook (judgment-gate)** — the fourth executor class, and it is still a HOOK:
+  `hooks/judgment-gate.js`, registered at the edit / commit / spawn matchers in
+  `hooks/settings.template.json` and deployed by `hooks/install-hooks.sh` like every other
+  gate. What makes it a distinct class is the kind of EVIDENCE it can read — MEANING rather
+  than tokens, because it consults a decision model — never a different mechanism. It is
+  strictly additive to the matcher that already owns the moment.
+  (`integrations/judgment.md` · `skills/judgment-SKILL.md` · `governance/LOCAL-MODELS.md`.)
 
 | Code | What happens | Prevention | Executor |
 |------|--------------|-----------|----------|

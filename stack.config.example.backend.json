@@ -68,8 +68,9 @@
     "enabled": false
   },
   "judgment": {
-    "_readme": "OFF here, and nothing about it is frontend-specific — the seams read PROSE (a worker brief, a commit message, a paragraph), which every project has. A backend project adopting it copies hooks/judgment-roster.example.js, writes its own questions, ships them advisory, and reads governance/LOCAL-MODELS.md before arming any band.",
-    "enabled": false
+    "_readme": "ON, like everywhere — nothing about this layer is frontend-specific: the seams read PROSE (a worker brief, a commit message, a paragraph), which every project has. With no provider.kind it prints 'not engaged — no provider declared' and passes. A backend project engaging it copies hooks/judgment-roster.example.js, writes its own questions, points provider.baseUrl at a loopback /v1/systemone server (integrations/judgment.md), ships advisory, and reads governance/LOCAL-MODELS.md before arming any band.",
+    "enabled": true,
+    "provider": { "kind": null, "baseUrl": "http://127.0.0.1:8493", "modelId": "", "fixturePath": "", "providerClass": "" }
   },
   "session": {
     "generators": ["python tools/gen_code_registry.py", "python tools/gen_changelog.py"],

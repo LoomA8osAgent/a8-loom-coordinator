@@ -80,18 +80,29 @@ const DEFAULTS = {
     settingsTarget: '.claude/settings.json', maxBackups: 2 },
   serviceRecovery: { notifyEnabled: true, notifyCommand: '', logFile: '~/.claude/service-recovery.log', autoResume: false },
   codegraph: { syncEnabled: true, staleThresholdMinutes: 5, binaryCandidates: [] },
-  // judgment — the OPT-IN decision-model layer (hooks/judgment-gate.js). A fourth
-  // executor class beside hook / generator / human judgment: it answers a CLOSED question
-  // at a gate boundary where no matcher can reach the signal, which is MEANING. Code
-  // enumerates, the model picks one of the enumerated things, code renders.
-  // enabled:false (the default) ⇒ the gate is a SILENT no-op, like every other optional
-  // block here. The questions live in the PROJECT's own roster file and never in a hook;
-  // the provider is loopback-only and the client refuses anything else.
-  // See skills/judgment-SKILL.md + governance/LOCAL-MODELS.md.
+  // judgment — the decision-model layer (hooks/judgment-gate.js). It IS A HOOK, deployed
+  // by install-hooks.sh and registered at the Edit/Write, Bash and Agent/Task matchers in
+  // settings.template.json exactly like every other gate. "A fourth executor class" is the
+  // FAILURE-PATTERNS ledger's word for what KIND OF EVIDENCE an executor can read —
+  // meaning rather than tokens — never a different mechanism. Code enumerates, the model
+  // picks one of the enumerated things, code renders.
+  //
+  // ⚠ ON BY DEFAULT, unlike the other optional blocks: the EXECUTOR CLASS is always on and
+  // the PROVIDER is what may be absent. Four states, every one of them PRINTED:
+  //   enabled, no roster file      ⇒ one line saying nothing is declared, then a pass
+  //   enabled, no provider.kind    ⇒ "not engaged — no provider declared", then a pass
+  //   enabled, provider unreachable⇒ DENY, with the typed code printed verbatim
+  //   enabled, provider answers    ⇒ advise / refuse per the seam's band
+  // `enabled:false` is the ONLY way to make the line disappear, and it switches OFF an
+  // executor class rather than skipping an optional extra.
+  //
+  // The questions live in the PROJECT's own roster file and never in a hook; the provider
+  // is loopback-only and the client refuses anything else.
+  // See integrations/judgment.md + skills/judgment-SKILL.md + governance/LOCAL-MODELS.md.
   judgment: {
-    enabled: false, roster: 'hooks/judgment-roster.js', stateMaxChars: 2000,
+    enabled: true, roster: 'hooks/judgment-roster.js', stateMaxChars: 2000,
     timeoutMs: 8000, commitRe: '\\bgit\\b[^|;&]*\\bcommit\\b',
-    provider: { kind: '', baseUrl: 'http://127.0.0.1:8497', modelId: '', fixturePath: '', providerClass: '' },
+    provider: { kind: null, baseUrl: 'http://127.0.0.1:8493', modelId: '', fixturePath: '', providerClass: '' },
     seams: {}
   }
 };

@@ -58,7 +58,7 @@ the claim.
 |---|---|
 | {{keyword.ui}} (class, token, style, control, chrome, accordion, slider host) | `{{spec.ui}}` + `{{registry.index}}` |
 | building a new surface / "which helper do I use" / a spec, catalog, compile receipt, `spec-gate` refusal | `{{specCatalog.catalogDir}}/catalog.prompt.md` (what you may name) + `integrations/spec-catalog.md` (the method) |
-| a judgment seam / decision model / question roster / Noul · Choice · Score / confidence band / "engaged vs not engaged" / a `judgment-gate` refusal | `skills/judgment-SKILL.md` (the practice) + `governance/LOCAL-MODELS.md` (providers, measured costs, calibration) |
+| judgment / a decision model / a seam / a question roster / Noul · Choice · Score / a confidence band / "engaged vs not engaged" / a `judgment-gate` refusal / getting a provider running | `integrations/judgment.md` (the quickstart: provider → seam → what it prints → band) + `skills/judgment-SKILL.md` (the practice) + `governance/LOCAL-MODELS.md` (providers, measured costs, calibration) |
 | {{keyword.core}} (the core pipeline / render / compositing / data flow) | `{{spec.pipeline}}` |
 | {{keyword.dataModel}} (schema, state, persistence walk, presets/projects) | `{{spec.dataModel}}` + `{{spec.persistence}}` |
 | {{keyword.moduleA}} | `{{spec.moduleA}}` |

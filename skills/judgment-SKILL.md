@@ -150,7 +150,29 @@ the gate.
 ## 4. PROVIDERS — which may refuse
 
 The full table, the measured costs and the calibration gate live in
-**`governance/LOCAL-MODELS.md`**. The three facts a seam author must carry:
+**`governance/LOCAL-MODELS.md`**; the end-to-end quickstart, with commands, is
+**`integrations/judgment.md`**.
+
+**The named options, so nobody has to go shopping for a category:**
+
+| Class | Named examples |
+|---|---|
+| **TRAINED** (may refuse, after calibration) | **Jev 1.13.0** (TypeSafe AI — remote, keyed, `https://api.typesafe.ai/v1/systemone`) · **Laya 421M** (`convaiinnovations/laya`, Apache-2.0, local) · **Verdict / OpenJev 151M** (`heman10x/rlcd-modernbert-151m`, Apache-2.0, in-browser — Choice-only until Noul and Score are evidenced on it) |
+| **DECODE** (advisory routing only) | `snapjudge` · `jevmlx` · `system-one` Lite · `kshetrajna12/reflex` |
+| **FIXTURE** | `provider.kind:"fixture"` — every selftest, always |
+
+**The proven resident shape is `von` serving Laya:**
+`von serve --host 127.0.0.1 --port 8493 --backend laya --device auto` — all three
+primitives, ~115 ms per Noul warm, one ~25 s load per session. Install from the git remote
+(`"von[all] @ git+https://github.com/wfzyx/von@master"`); **PyPI `von` is an unrelated
+2.5 KB stub by another author.** **Jev is the remote alternative** — same wire, same
+primitives, `$0.042` per million input tokens, model pinned `jev-1.13.0` — and it is
+unusable from a gate by construction, because the client refuses a non-loopback base URL.
+Watch for new open candidates on the reproductions tracker,
+<https://huggingface.co/spaces/multimodalart/jev-reproductions-tracker>, whose own ceiling
+line still reads: *no open model yet matches Jev's calibration claims.*
+
+The three facts a seam author must carry:
 
 1. **Only a TRAINED provider may arm a `refuse` band.** A refusal band is a cut on a
    confidence NUMBER; a DECODE provider (option logits off a stock LLM) has an ordering but

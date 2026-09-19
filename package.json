@@ -1,6 +1,6 @@
 {
   "name": "a8-loom-coordinator",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Governance, skills, and hooks stack for running Claude (or any capable LLM) as an autonomous senior engineer on any software project — frontend or backend, any language. Config-driven, agent-native, MIT.",
   "keywords": [
     "claude",

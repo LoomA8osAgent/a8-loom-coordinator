@@ -19,6 +19,26 @@ It is a **reusable coordinator seat** (the "Loom" seat) — model-portable by de
 so Opus / Sonnet / Codex / Gemini / whatever-comes-next can sit in it. This is the
 first `a8-loom-*` project; more follow.
 
+**Two layers added in 0.3.** **(A) The spec catalog — constraint BEFORE, not refusal
+after.** The code registry is projected into a catalog plus a byte-capped catalog prompt
+the builder preloads instead of the raw ruleset; the builder emits a
+`{helper, props, children}` spec that **can only name catalog entries**; validation runs a
+lossless-only autofix, compilation emits the real helper calls plus an HMAC'd receipt, and
+`hooks/spec-gate.js` refuses a freehand new surface no receipt covers — reusing the
+new-surface detector that already exists. json-render (core + codegen) and `zod` are
+vendored, node-side only. Opt-in: `specCatalog.enabled`. See
+`integrations/spec-catalog.md`, `tools/gen-catalog.js`. **(B) Judgment — a decision model
+as a fourth executor class.** A rule that lived in prose because no matcher reads MEANING
+becomes a gate: `hooks/judgment-gate.js` (a hook like any other) asks **Jev** (TypeSafe AI)
+or **an open decision model on your own machine** (Laya 421M served by von) over one
+loopback `/v1/systemone` wire, with a **fixture** provider for every test. It fails closed,
+ships advisory, and arms a band only from a measured coverage curve on labeled data. **ON
+by default** — the executor class is always on, the provider is what may be absent. See
+`integrations/judgment.md`, `skills/judgment-SKILL.md`, `governance/LOCAL-MODELS.md`.
+**The one seam between them:** `specCatalog.autofixSelector: "judgment"` lets a decision
+model pick among candidates code already enumerated — it can resolve an ambiguity, never
+widen what a spec may name.
+
 ## Install / use it in YOUR project
 
 - Claude Code plugin: `/plugin marketplace add LoomA8osAgent/a8-loom-coordinator`
@@ -60,8 +80,10 @@ Start from the example nearest your project: `stack.config.example.backend.json`
 - **A rule whose signal is MEANING gets a judgment seam, not a bigger regex.** A decision
   model answers ONE closed question at a gate boundary; code enumerates and code renders.
   It is ADDITIVE (never replaces a verdict a matcher already reaches correctly), ships
-  advisory, prints its engagement state, and DENIES when it cannot ask. See
-  `skills/judgment-SKILL.md` (opt-in, `judgment.enabled`).
+  advisory, prints its engagement state, and DENIES when it cannot ask. It is a HOOK —
+  `hooks/judgment-gate.js`, registered and deployed like every other gate — and it is ON by
+  default (`judgment.enabled: true`); declaring `judgment.provider` is what makes it judge.
+  See `integrations/judgment.md`, `skills/judgment-SKILL.md`.
 - **Write through the edit tools**, never a shell redirect: every gate fires on
   Edit/Write only.
 - **Commit as you build**, and reserve "done" for a non-checkpoint, gate-green commit
@@ -83,6 +105,9 @@ Start from the example nearest your project: `stack.config.example.backend.json`
   paths not prose) + delegation + audit contract + the git work method.
 - `skills/model-succession-SKILL.md` — the seat-handoff letter (how the seat survives
   a model change).
+- `integrations/judgment.md` — the operator quickstart: get a provider running (Jev, or an
+  open decision model such as Laya on your own machine), declare a seam, read what the gate
+  prints, earn a band.
 - `skills/judgment-SKILL.md` — the judgment seam (the fourth executor class): the seam
   shape, how to write a closed question, provider classes and which may refuse, grading +
   bands, fail-closed engagement, and the red proof. Paired with

@@ -19,6 +19,16 @@
 // invisible change — and an invisible change to a question is an invisible change to
 // every verdict downstream.
 //
+// WHERE THE ANSWERS COME FROM. The gate is a client of a `/v1/systemone` server named by
+// `judgment.provider.baseUrl`. Three shapes, all real:
+//   local   — "http://127.0.0.1:8493", modelId "laya": Laya 421M (Apache-2.0) served by
+//             von (Apache-2.0). The only shape a GATE may use — the client refuses a
+//             non-loopback base URL outright. Commands: integrations/judgment.md.
+//   remote  — "https://api.typesafe.ai", modelId "jev-1.13.0": Jev, by TypeSafe AI.
+//             A key and a round trip, so it is app-side / author-time work, never a repo
+//             gate. $0.042 per million input tokens, output free.
+//   fixture — the deterministic stub, for every selftest, always.
+//
 // THE THREE PRIMITIVES (wire shapes in `hooks/lib/decision-provider.js`):
 //   noul   — { type:'noul',   instructions }                      -> a probability
 //   choice — { type:'choice', instructions, criteria:{k:desc} }   -> one named key

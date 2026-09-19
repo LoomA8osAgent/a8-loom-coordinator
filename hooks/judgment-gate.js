@@ -5,6 +5,12 @@
 // done, at the moment it is done. Fires on Agent/Task (spawn), Bash (commit) and
 // Edit/Write/MultiEdit (edit), according to which moment each seam in the roster claims.
 //
+// IT IS A HOOK. This file is deployed by hooks/install-hooks.sh and registered at the
+// Edit|Write|MultiEdit, Bash and Agent|Task matchers of hooks/settings.template.json,
+// exactly like every other gate here. "A fourth executor class" is the FAILURE-PATTERNS
+// ledger's word for what KIND OF EVIDENCE an executor can read — meaning rather than
+// tokens — and never a claim about a different mechanism.
+//
 // WHY A FOURTH EXECUTOR CLASS. Every other gate in this package is a MATCHER: a regex,
 // a path set, a registry lookup, a trailer check. Each is correct and none is replaced
 // here. What no matcher reaches is MEANING — "does this brief require its worker to
@@ -21,9 +27,11 @@
 // THE THREE ENGAGEMENT STATES, and this is the one place a reader will reasonably ask
 // whether the gate can fail open. The state is PRINTED, never inferred from silence:
 //
-//   NOT ADOPTED  `judgment.enabled:false` (the default) ⇒ silent no-op, exit 0, exactly
-//                like every other optional block here. Nothing was promised.
-//   NOT ENGAGED  adopted, but no provider is configured ⇒ ONE LINE saying exactly that,
+//   NOT ADOPTED  `judgment.enabled:false` — NOT the default, and the only way to silence
+//                this layer. It switches OFF an executor class; silent no-op, exit 0.
+//   NO SEAMS     enabled (the default) with no roster file ⇒ ONE LINE saying nothing is
+//                declared, exit 0. A roster that EXISTS and will not load still DENIES.
+//   NOT ENGAGED  enabled + seams declared, but no provider ⇒ ONE LINE saying exactly that,
 //                exit 0. This is NOT failing open: no question was asked and none was
 //                promised. The state exists on purpose — every seam ships logging-only
 //                before any band arms.
@@ -50,7 +58,8 @@
 // gets switched off. See `hooks/judgment-server.example.sh`.
 //
 // Config-driven and project-agnostic like every hook here: no config, or
-// `judgment.enabled:false`, ⇒ no-op (exit 0). Exit 2 ⇒ rejected.
+// `judgment.enabled:false`, ⇒ no-op (exit 0). Exit 2 ⇒ rejected. `judgment.enabled`
+// DEFAULTS TO TRUE — the executor class is always on; the PROVIDER is what may be absent.
 
 'use strict';
 const path = require('path');
@@ -186,8 +195,21 @@ function reportGraded(qid, q, a) {
   // roster has not found "no seam applies" — it has found NOTHING, and reporting that as
   // a pass is the fail-open shape by construction. This fires only once the moment
   // matched, so the blast radius is the tool calls the layer actually claims.
+  //
+  // ONE EXCEPTION, and it is what makes ON-BY-DEFAULT safe: a roster file that was never
+  // written is NOT an unreadable roster. Nothing was declared, so nothing is owed — the
+  // gate says exactly that and passes. A roster that EXISTS and cannot be loaded is the
+  // original case and still denies: something was declared and the gate cannot read it.
   let roster;
   const rosterPath = path.resolve(cfg.__repoRoot, j.roster || 'hooks/judgment-roster.js');
+  if (!require('fs').existsSync(rosterPath)) {
+    console.log('JUDGMENT layer at the ' + M.moment + ' moment: no seams declared — ' +
+      (j.roster || 'hooks/judgment-roster.js') + ' does not exist ' +
+      '(copy hooks/judgment-roster.example.js to declare some; see integrations/judgment.md). ' +
+      'Nothing was asked and nothing was promised.');
+    CFG.logGate(cfg, 'judgment-gate', 'PASS', M.subject, 'no-roster');
+    return;
+  }
   try { roster = require(rosterPath); }
   catch (e) {
     CFG.logGate(cfg, 'judgment-gate', 'BLOCK', M.subject, 'roster-unreadable');
