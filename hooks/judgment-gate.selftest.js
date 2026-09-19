@@ -33,8 +33,8 @@
 // legs (c) and (g) must then go RED with "expected exit 2, got exit 0" — the deny path IS
 // the gate.
 //
-// MEASURED 2026-09-19: the suite is 14/14 against the real gate and **12 ok / 2 failed**
-// against the neutered copy, with (c) and (g) reporting exactly "exit 0, expected 2"
+// MEASURED 2026-09-20: the suite is 21/21 against the real gate and **18 ok / 3 failed**
+// against the neutered copy, with (c), (g) and (j3) reporting exactly "exit 0, expected 2"
 // while every GREEN leg stays green (a neuter that reddened everything would prove only
 // that the copy was broken). The refusals still PRINT under the neuter — which is the
 // point of the leg: printing is not refusing, and only the exit code is the gate.
@@ -311,6 +311,130 @@ try {
   const i3 = expect('GREEN (i2) ON with NO roster file prints one line and passes',
     runGate(spawnOf(LIGHT_BRIEF), fixEnv(ALL_PRESENT), noRoster), 0);
   mustSay('(i2)', i3, ['no seams declared', 'Nothing was asked and nothing was promised']);
+
+  // ---- the drift seam — pairs, the code-first short-circuit, and post-hoc ----
+  //
+  // THE PAIRED PATH IS A DIFFERENT PATH AND IS FIXTURED SEPARATELY. A pair question
+  // builds its OWN state (A and B under labelled heads, the budget split between them),
+  // runs a STRING comparison before it asks anything, and prints a split line. None of
+  // that is exercised by the two single-text seams above.
+
+  // A cited source file for the `doc` moment to read. Real bytes on disk: the reader
+  // resolves the citation and reads the lines, and a fixture that stubbed that would be
+  // testing its own stub.
+  fs.mkdirSync(path.join(tmp, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(tmp, 'src', 'app.js'),
+    ['// panel',
+     'function buildPanel(rows) {',
+     '  returns rows unchanged;',
+     '}'].join('\n'));
+
+  const docOf = (body) => ({
+    tool_name: 'Write',
+    tool_input: { file_path: path.join(tmp, 'notes.md'), content: body }
+  });
+  // A claim whose words are NOT the code's words ⇒ the string comparison cannot answer
+  // it, so the model is asked. That is the ONLY case a decision model is for.
+  const DOC_ASK = 'The panel helper hands every caller a defensive copy of its input ' +
+    '(src/app.js:3). Nothing else in the module allocates.';
+  // A claim built from the cited line's OWN tokens ⇒ answerable by string comparison at
+  // zero cost, and the model must never see it.
+  const DOC_MATCH = 'function buildPanel returns rows unchanged, src/app.js:3.';
+
+  // (j1) GREEN — a faithful pair is REPORTED with its value and its verdict word, and
+  // the SPLIT LINE is printed whatever happens: a seam that found everything already
+  // covered and a seam that asked nothing because it was broken must never look alike.
+  const j1 = expect('GREEN (j1) a faithful pair is REPORTED with the split line',
+    // ⚠ A PER-PAIR QUESTION'S FIXTURE KEY IS ITS WIRE ID (`<qid>__<label>`), not the
+    // question id: one question over N pairs goes on the wire as N ids. Planting the
+    // bare id here would answer NOTHING and the map's `default` would decide the leg —
+    // which is exactly how a fixture ends up testing itself.
+    runGate(docOf(DOC_ASK), fixEnv(mkFix('cite-ok', {}, 0.93))), 0);
+  mustSay('(j1)', j1, ['JUDGMENT seam (drift)', 'cite_sentence_matches_lines [src/app.js:3]',
+    '→ matches', '0 present by code match', '1 asked', 'every question answered inside its band']);
+
+  // (j2) GREEN — a LOW answer is the FINDING for this seam, because the band reads the
+  // other way up: high = yes = B still matches A = nothing is wrong. It ADVISES and the
+  // pair is NAMED; exit 0 is the assertion, not a concession — no question in this seam
+  // may ever refuse on its answer.
+  const j2 = expect('GREEN (j2) planted drift ADVISES and NAMES the pair',
+    runGate(docOf(DOC_ASK), fixEnv(mkFix('cite-drift', {}, 0.06))), 0);
+  mustSay('(j2)', j2, ['→ DRIFT', '1 reading as DRIFT',
+    'ADVISORY: cite_sentence_matches_lines [src/app.js:3]']);
+
+  // (j3) RED — the same seam at the same PRE-HOC moment with nothing listening. A gate
+  // that cannot ask does not get to approve, and the typed code is printed verbatim.
+  const j3 = expect('RED (j3) an engaged but unreachable provider DENIES at a pre-hoc moment',
+    runGate(docOf(DOC_ASK), {
+      A8_DECISION_PROVIDER: 'systemone', A8_DECISION_BASE_URL: 'http://127.0.0.1:1',
+      A8_DECISION_TIMEOUT_MS: '2000'
+    }), 2);
+  mustSay('(j3)', j3, ['EDECISIONNOSERVER', 'DENIED: seam "drift"']);
+
+  // (j4) GREEN — THE CODE-FIRST LEG, and its proof is the UNREACHABLE PROVIDER. If the
+  // seam asked anything at all it would print its typed error and (j3) shows it exits 2
+  // when it does — so exit 0 with a `present by code match` line and no typed code is the
+  // proof that ZERO forward passes were spent. Reading the printed line alone would not
+  // be: a seam could print that line and ask anyway.
+  const j4 = expect('GREEN (j4) a pair a string comparison answers costs no model call',
+    runGate(docOf(DOC_MATCH), {
+      A8_DECISION_PROVIDER: 'systemone', A8_DECISION_BASE_URL: 'http://127.0.0.1:1',
+      A8_DECISION_TIMEOUT_MS: '2000'
+    }), 0);
+  mustSay('(j4)', j4, ['present by code match (no model call)', '1 present by code match', '0 asked']);
+  if (!NEUTER && (j4.stdout + j4.stderr).indexOf('EDECISION') !== -1) {
+    die('(j4) the seam reached for a provider it should never have needed\n' + j4.stdout + j4.stderr);
+  }
+
+  // (j5) GREEN — A POST-HOC MOMENT CANNOT REFUSE, AND SAYS SO. The worker has already
+  // returned; a non-zero exit cannot un-spend it. The typed code is still printed and the
+  // verdict is still ledgered as denied — the closest honest account available at a
+  // boundary with no verdict to give. Exit 0 is the assertion.
+  const j5 = expect('GREEN (j5) a provider error at a POST-HOC moment is reported, not refused',
+    runGate({
+      tool_name: 'Agent', hook_event_name: 'PostToolUse',
+      tool_input: { prompt: LIGHT_BRIEF, subagent_type: 'builder' },
+      tool_response: 'I read three unrelated files and rewrote the colour palette.'
+    }, {
+      A8_DECISION_PROVIDER: 'systemone', A8_DECISION_BASE_URL: 'http://127.0.0.1:1',
+      A8_DECISION_TIMEOUT_MS: '2000'
+    }), 0);
+  mustSay('(j5)', j5, ['EDECISIONNOSERVER', 'REPORTED', 'post-hoc moment']);
+
+  // (j6) GREEN — THE COMPACTION LEG, the headline: three operator rulings, a summary
+  // carrying two of them verbatim, the third printed as MISSING. The two quoted rulings
+  // are answered by STRING COMPARISON and cost nothing; only the paraphrase-or-absent one
+  // reaches the model. And the finding prints ABOVE the report, because this output is
+  // injected at the head of a resumed context and a finding printed underneath a report
+  // arrives after the belief it was meant to correct.
+  const R1 = 'ratified: the export adapter ships behind a flag';
+  const R2 = 'yes, adopt the vendored parser';
+  const R3 = 'no more per-record suites — accepted';
+  const transcript = path.join(tmp, 'session.jsonl');
+  fs.writeFileSync(transcript, [
+    JSON.stringify({ type: 'user', message: { role: 'user', content: R1 } }),
+    JSON.stringify({ type: 'user', message: { role: 'user', content: R2 } }),
+    JSON.stringify({ type: 'user', message: { role: 'user', content: R3 } }),
+    // A TOOL RESULT is the same record type with an ARRAY content, and it is EXCLUDED —
+    // otherwise the seam puts words in the operator's mouth and reports a "ruling" that
+    // was never made.
+    JSON.stringify({ type: 'user', message: { role: 'user', content: [{ type: 'text', text: 'yes it compiled' }] } }),
+    JSON.stringify({ type: 'system', subtype: 'compact_boundary' }),
+    JSON.stringify({ type: 'user', isCompactSummary: true, message: { role: 'user', content:
+      '## Decisions\n- ' + R1 + '\n\n## Also\n- ' + R2 + '\n' } }),
+    ''
+  ].join('\n'));
+  const j6 = expect('GREEN (j6) a compaction summary missing a ruling PRINTS the ruling',
+    runGate({
+      hook_event_name: 'SessionStart', source: 'compact',
+      cwd: tmp, transcript_path: transcript
+    }, fixEnv(mkFix('compaction', { summary_carries_ruling__3: 0.04 }))), 0);
+  mustSay('(j6)', j6, ['JUDGMENT FINDING (drift/summary_carries_ruling) — MISSING',
+    'summary_carries_ruling [3]', '2 present by code match (no model call)', '1 asked',
+    'POST-HOC (reported, never refused)']);
+  if (!NEUTER && (j6.stdout + j6.stderr).indexOf('yes it compiled') !== -1) {
+    die('(j6) a tool result was mined as an operator ruling');
+  }
 
   console.log('\n' + (failed ? 'FAIL' : 'PASS') + '  judgment-gate — ' + passed + ' ok, ' + failed + ' failed');
 } finally {

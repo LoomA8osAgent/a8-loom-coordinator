@@ -165,12 +165,147 @@ cp hooks/judgment-roster.example.js hooks/judgment-roster.js
 Leave `providerClass` empty until you have MEASURED calibration (§5). **Undeclared is not
 TRAINED, and only TRAINED arms a refusal band.**
 
-The two example seams, both at the `spawn` moment, both advisory:
+The four example seams, all advisory:
 
-| seam | primitive | what it reads |
+| seam | primitive | moment | what it reads |
+|---|---|---|---|
+| `briefAudit` | four Nouls | spawn | a worker brief's CONTRACT — does it demand an evidence list, state its return shape, name files to read in full rather than summarise them, state its proof tier |
+| `proofTier` | one 3-rung Score | spawn | how much verification the brief actually describes, scoped by `appliesRe` to briefs that declare the light tier |
+| `drift` | five Nouls | result · commit · doc · compaction | **does A still describe B** — at five boundaries where B was just re-authored from A and nothing reads the two back against each other (§3.1) |
+| `supervisor` | three Nouls | while a lane runs | is the lane still on brief, is it stuck, is it proving past its tier — the only seam that is not a boundary (§3.2) |
+
+---
+
+### 3.1 Drift — *does A still describe B*
+
+Five questions, one shape, five boundaries. Each is a pair of texts that are supposed to
+say the same thing, at a moment where one of them has just been rewritten from the other:
+
+| A | B | moment |
 |---|---|---|
-| `briefAudit` | four Nouls | a worker brief's CONTRACT — does it demand an evidence list, state its return shape, name files to read in full rather than summarise them, state its proof tier |
-| `proofTier` | one 3-rung Score | how much verification the brief actually describes, scoped by `appliesRe` to briefs that declare the light tier |
+| the brief sent to a worker | the report that came back | `result` |
+| the work item a commit cites | the subject + the staged files | `commit` |
+| the commit message body | the staged change | `commit` |
+| a sentence carrying a `file:line` | the lines it cites | `doc` |
+| an operator ruling in the session | the compaction summary | `compaction` |
+
+Three things about it are worth knowing before you turn it on.
+
+**The band reads the other way up.** `briefAudit` asks a question whose YES is the thing
+being looked for. Here high = yes = *"B still matches A"* = **nothing is wrong**, so the
+finding is the **LOW** answer. Phrasing it as *"has this drifted"* is refused: that is a
+double negative, and with a negated question you cannot tell which side of an uncertain
+0.5 is the good one. The direction is declared per question (`findingAt`) and compared in
+one place.
+
+**Never ask a model a question a regex answers.** This family has a whole class of
+instances where A is *literally inside* B — a summary quoting the ruling it compacts, a
+return restating the task, a subject carrying the item's own title. All answerable by
+string comparison, at zero cost, with nothing to calibrate. So `codeMatch` runs FIRST and
+the Noul is asked only about the remainder. **The model is for PARAPHRASE.** Every fire
+prints the split:
+
+```
+  · summary_carries_ruling [1] → present by code match (no model call) — A appears verbatim in B
+  · summary_carries_ruling [3] = 0.04  → MISSING
+  pairs: 2 present by code match (no model call) · 1 asked · 1 reading as MISSING
+```
+
+Without that line, *a seam that found everything already covered* and *a seam that asked
+nothing because it was broken* look identical.
+
+**Two of its moments cannot refuse, and say so.** `result` and `compaction` are POST-HOC:
+the work has already happened and a non-zero exit cannot un-spend it — at `compaction` it
+would abort a session over an advisory reading of a summary. At those two the gate prints
+the finding, ledgers it, and exits 0, with `POST-HOC (reported, never refused)` in its own
+header. The pre-hoc moments (`commit`, `doc`) deny on a provider error exactly as
+`briefAudit` does.
+
+**The compaction moment is the one that needs a hook you do not already have.** The gate is
+registered on `SessionStart` by `hooks/install-hooks.sh`; if you wired settings by hand, the
+line is:
+
+```json
+"SessionStart": [{ "hooks": [
+  { "type": "command", "command": "node \"<hooks dir>/judgment-gate.js\"", "timeout": 15,
+    "statusMessage": "judgment seam (compaction)..." }
+]}]
+```
+
+It fires only when the client reports `source: "compact"` — a fresh start and a resume are
+not this moment — and it reads the transcript the client names. Rulings are mined in code
+(a typed operator turn carrying a decision word; a tool result is excluded, or the seam
+puts words in the operator's mouth), the best-matching summary section is chosen in code,
+and the missing ones print FIRST — this output lands at the head of a resumed context, and
+a finding printed underneath a report arrives after the belief it was meant to correct.
+
+The `result` moment needs the matching `PostToolUse` registration (`Agent|Task`), which
+the installer also writes.
+
+---
+
+### 3.2 Supervisor — judging a lane while it is still running
+
+Every other seam judges at a boundary, and for a lane a boundary is always either too
+early or too late: `briefAudit` reads a brief before a token is spent, `drift`'s
+`lane_return_matches_brief` reads the report after every one of them has been. The
+supervisor asks the same family of question in the one window where the answer can still
+change what is spent.
+
+**It is OFF by default, and that is the one block in this package that is.** It spawns a
+detached process, and a package must never do that silently.
+
+```json
+"judgment": {
+  "supervisor": {
+    "enabled": true,
+    "dir": "",                       // default: a temp dir
+    "agentRe": "",                   // '' = watch every spawn
+    "instrumentWords": ["full-suite", "coverage-sweep"]
+  }
+}
+```
+
+⛔ **The monitor cannot act, and that is the seam's boundary, not a gap.** It has no
+channel to a running worker: it cannot message one, it cannot stop one, and it is given
+no verdict to execute. Every action is a FILE the coordinator reads at its next tool
+boundary — printed back into the worker's result — and the coordinator relays it or
+declines to. An "autonomous supervisor" that could stop a lane on an ~88%-ceiling reading
+of a partial log would be a refusal band armed on nothing.
+
+**Three questions, two directions.** `lane_on_brief`'s finding is the LOW answer;
+`lane_stuck` and `lane_over_proof`'s is the HIGH one. Declared per question, compared in
+one place — a supervisor reporting healthy on a stuck lane is a gate failing open with a
+confident voice.
+
+**The code-first rule points the OTHER way here.** For `drift` a code match means nothing
+is wrong; here a code hit on `lane_stuck` (identical consecutive steps) or
+`lane_over_proof` (a word from YOUR declared instrument list) means **the finding is
+already made**. Each is labelled with which it was. A code answer is a CERTAINTY and is
+not banded: it crosses both policy cuts by construction, because every comparison against
+`NaN` is false and a finding run through a probability cut would be silently discarded.
+
+**The policy is DATA in the roster, and every number in it is a placeholder that says so**
+— cadence, back-off, `maxSteers: 1`, the grace period, the quiet backstop, the per-question
+thresholds, and which questions may ever reach a stop verdict (`lane_on_brief` may not: a
+lane reading off-brief may be doing the right thing by a route the brief did not name).
+No coverage curve exists for this seam; the cuts sit where an advisory is cheap and a
+steer is not, and they are not a measurement.
+
+**What you must wire, and it is one file.** This package cannot know your runtime's
+transcript layout, so it does not guess one: the monitor reads an append-only STEP LOG at
+`<dir>/<key>.observe`, one step per line (`{"name":"Bash","args":"npm test"}` or a plain
+`tool args` line), plus `git status --porcelain` in the lane's cwd. If nothing in your
+stack writes that file, the monitor SAYS SO in its log and reports on the tree alone —
+silence is the one answer it may not give.
+
+**On a provider error it backs off and keeps asking.** The remedies printed for a DEAD
+provider do not apply to a BUSY one, and dropping to the fixture to get past it disengages
+a seam that is working.
+
+```bash
+node hooks/judgment-supervisor.selftest.js     # 8 legs, fixture provider, zero network
+```
 
 ---
 

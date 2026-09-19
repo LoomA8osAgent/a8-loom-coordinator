@@ -3,16 +3,42 @@
     "SessionStart": [
       {
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/no-worktree.js\"", "timeout": 3, "statusMessage": "Worktree-CWD check..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/session-regenerate.js\"", "timeout": 30, "statusMessage": "Regenerating indexes..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/clean-session-artifacts.js\"", "timeout": 10, "statusMessage": "Sweeping session artifacts..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/no-worktree.js\"",
+            "timeout": 3,
+            "statusMessage": "Worktree-CWD check..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/session-regenerate.js\"",
+            "timeout": 30,
+            "statusMessage": "Regenerating indexes..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/clean-session-artifacts.js\"",
+            "timeout": 10,
+            "statusMessage": "Sweeping session artifacts..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
+            "timeout": 15,
+            "statusMessage": "judgment seam (compaction)..."
+          }
         ]
       }
     ],
     "UserPromptSubmit": [
       {
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/codegraph-sync-stale.js\"", "timeout": 3, "statusMessage": "codegraph stale-check..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/codegraph-sync-stale.js\"",
+            "timeout": 3,
+            "statusMessage": "codegraph stale-check..."
+          }
         ]
       }
     ],
@@ -20,32 +46,87 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/grep-required.js\"", "timeout": 5, "statusMessage": "grep-required gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/spec-gate.js\"", "timeout": 6, "statusMessage": "spec-catalog gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/new-surface-consent.js\"", "timeout": 5, "statusMessage": "new-surface consent gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/helper-home.js\"", "timeout": 5, "statusMessage": "helper-home gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/judgment-gate.js\"", "timeout": 15, "statusMessage": "judgment seam (edit)..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/grep-required.js\"",
+            "timeout": 5,
+            "statusMessage": "grep-required gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/spec-gate.js\"",
+            "timeout": 6,
+            "statusMessage": "spec-catalog gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/new-surface-consent.js\"",
+            "timeout": 5,
+            "statusMessage": "new-surface consent gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/helper-home.js\"",
+            "timeout": 5,
+            "statusMessage": "helper-home gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
+            "timeout": 15,
+            "statusMessage": "judgment seam (edit)..."
+          }
         ]
       },
       {
         "matcher": "Bash",
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/docsync-commit.js\"", "timeout": 8, "statusMessage": "doc-sync commit gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/state-persistence-commit.js\"", "timeout": 8, "statusMessage": "state-persistence commit gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/satellite-gate.js\"", "timeout": 8, "statusMessage": "satellite commit gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/judgment-gate.js\"", "timeout": 15, "statusMessage": "judgment seam (commit)..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/docsync-commit.js\"",
+            "timeout": 8,
+            "statusMessage": "doc-sync commit gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/state-persistence-commit.js\"",
+            "timeout": 8,
+            "statusMessage": "state-persistence commit gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/satellite-gate.js\"",
+            "timeout": 8,
+            "statusMessage": "satellite commit gate..."
+          },
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
+            "timeout": 15,
+            "statusMessage": "judgment seam (commit)..."
+          }
         ]
       },
       {
         "matcher": "Agent|Task",
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/judgment-gate.js\"", "timeout": 15, "statusMessage": "judgment seam (spawn)..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
+            "timeout": 15,
+            "statusMessage": "judgment seam (spawn)..."
+          }
         ]
       },
       {
         "matcher": "mcp__playwright__browser_evaluate|mcp__playwright__browser_click|mcp__playwright__browser_type|mcp__playwright__browser_hover|mcp__playwright__browser_run_code_unsafe|mcp__playwright__browser_drag|mcp__playwright__browser_press_key",
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/verification-first.js\"", "timeout": 3, "statusMessage": "verification-first gate..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/verification-first.js\"",
+            "timeout": 3,
+            "statusMessage": "verification-first gate..."
+          }
         ]
       }
     ],
@@ -53,7 +134,23 @@
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "node \"__HOOKS_DIR__/codegraph-sync-postedit.js\"", "timeout": 3, "statusMessage": "codegraph sync..." }
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/codegraph-sync-postedit.js\"",
+            "timeout": 3,
+            "statusMessage": "codegraph sync..."
+          }
+        ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
+            "timeout": 15,
+            "statusMessage": "judgment seam (result)..."
+          }
         ]
       }
     ]

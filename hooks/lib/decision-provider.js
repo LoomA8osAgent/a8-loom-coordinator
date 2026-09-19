@@ -540,8 +540,43 @@ function catalogSelector(opts) {
   };
 }
 
+// ---- provider resolution from a project's config ----------------------------
+//
+// ONE HOME for "which provider does this project ask, and what is it allowed to do".
+// Both the gate and the optional monitor resolve it; a second copy would drift, and the
+// thing it decides — whether a band may arm — is the last value in this package that
+// should have two answers.
+//
+// Config first, ENVIRONMENT second: the override exists so a red-fixture can point at the
+// deterministic stub without editing the project's config, which is the only way a
+// selftest can be both honest and side-effect free.
+function resolveFromConfig(cfg) {
+  const j = (cfg && cfg.judgment) || {};
+  const p = j.provider || {};
+  const kind = String(process.env.A8_DECISION_PROVIDER || p.kind || '').trim().toLowerCase();
+  if (!kind) return { engaged: false, why: 'no judgment.provider.kind configured and no A8_DECISION_PROVIDER' };
+  if (kind !== 'systemone' && kind !== 'fixture') {
+    return { engaged: false, why: 'provider kind "' + kind + '" is not one this client speaks (systemone | fixture)' };
+  }
+  return {
+    engaged: true,
+    why: (process.env.A8_DECISION_PROVIDER ? 'A8_DECISION_PROVIDER=' : 'judgment.provider.kind=') + kind,
+    provider: {
+      kind: kind,
+      baseUrl: process.env.A8_DECISION_BASE_URL || p.baseUrl || 'http://127.0.0.1:8497',
+      modelId: process.env.A8_DECISION_MODEL || p.modelId || '',
+      fixturePath: process.env.A8_DECISION_FIXTURE || p.fixturePath || '',
+      // The CLASS gates what the provider may DO. Undeclared is not TRAINED, so an
+      // undeclared provider can never arm a refusal — the safe direction, and the honest
+      // one for a value nobody measured.
+      providerClass: (process.env.A8_DECISION_CLASS || p.providerClass || '').toUpperCase()
+    }
+  };
+}
+
 module.exports = {
   evaluate,
+  resolveFromConfig,
   catalogSelector,
   validateAnswers,
   argmaxOf,

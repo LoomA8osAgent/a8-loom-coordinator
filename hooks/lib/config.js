@@ -103,7 +103,22 @@ const DEFAULTS = {
     enabled: true, roster: 'hooks/judgment-roster.js', stateMaxChars: 2000,
     timeoutMs: 8000, commitRe: '\\bgit\\b[^|;&]*\\bcommit\\b',
     provider: { kind: null, baseUrl: 'http://127.0.0.1:8493', modelId: '', fixturePath: '', providerClass: '' },
-    seams: {}
+    seams: {},
+    // supervisor — the OPTIONAL in-flight monitor (hooks/judgment-supervisor.js).
+    // ⚠ OFF BY DEFAULT, unlike the layer above it, and for one reason: it is the only
+    // thing in this package that SPAWNS A DETACHED PROCESS, and a package must never do
+    // that silently. Turning it on makes the gate launch one monitor per spawned worker
+    // and write its sentinel when that worker returns; the monitor itself only ever
+    // WRITES proposals — it has no channel to a running worker and executes nothing.
+    //   dir              where the monitor's per-lane files live (brief / observe / log /
+    //                    pending / done). Default: a temp dir.
+    //   agentRe          only watch workers whose type matches. '' = watch every spawn.
+    //   instrumentWords  YOUR project's proving instruments, declared ONCE, here. The
+    //                    over-proof question is answered from this list in code when it
+    //                    exists; when it does not, the question goes to the MODEL and the
+    //                    log says why. This package ships no list of its own — a second
+    //                    list would silently exempt every instrument added to the first.
+    supervisor: { enabled: false, dir: '', agentRe: '', instrumentWords: [] }
   }
 };
 

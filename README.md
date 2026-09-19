@@ -16,6 +16,64 @@ MIT licensed. Extracted from production use, not designed on a whiteboard.
 
 ---
 
+## What's new in 0.4 — two seam families, and the first measured chapter
+
+### A. Drift — *does A still describe B*, at five boundaries
+
+One seam, five Nouls, one question, asked wherever B has just been re-authored from A and
+nothing reads the two back against each other: a worker's **return** against the brief it
+was sent · a **commit** against the work item it cites · a commit **message** against the
+change staged beneath it · a **sentence** against the `file:line` it cites · an operator
+**ruling** against the compaction summary that replaced the session's account of itself.
+Five seams would have meant five state assemblies and five ledger vocabularies for one
+question.
+
+Two rules make it cheap and make it honest. **Never ask a model a question a regex
+answers** — a summary that quotes its ruling, a return that restates its task and a
+subject carrying the item's own title are all answered by string comparison at zero cost,
+so `codeMatch` runs first and the model is asked only about PARAPHRASE, with the split
+printed every time (*n present by code match · n asked · n reading as DRIFT*). And **the
+band reads the other way up**: high = yes = nothing is wrong, so the finding is the LOW
+answer — never phrased as *"has this drifted"*, because with a negated question you cannot
+tell which side of an uncertain 0.5 is the good one. Two of its five moments — a returned
+worker, a resumed session — are POST-HOC and CANNOT refuse; they print the finding,
+ledger it, and say so in their own header.
+
+### B. Supervisor — the seam that judges a lane while it is still running
+
+Every other seam judges at a boundary, and for a lane a boundary is always either too
+early or too late. This one asks three questions — *on brief · stuck · proving past its
+tier* — from a bounded observation, in the one window where the answer can still change
+what is spent. Shape from [`thruwire/foreman`](https://github.com/thruwire/foreman)
+(bounded observations, parallel questions over one rendering, a policy table with named
+thresholds, steer-once behind a grace period); its cloud transport and its acting are
+refused, and nothing is imported as code. ⛔ **The monitor cannot act, and that is the
+seam's boundary, not a gap** — it has no channel to a running worker, so every action is
+a FILE the coordinator reads at its next tool boundary and relays, or declines to. It is
+**OFF by default** (`judgment.supervisor.enabled`): it spawns a detached process, and a
+package must never do that silently. Every number in its policy table is a placeholder
+that says it is one.
+
+### C. The first public calibration run of a local decision model — and the prior art
+
+`governance/LOCAL-MODELS.md` §7 is the measured chapter: a labeled 16-way seam over this
+stack's own content, 5-fold CV, a coverage curve at seven thresholds, top-label ECE, and
+the band rule. Laya 421M via von reads **34.5% accuracy / ECE 0.60 / 156 ms**, anti-
+calibrated. Retraining its own head on receipts and labeled rows moves **ECE 0.60 → 0.11
+with accuracy essentially flat** — a trained local head at a few hundred rows learns
+CALIBRATION, not the mapping, and 116 added rows bought the four weakest roles zero
+accuracy. The conclusion is a seam-shape rule, not a model verdict: a wide closed-
+vocabulary classification over domain jargon is the wrong seam for a 421M-class model; a
+yes/no fact-check over prose is the fit — which is exactly what both seams above are.
+§8 records the prior art, one row each, with what was adopted as a SHAPE and what was
+refused and why (`coldteadotai/abide` · `thruwire/foreman` · `jaredpalmer/kev` ·
+`featherless-ai/simple-jev` · `cocktailpeanut/jevthoven` · `convaiinnovations/laya` +
+`wfzyx/von`). `integrations/judgment.md` §9 carries the calibrate-and-retrain quickstart:
+the shape of a labeled row, the calibrate tool's output, and the trainer's flags — marked
+PROPOSED, because this package vends no labeled data, no trainer and no calibration tool.
+
+---
+
 ## What's new in 0.3 — two new layers
 
 ### A. Constraint BEFORE, not refusal after — the spec catalog
@@ -302,6 +360,20 @@ and relevance seams are never built.*
    [CodeGraph](integrations/codegraph.md); enable [caveman mode](integrations/caveman.md).
 
 ## Changelog
+
+- **0.4.0** — Two new seam families for the judgment layer, plus the measured chapter
+  behind them. **`drift`** (five Nouls, one question — *does A still describe B*) fires at
+  the result / commit / doc / compaction moments, runs a string comparison BEFORE the model
+  and prints the split, reads its band the other way up (the finding is the LOW answer), and
+  REPORTS rather than refuses at the two post-hoc moments. **`supervisor`**
+  (`hooks/judgment-supervisor.js`, OFF by default — it spawns a process) judges a lane while
+  it runs and writes proposals it has no channel to deliver; its policy table is data in the
+  roster and every number in it is a labelled placeholder. New moments registered:
+  `PostToolUse Agent|Task` and `SessionStart`. Provider resolution moved to
+  `hooks/lib/decision-provider.js` so the gate and the monitor read ONE answer. Selftests:
+  `judgment-gate` 21 legs, `judgment-supervisor` 8. Measured + prior art:
+  `governance/LOCAL-MODELS.md` §7–§8; calibrate/retrain quickstart `integrations/judgment.md` §9;
+  the seam-fit finding `skills/judgment-SKILL.md` §8.
 
 - **0.3.2** — Judgment goes ON by default (`judgment.enabled: true`, `provider.kind: null`):
   the executor class is always on, the provider is what may be absent, and the gate prints

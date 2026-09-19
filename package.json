@@ -1,7 +1,7 @@
 {
   "name": "a8-loom-coordinator",
-  "version": "0.3.2",
-  "description": "Governance, skills, and hooks stack for running Claude (or any capable LLM) as an autonomous senior engineer on any software project — frontend or backend, any language. Config-driven, agent-native, MIT.",
+  "version": "0.4.0",
+  "description": "Governance, skills, and hooks stack for running Claude (or any capable LLM) as an autonomous senior engineer on any software project \u2014 frontend or backend, any language. Config-driven, agent-native, MIT.",
   "keywords": [
     "claude",
     "claude-code",
@@ -27,7 +27,9 @@
     "codegen",
     "decision-model",
     "local-llm",
-    "calibration"
+    "calibration",
+    "drift-detection",
+    "in-flight-monitoring"
   ],
   "homepage": "https://github.com/LoomA8osAgent/a8-loom-coordinator#readme",
   "bugs": {
@@ -73,6 +75,7 @@
     "catalog": "node tools/gen-catalog.js",
     "selftest:spec-gate": "node hooks/spec-gate.selftest.js",
     "selftest:judgment-gate": "node hooks/judgment-gate.selftest.js",
+    "selftest:judgment-supervisor": "node hooks/judgment-supervisor.selftest.js",
     "selftest:verification-first": "node hooks/verification-first.selftest.js",
     "postinstall": "node -e \"console.log('\\n  a8-loom-coordinator installed. Run:  npx a8-loom-coordinator init\\n')\""
   },
