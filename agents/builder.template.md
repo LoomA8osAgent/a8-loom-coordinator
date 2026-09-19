@@ -43,6 +43,16 @@ machinery under different names. So:
   (`HELPER-HAND-ROLL`). Never invent a new abstraction/vocabulary where canon exists
   (`NEW-VOCABULARY-WITHOUT-CONSENT`; on a frontend, its CSS instance `NEW-CLASS-WITHOUT-CONSENT`).
   Never theorize a measured value — measure it on the running system (`LAYOUT-DERIVED-NOT-MEASURED`).
+- **If `specCatalog` is on, you emit a SPEC — you do not assemble a new surface.** Your
+  preloaded payload is `{{specCatalog.catalogDir}}/catalog.prompt.md` (the catalog +
+  the spec format + the workflow), NOT a raw ruleset: a rule in context is advice, a
+  rule in a refusal is a wall, and an oversized preload is filed away undelivered while
+  the tooling reports success. The loop is: write `{{specCatalog.specDir}}/<name>.json
+  naming only catalog entries → `validate.js` (0 issues; `--fix` is lossless-only) →
+  `compile.js` → paste the emitted block verbatim and syntax-check it. A new surface
+  with no compile receipt is REFUSED by `spec-gate`. If the capability is genuinely
+  absent from the catalog it is NEW — STOP and get express consent; never widen the
+  spec by hand-writing the part the catalog would not let you name.
 - Canon-grep before every edit (cite `<file>:<line>` — the grep-required hook enforces it).
   View source at exact lines; never edit from memory. Syntax-check after each edit
   (`{{syntaxCheck.command}}`); do the project's cache-bust step for any touched file.

@@ -72,6 +72,45 @@
     "rules": [],
     "fileTypes": []
   },
+  "specCatalog": {
+    "_readme": "CONSTRAINT-BEFORE instead of refusal-AFTER (integrations/spec-catalog.md). The code registry is projected into a catalog + a byte-capped prompt; a builder emits a {helper, props, children} spec that can only name catalog entries; compile.js emits real calls + an HMAC receipt; hooks/spec-gate.js refuses a new surface no receipt covers. enabled:false => every piece of this is inert.",
+    "enabled": false,
+    "catalogDir": "tools/spec-catalog",
+    "specDir": "specs/ui-specs",
+    "annotationTag": "@catalog",
+    "propReadRe": "\\b(?:opts|options|config|props)\\.([A-Za-z_]\\w*)",
+    "types": ["element", "string", "number", "bool", "fn", "object", "element[]", "any"],
+    "exampleSpec": "",
+    "keyFile": "~/.claude/spec-catalog.key",
+    "signalEntry": {},
+    "sealedShells": [],
+    "classPropRe": "(^|[a-z])class(es)?$|^cls|Class(es)?$",
+    "emit": { "callPrefix": "", "decl": "var", "fnKeyword": "function", "end": ";", "appendMethod": "appendChild", "quotes": "single", "maxLine": 94 },
+    "emitBans": [],
+    "appScopeRe": "",
+    "gateScopeGlobs": [],
+    "taskMap": null,
+    "promptTargetBytes": 24576,
+    "promptCeilingBytes": 32768,
+    "promptPruning": { "enabled": false, "maxSections": 6 },
+    "autofixSelector": "distance"
+  },
+  "judgment": {
+    "_readme": "THE FOURTH EXECUTOR CLASS (skills/judgment-SKILL.md + governance/LOCAL-MODELS.md). A decision model answers a CLOSED question at a gate boundary, where no matcher can reach the signal — meaning. Code enumerates, the model picks one of the things code enumerated, code renders. It never generates, counts, orders dates, measures geometry, or judges a render. enabled:false (the default) => hooks/judgment-gate.js is a silent no-op.",
+    "enabled": false,
+    "roster": "hooks/judgment-roster.js",
+    "stateMaxChars": 2000,
+    "timeoutMs": 8000,
+    "commitRe": "\\bgit\\b[^|;&]*\\bcommit\\b",
+    "provider": {
+      "kind": "",
+      "baseUrl": "http://127.0.0.1:8497",
+      "modelId": "",
+      "fixturePath": "",
+      "providerClass": ""
+    },
+    "seams": {}
+  },
   "session": {
     "generators": [],
     "deploySkillsAgents": "node tools/gen-skills-agents.js",

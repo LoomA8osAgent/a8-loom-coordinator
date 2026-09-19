@@ -100,9 +100,56 @@
       }
     ]
   },
+  "specCatalog": {
+    "enabled": true,
+    "catalogDir": "tools/spec-catalog",
+    "specDir": "specs/ui-specs",
+    "annotationTag": "@catalog",
+    "propReadRe": "\\b(?:opts|options|config|props)\\.([A-Za-z_]\\w*)",
+    "types": ["element", "string", "number", "bool", "fn", "object", "element[]", "any"],
+    "exampleSpec": "specs/ui-specs/panel-rows.json",
+    "keyFile": "~/.claude/spec-catalog.key",
+    "signalEntry": { "slider-host-hand-roll": "panelBuildSliderHostFromInputs" },
+    "sealedShells": ["floatingModuleSkeleton"],
+    "classPropRe": "(^|[a-z])class(es)?$|^cls|Class(es)?$|^prefixClasses$",
+    "emit": { "callPrefix": "window.", "decl": "var", "fnKeyword": "function", "end": ";", "appendMethod": "appendChild", "quotes": "single", "maxLine": 94 },
+    "emitBans": [
+      { "re": "createElement\\s*\\(", "why": "createElement — raw DOM assembly is the hand-roll this layer makes inexpressible (HELPER-HAND-ROLL)" },
+      { "re": "\\bdocument\\s*\\.", "why": "document.* — the emitted function receives its host and never queries the document" },
+      { "re": "innerHTML|outerHTML|insertAdjacentHTML", "why": "innerHTML family — markup by string" },
+      { "re": "\\.className\\s*=|classList\\s*\\.", "why": "class writing — a class belongs to the unit that OWNS it, never to emitted glue (NEW-CLASS-WITHOUT-CONSENT)" },
+      { "re": "\\bnew\\s+Function\\b", "why": "new Function is forbidden" }
+    ],
+    "appScopeRe": "/js/",
+    "gateScopeGlobs": ["js/**/*.js", "css/app.css"],
+    "promptTargetBytes": 24576,
+    "promptCeilingBytes": 32768,
+    "promptPruning": { "enabled": false, "maxSections": 6 },
+    "autofixSelector": "distance"
+  },
+  "judgment": {
+    "_readme": "Shown WIRED but DISENGAGED — provider.kind is empty, so the gate prints 'not engaged' and passes. That is the shipping state of every seam: a band arms only after a labeled set measures it AND a hostile-input leg is green (governance/LOCAL-MODELS.md §5). To engage on the deterministic stub: provider.kind='fixture' + a fixturePath. To engage on a real judge: provider.kind='systemone' + a loopback baseUrl (hooks/judgment-server.example.sh).",
+    "enabled": true,
+    "roster": "hooks/judgment-roster.js",
+    "stateMaxChars": 2000,
+    "timeoutMs": 8000,
+    "commitRe": "\\bgit\\b[^|;&]*\\bcommit\\b",
+    "provider": {
+      "kind": "",
+      "baseUrl": "http://127.0.0.1:8497",
+      "modelId": "",
+      "fixturePath": "",
+      "providerClass": ""
+    },
+    "seams": {
+      "briefAudit": { "moment": "spawn", "mode": "advisory" },
+      "proofTier": { "moment": "spawn", "mode": "advisory" }
+    }
+  },
   "session": {
     "generators": [
       "node tools/gen-code-registry.js",
+      "node tools/gen-catalog.js",
       "node tools/gen-manifest.js",
       "node tools/gen-changelog.js"
     ],

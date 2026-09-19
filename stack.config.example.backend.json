@@ -59,6 +59,14 @@
       }
     ]
   },
+  "specCatalog": {
+    "_readme": "OFF here, but adoptable: nothing in this layer is frontend-specific (the class/`owns` half is gated on frontend.enabled). A Python project sets propReadRe to its own options shape (e.g. \\b(?:opts|kwargs|cfg)\\.([A-Za-z_]\\w*)), emit to {callPrefix:'', decl:'', fnKeyword:'def', end:'', appendMethod:'append'}, and emitBans to the raw-assembly shapes its helpers exist to replace. See integrations/spec-catalog.md.",
+    "enabled": false
+  },
+  "judgment": {
+    "_readme": "OFF here, and nothing about it is frontend-specific — the seams read PROSE (a worker brief, a commit message, a paragraph), which every project has. A backend project adopting it copies hooks/judgment-roster.example.js, writes its own questions, ships them advisory, and reads governance/LOCAL-MODELS.md before arming any band.",
+    "enabled": false
+  },
   "session": {
     "generators": ["python tools/gen_code_registry.py", "python tools/gen_changelog.py"],
     "deploySkillsAgents": "node tools/gen-skills-agents.js",

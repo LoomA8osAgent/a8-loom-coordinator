@@ -1,0 +1,51 @@
+{
+  "name": "@json-render/codegen",
+  "version": "0.21.0",
+  "license": "Apache-2.0",
+  "description": "Utilities for generating code from json-render UI trees",
+  "keywords": [
+    "json",
+    "ui",
+    "codegen",
+    "code-generation",
+    "export"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vercel-labs/json-render.git",
+    "directory": "packages/codegen"
+  },
+  "homepage": "https://json-render.dev",
+  "bugs": {
+    "url": "https://github.com/vercel-labs/json-render/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@json-render/core": "0.21.0"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.5",
+    "@internal/typescript-config": "0.0.0"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  }
+}

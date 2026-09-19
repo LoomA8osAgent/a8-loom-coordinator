@@ -74,7 +74,21 @@ const DEFAULTS = {
   install: { hooksDir: '~/.claude/hooks', gateLog: '~/.claude/gate.log',
     settingsTarget: '.claude/settings.json', maxBackups: 2 },
   serviceRecovery: { notifyEnabled: true, notifyCommand: '', logFile: '~/.claude/service-recovery.log', autoResume: false },
-  codegraph: { syncEnabled: true, staleThresholdMinutes: 5, binaryCandidates: [] }
+  codegraph: { syncEnabled: true, staleThresholdMinutes: 5, binaryCandidates: [] },
+  // judgment — the OPT-IN decision-model layer (hooks/judgment-gate.js). A fourth
+  // executor class beside hook / generator / human judgment: it answers a CLOSED question
+  // at a gate boundary where no matcher can reach the signal, which is MEANING. Code
+  // enumerates, the model picks one of the enumerated things, code renders.
+  // enabled:false (the default) ⇒ the gate is a SILENT no-op, like every other optional
+  // block here. The questions live in the PROJECT's own roster file and never in a hook;
+  // the provider is loopback-only and the client refuses anything else.
+  // See skills/judgment-SKILL.md + governance/LOCAL-MODELS.md.
+  judgment: {
+    enabled: false, roster: 'hooks/judgment-roster.js', stateMaxChars: 2000,
+    timeoutMs: 8000, commitRe: '\\bgit\\b[^|;&]*\\bcommit\\b',
+    provider: { kind: '', baseUrl: 'http://127.0.0.1:8497', modelId: '', fixturePath: '', providerClass: '' },
+    seams: {}
+  }
 };
 
 function expandTilde(p) {

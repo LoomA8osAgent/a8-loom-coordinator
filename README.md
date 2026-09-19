@@ -124,12 +124,16 @@ governance/    CLAUDE / OPERATOR / ROUTING / WORK / SESSION / HANDOFF templates,
                ACKNOWLEDGEMENTS
 skills/        coordinator (delegation + brief contract + audit contract + the
                model grid + the git work method), model-succession (the
-               seat-handoff letter), doc-sync, dev-infrastructure,
-               init-interview, skill-creator
+               seat-handoff letter), judgment (the decision-model seam:
+               questions, providers, bands, the red proof), doc-sync,
+               dev-infrastructure, init-interview, skill-creator
 hooks/         the enforcement floor (all config-driven, language-agnostic):
                canon-before-edit, anti-hand-roll, discover-then-reuse consent,
                doc-sync + state-persistence commit gates, verification-first,
                session regenerators, caveman mode, service recovery, install script
+               — plus the OPT-IN judgment layer: judgment-gate + the one
+               decision-model client (loopback-only, fail-closed, typed errors)
+               + a roster template + a red-fixture proven red
 ENFORCEMENT.md the architecture of the floor: the four moments a gate fires
                (edit / spawn / commit / turn-boundary), the gates on the
                INSTRUMENTS you verify with, the meta-gates that keep the gates
@@ -138,6 +142,10 @@ ENFORCEMENT.md the architecture of the floor: the four moments a gate fires
 tools/         the anti-drift generators: code registry (+ zero-caller orphan
                report), skills/agents deploy, manifest, changelog, citation
                linter — plus work.js, the one flat work list
+               gen-catalog + tools/spec-catalog/: the OPT-IN constraint layer —
+               the registry projected into a catalog + a byte-capped builder
+               payload, a constrained spec, a compiler, an HMAC'd receipt, and
+               the gate that refuses a new surface no receipt covers
 agents/        planner / builder / auditor archetypes with preloaded-canon pattern
                and the brief contract (BUDGET + PROOF, paths not prose)
 frontend/      OPT-IN CSS/DOM module (backend projects ignore it): the
@@ -170,6 +178,24 @@ Three design principles run through all of it:
    leaves only against a real commit), what runs without asking, what stops and queues,
    and the rails — so a spot-check takes ten seconds and the backlog can't fork into a
    second list.
+
+**And one opt-in fourth executor class, for the rules a matcher cannot read.** Some
+standing rules live in prose *because their signal is meaning rather than shape* — "this
+brief must require its worker to report the retrievals behind its claims", "this body must
+not describe a whole suite under a light label". Each is satisfiable a dozen ways, so no
+regex reaches it and the row sits in the ledger marked *judgment*, enforced only while
+somebody remembers. The **judgment layer** ([`skills/judgment-SKILL.md`](skills/judgment-SKILL.md),
+`judgment.enabled` in config, off by default) gives those rules a mechanical executor: a
+small on-device **decision model** — not a generator — answers ONE closed question at a
+gate boundary, where code enumerates the options and code renders the outcome. It is
+strictly ADDITIVE (a verdict a regex already reaches correctly is never delegated), it
+ships **advisory**, it **prints its engagement state on every pass** so "nothing was asked"
+is never confusable with "asked, failed, approved anyway" — and an engaged seam that cannot
+reach its provider **denies**. The provider is loopback-only and enforced as such; the
+package ships no model, no weights and no inference dependency, only the wire.
+[`governance/LOCAL-MODELS.md`](governance/LOCAL-MODELS.md) carries the dated
+recommendation, the measured costs, and the rule that no band arms before a labeled set
+measures it.
 
 ## Quickstart
 

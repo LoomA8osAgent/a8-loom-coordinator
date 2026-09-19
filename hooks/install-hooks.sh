@@ -14,7 +14,7 @@
 # (install.settingsTarget) — both read from the config, not baked in.
 #
 # Idempotent. Backs up what it overwrites and PRUNES old backups to
-# install.maxBackups (cures the ~130-.bak accumulation the Anim8 deploy grew).
+# install.maxBackups (cures the ~130-.bak accumulation a production deploy grew).
 
 set -euo pipefail
 
@@ -61,7 +61,11 @@ echo ""
 
 # Files to deploy: every hook script + shared lib + caveman subdir.
 copy_list() {
-  find "$SCRIPT_DIR" -maxdepth 1 -type f \( -name '*.js' -o -name '*.sh' \) ! -name 'install-hooks.sh'
+  # *.selftest.js are RED-FIXTURES: run from the repo (`node hooks/<gate>.selftest.js`),
+  # never deployed. A fixture in the hooks dir is inert but looks installed.
+  # *.example.* is documentation-that-happens-to-be-executable (a roster template, a
+  # server launch recipe) — same reasoning: deploying it would make a template look wired.
+  find "$SCRIPT_DIR" -maxdepth 1 -type f \( -name '*.js' -o -name '*.sh' \) ! -name 'install-hooks.sh' ! -name '*.selftest.js' ! -name '*.example.js' ! -name '*.example.sh'
   find "$SCRIPT_DIR/lib" -type f -name '*.js' 2>/dev/null || true
   find "$SCRIPT_DIR/caveman" -type f \( -name '*.js' -o -name '*.sh' \) 2>/dev/null || true
 }

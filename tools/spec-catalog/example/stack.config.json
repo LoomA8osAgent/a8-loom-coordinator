@@ -1,0 +1,80 @@
+{
+  "$schema": "../../../stack.config.README.md",
+  "_readme": "EXAMPLE CONFIG for the spec-catalog layer — it governs tools/spec-catalog/example/ ONLY. repoRoot is \"\" so it resolves to this directory; catalogDir is \"..\" so the generated catalog lands beside the real validate/compile/cover/receipt in tools/spec-catalog/. Run: node tools/gen-code-registry.js --config tools/spec-catalog/example/stack.config.json && node tools/gen-catalog.js --config tools/spec-catalog/example/stack.config.json",
+
+  "project": { "name": "spec-catalog example", "repoRoot": "", "rootMarkers": ["stack.config.json"] },
+
+  "source": {
+    "codeGlobs": ["src/**/*.js"],
+    "styleFiles": ["src/app.css"],
+    "markupFiles": [],
+    "exemptDirSegments": ["/node_modules/"],
+    "exemptExtensions": [".md"]
+  },
+
+  "canon": {
+    "files": [],
+    "specGlobs": [],
+    "registryFile": "CODE-REGISTRY.md",
+    "hints": ["buildSection", "buildRowHostFromItems", "buildDotsPair"],
+    "helperHomes": ["/src/chrome.js"],
+    "symbolSections": ["## 1.", "## 2."],
+    "classSections": ["## 5."]
+  },
+
+  "consent": { "tokens": ["new-ok", "ui-ok"], "oneOffMarker": "one-off-ok" },
+
+  "machinery": {
+    "signals": [
+      { "re": "\\b(?:items|inputs|params)\\s*\\.\\s*forEach\\b[\\s\\S]*?createElement\\s*\\(", "name": "row-host-hand-roll" },
+      { "re": "createElement\\s*\\([\\s\\S]*?createElement\\s*\\([\\s\\S]*?createElement\\s*\\(", "name": "createElement-chain" }
+    ],
+    "builderRe": "function\\s+[A-Za-z_]\\w*\\s*\\([^)]*\\)\\s*\\{[\\s\\S]*?createElement\\s*\\(",
+    "reusableExportRe": ""
+  },
+
+  "frontend": {
+    "enabled": true,
+    "mountClassRe": "\\.ex-section\\b",
+    "layoutPropRe": "\\b(position|overflow|display|flex)\\s*:",
+    "newClassRe": ""
+  },
+
+  "codeRegistry": {
+    "chromePrefixes": ["build"],
+    "taskMap": [
+      ["param / control rows under a host", "buildRowHostFromItems", "a hand-rolled items.forEach + createElement loop"],
+      ["a titled section with a body", "buildSection", "a hand-assembled wrapper div"]
+    ]
+  },
+
+  "specCatalog": {
+    "enabled": true,
+    "catalogDir": "..",
+    "specDir": "specs/ui-specs",
+    "annotationTag": "@catalog",
+    "propReadRe": "\\b(?:opts|options|config|props)\\.([A-Za-z_]\\w*)",
+    "types": ["element", "string", "number", "bool", "fn", "object", "element[]", "any"],
+    "exampleSpec": "specs/ui-specs/panel-rows.json",
+    "keyFile": "~/.claude/spec-catalog-example.key",
+    "signalEntry": { "row-host-hand-roll": "buildRowHostFromItems" },
+    "sealedShells": [],
+    "classPropRe": "(^|[a-z])class(es)?$|^cls|Class(es)?$",
+    "emit": { "callPrefix": "window.", "decl": "var", "fnKeyword": "function", "end": ";", "appendMethod": "appendChild", "quotes": "single", "maxLine": 94 },
+    "emitBans": [
+      { "re": "createElement\\s*\\(", "why": "createElement — raw assembly is the hand-roll this layer makes inexpressible (HELPER-HAND-ROLL)" },
+      { "re": "\\bdocument\\s*\\.", "why": "document.* — the emitted function receives its host and never queries the document" },
+      { "re": "innerHTML|outerHTML|insertAdjacentHTML", "why": "innerHTML family — markup by string" },
+      { "re": "\\.className\\s*=|classList\\s*\\.", "why": "class writing — a class belongs to the unit that OWNS it, never to emitted glue (NEW-CLASS-WITHOUT-CONSENT)" },
+      { "re": "=>", "why": "arrow function — this example's substrate is ES5" },
+      { "re": "\\b(const|let)\\s+[A-Za-z_$]", "why": "const/let — this example's substrate is ES5 (var)" },
+      { "re": "\\bnew\\s+Function\\b", "why": "new Function is forbidden" }
+    ],
+    "appScopeRe": "/src/",
+    "gateScopeGlobs": ["src/**/*.js", "src/app.css"],
+    "promptTargetBytes": 24576,
+    "promptCeilingBytes": 32768
+  },
+
+  "install": { "hooksDir": "~/.claude/hooks", "gateLog": "~/.claude/spec-catalog-example.gate.log", "settingsTarget": ".claude/settings.json", "maxBackups": 2 }
+}

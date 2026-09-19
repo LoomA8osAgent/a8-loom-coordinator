@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "generator": "tools/gen-catalog.js",
+  "source": "tools/gen-code-registry.js",
+  "doc": "integrations/spec-catalog.md",
+  "generated": "2026-09-19T01:33:31.588Z",
+  "project": "spec-catalog example",
+  "frontend": true,
+  "types": [
+    "element",
+    "string",
+    "number",
+    "bool",
+    "fn",
+    "object",
+    "element[]",
+    "any"
+  ],
+  "specDir": "specs/ui-specs",
+  "catalogDir": "..",
+  "keyFile": "~/.claude/spec-catalog-example.key",
+  "signalEntry": {
+    "row-host-hand-roll": "buildRowHostFromItems"
+  },
+  "sealedShells": [],
+  "classPropRe": "(^|[a-z])class(es)?$|^cls|Class(es)?$",
+  "emitBans": [
+    {
+      "re": "createElement\\s*\\(",
+      "why": "createElement — raw assembly is the hand-roll this layer makes inexpressible (HELPER-HAND-ROLL)"
+    },
+    {
+      "re": "\\bdocument\\s*\\.",
+      "why": "document.* — the emitted function receives its host and never queries the document"
+    },
+    {
+      "re": "innerHTML|outerHTML|insertAdjacentHTML",
+      "why": "innerHTML family — markup by string"
+    },
+    {
+      "re": "\\.className\\s*=|classList\\s*\\.",
+      "why": "class writing — a class belongs to the unit that OWNS it, never to emitted glue (NEW-CLASS-WITHOUT-CONSENT)"
+    },
+    {
+      "re": "=>",
+      "why": "arrow function — this example's substrate is ES5"
+    },
+    {
+      "re": "\\b(const|let)\\s+[A-Za-z_$]",
+      "why": "const/let — this example's substrate is ES5 (var)"
+    },
+    {
+      "re": "\\bnew\\s+Function\\b",
+      "why": "new Function is forbidden"
+    }
+  ],
+  "emit": {
+    "callPrefix": "window.",
+    "decl": "var",
+    "fnKeyword": "function",
+    "end": ";",
+    "appendMethod": "appendChild",
+    "quotes": "single",
+    "maxLine": 94
+  },
+  "appScopeRe": "/src/",
+  "gateScopeGlobs": [
+    "src/**/*.js",
+    "src/app.css"
+  ],
+  "counts": {
+    "helpers": 3,
+    "declared": 2,
+    "derived": 1,
+    "defRelocated": 0,
+    "defUnresolved": 0,
+    "exports": 5,
+    "classes": 7,
+    "components": 0,
+    "engines": 0
+  },
+  "taskMap": [
+    {
+      "task": "param / control rows under a host",
+      "use": "buildRowHostFromItems",
+      "never": "a hand-rolled items.forEach + createElement loop"
+    },
+    {
+      "task": "a titled section with a body",
+      "use": "buildSection",
+      "never": "a hand-assembled wrapper div"
+    }
+  ],
+  "entries": {
+    "buildDotsPair": {
+      "name": "buildDotsPair",
+      "file": "src/chrome.js",
+      "line": 63,
+      "firstLine": "function buildDotsPair(opts) {",
+      "registryFile": "src/chrome.js",
+      "registryLine": 63,
+      "defUnresolved": false,
+      "defAlias": null,
+      "tier": "derived",
+      "desc": null,
+      "propNames": [
+        "count",
+        "tip"
+      ],
+      "props": null,
+      "slots": null,
+      "owns": [
+        "ex-dots"
+      ],
+      "ownsConcat": [],
+      "orphan": false,
+      "bodyBytes": 187
+    },
+    "buildRowHostFromItems": {
+      "name": "buildRowHostFromItems",
+      "file": "src/chrome.js",
+      "line": 45,
+      "firstLine": "function buildRowHostFromItems(opts) {",
+      "registryFile": "src/chrome.js",
+      "registryLine": 45,
+      "defUnresolved": false,
+      "defAlias": null,
+      "tier": "declared",
+      "desc": "param rows for any section or panel (the ONE row host)",
+      "propNames": [
+        "host",
+        "items",
+        "mode",
+        "onChange"
+      ],
+      "props": {
+        "host": {
+          "type": "element",
+          "required": true,
+          "desc": "host element the rows mount into"
+        },
+        "items": {
+          "type": "any",
+          "required": true,
+          "desc": "row descriptors ({name, min, max, value})"
+        },
+        "mode": {
+          "type": "enum(edit|view)",
+          "required": false,
+          "desc": "which affordances are wired"
+        },
+        "onChange": {
+          "type": "fn",
+          "required": false,
+          "desc": "rebuild callback"
+        }
+      },
+      "slots": [],
+      "owns": [
+        "ex-param-row",
+        "is-readonly"
+      ],
+      "ownsConcat": [],
+      "orphan": false,
+      "bodyBytes": 403
+    },
+    "buildSection": {
+      "name": "buildSection",
+      "file": "src/chrome.js",
+      "line": 23,
+      "firstLine": "function buildSection(opts) {",
+      "registryFile": "src/chrome.js",
+      "registryLine": 23,
+      "defUnresolved": false,
+      "defAlias": null,
+      "tier": "declared",
+      "desc": "a titled section with a body — the ONE section wrapper",
+      "propNames": [
+        "collapsed",
+        "label",
+        "prefix"
+      ],
+      "props": {
+        "prefix": {
+          "type": "string",
+          "required": true,
+          "desc": "module prefix stamped onto the section classes"
+        },
+        "label": {
+          "type": "string",
+          "required": true,
+          "desc": "the header text"
+        },
+        "collapsed": {
+          "type": "bool",
+          "required": false,
+          "desc": "start closed"
+        }
+      },
+      "slots": [
+        "body",
+        "header            children mount into these"
+      ],
+      "owns": [
+        "ex-section",
+        "ex-section-body",
+        "ex-section-hd",
+        "is-collapsed"
+      ],
+      "ownsConcat": [],
+      "orphan": false,
+      "bodyBytes": 519
+    }
+  },
+  "knownClasses": {
+    "ex-dots": {
+      "at": "src/app.css:11"
+    },
+    "ex-param-row": {
+      "at": "src/app.css:10"
+    },
+    "ex-section": {
+      "at": "src/app.css:7"
+    },
+    "ex-section-body": {
+      "at": "src/app.css:9"
+    },
+    "ex-section-hd": {
+      "at": "src/app.css:8"
+    },
+    "is-collapsed": {
+      "at": "src/app.css:12"
+    },
+    "is-readonly": {
+      "at": "src/app.css:13"
+    }
+  },
+  "problems": [],
+  "sha": "a6705338490b269d730f203c6aed68b5309073e48cdc4769a5551b465bf64f54"
+}

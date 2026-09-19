@@ -21,9 +21,10 @@
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           { "type": "command", "command": "node \"__HOOKS_DIR__/grep-required.js\"", "timeout": 5, "statusMessage": "grep-required gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/canon-block.js\"", "timeout": 5, "statusMessage": "canon hard-block..." },
+          { "type": "command", "command": "node \"__HOOKS_DIR__/spec-gate.js\"", "timeout": 6, "statusMessage": "spec-catalog gate..." },
           { "type": "command", "command": "node \"__HOOKS_DIR__/new-surface-consent.js\"", "timeout": 5, "statusMessage": "new-surface consent gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/helper-home.js\"", "timeout": 5, "statusMessage": "helper-home gate..." }
+          { "type": "command", "command": "node \"__HOOKS_DIR__/helper-home.js\"", "timeout": 5, "statusMessage": "helper-home gate..." },
+          { "type": "command", "command": "node \"__HOOKS_DIR__/judgment-gate.js\"", "timeout": 15, "statusMessage": "judgment seam (edit)..." }
         ]
       },
       {
@@ -31,7 +32,14 @@
         "hooks": [
           { "type": "command", "command": "node \"__HOOKS_DIR__/docsync-commit.js\"", "timeout": 8, "statusMessage": "doc-sync commit gate..." },
           { "type": "command", "command": "node \"__HOOKS_DIR__/state-persistence-commit.js\"", "timeout": 8, "statusMessage": "state-persistence commit gate..." },
-          { "type": "command", "command": "node \"__HOOKS_DIR__/satellite-gate.js\"", "timeout": 8, "statusMessage": "satellite commit gate..." }
+          { "type": "command", "command": "node \"__HOOKS_DIR__/satellite-gate.js\"", "timeout": 8, "statusMessage": "satellite commit gate..." },
+          { "type": "command", "command": "node \"__HOOKS_DIR__/judgment-gate.js\"", "timeout": 15, "statusMessage": "judgment seam (commit)..." }
+        ]
+      },
+      {
+        "matcher": "Agent|Task",
+        "hooks": [
+          { "type": "command", "command": "node \"__HOOKS_DIR__/judgment-gate.js\"", "timeout": 15, "statusMessage": "judgment seam (spawn)..." }
         ]
       },
       {

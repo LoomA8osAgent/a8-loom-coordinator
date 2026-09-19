@@ -45,3 +45,28 @@ shipped product. Every entry below records its license.
 | Library | Purpose | License | Status |
 |---------|---------|---------|--------|
 | {{planned.name}} | {{planned.purpose}} | {{planned.license}} | {{planned.status}} |
+
+## Build Tooling (never shipped in the product)
+
+Dependencies of the toolchain, not of the thing you ship. They are vendored rather
+than installed so a fresh clone works with no install step, and a gate keeps them out
+of the application scope — what crosses into the app is the compiler's OUTPUT, never
+its dependencies.
+
+| Library | License |
+|---------|---------|
+| [json-render](https://github.com/vercel-labs/json-render) — catalog-constrained specification + codegen by Vercel Labs. **`@json-render/core` 0.21.0 + `@json-render/codegen` 0.21.0 vendored** at `tools/spec-catalog/vendor/` (dist + licence; the React / react-native / react-pdf renderers and adapters dropped). This project uses the METHOD — catalog → constrained spec → `validateSpec`/`autoFixSpec` → compile — as the builder-agent constraint layer: an agent emits a `{helper, props, children}` spec that can only name entries derived from the code registry, and `tools/spec-catalog/compile.js` emits real calls into this project's own helpers. Zero json-render code reaches the running product (enforced: `spec-gate` R1). Method of record: `integrations/spec-catalog.md`. | [Apache-2.0](https://github.com/vercel-labs/json-render/blob/main/LICENSE) |
+| [zod](https://github.com/colinhacks/zod) — TypeScript-first schema validation by Colin McDonnell. Vendored at `tools/spec-catalog/vendor/zod/` as the required peer of `@json-render/core` (the catalog's prop schemas). Build-tooling only. | [MIT](https://github.com/colinhacks/zod/blob/main/LICENSE) |
+
+## Local models (the judgment layer — never bundled)
+
+The judgment layer ships **no model, no weights, no runtime and no inference library**:
+its contract is a loopback wire (`POST /v1/systemone`), so the judge is a choice each
+project makes, installs itself, and revises. Record yours here with its licence — and
+for an adapter, **the base model's licence and the training data's too**, because the
+base is what you actually load. The dated recommendation, the measured costs and the
+calibration gate live in `governance/LOCAL-MODELS.md`.
+
+| Model / runtime | Class | License | Status |
+|---|---|---|---|
+| {{judgment.model}} | TRAINED / DECODE / DIFFUSION | {{judgment.license}} | {{judgment.status}} |

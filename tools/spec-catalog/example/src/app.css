@@ -1,0 +1,13 @@
+/* A8 Loom Coordinator — MIT License. (c) 2026 contributors.
+   example/src/app.css — the stand-in stylesheet for the spec-catalog example.
+   Its only job is to give the registry scan a real class set, so `owns` (the
+   classes a unit WRITES, which the compiler emits and an agent never authors) has
+   something to resolve against. */
+
+.ex-section { display: block; border: 1px solid #333; }
+.ex-section-hd { font-weight: 600; padding: 4px 8px; }
+.ex-section-body { padding: 4px 8px; }
+.ex-param-row { display: flex; gap: 6px; align-items: center; }
+.ex-dots { opacity: .55; }
+.is-collapsed { display: none; }
+.is-readonly { pointer-events: none; }

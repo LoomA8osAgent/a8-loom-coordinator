@@ -213,4 +213,12 @@ function main() {
   console.log('code-registry written: ' + chromeRows.length + ' helpers, ' + exportRows.length + ' exports, ' + classRows.length + ' classes, ' + compRows.length + ' components, ' + engRows.length + ' engines. Orphans: ' + featOrphans.length + ' feature, ' + otherOrphans.length + ' suspect, ' + debugOrphans.length + ' debug.');
   if (exportRows.length === 0 && classRows.length === 0) console.error('WARNING: registry read EMPTY — check source.codeGlobs / styleFiles scan targets (an empty index is worse than none).');
 }
-main();
+// ---- module surface (one scan, N projections) -------------------------------
+// tools/gen-catalog.js projects this SAME scan into the spec catalog. It must never
+// re-scan: a second scanner drifts from this one and then two generated indexes
+// disagree about the same codebase. So the scanners are exported and main() runs
+// only when this file is the entry point.
+module.exports = { scanCode, scanClasses, scanCallers, allCodeFiles, walk, rel,
+  CFG, ROOT, OUT, SCAN, CHROME_RE, CHROME_PREFIXES, TASK_MAP, main };
+
+if (require.main === module) main();

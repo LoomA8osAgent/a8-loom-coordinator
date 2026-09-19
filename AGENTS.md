@@ -50,6 +50,15 @@ Start from the example nearest your project: `stack.config.example.backend.json`
 - **Syntax-check** every hook edit (`node --check`); validate JSON.
 - **A new gate ships with its red-fixture** — prove it blocks the input it exists to
   reject, or it is failing open (`GATE-FAILS-OPEN`).
+- **Constrain before, don't only refuse after.** Where a surface can be expressed as a
+  spec over things the codebase already has, make that the only expressible form: the
+  agent names catalog entries, a compiler emits the real calls, and a receipt is what
+  the gate checks. See `integrations/spec-catalog.md` (opt-in, `specCatalog.enabled`).
+- **A rule whose signal is MEANING gets a judgment seam, not a bigger regex.** A decision
+  model answers ONE closed question at a gate boundary; code enumerates and code renders.
+  It is ADDITIVE (never replaces a verdict a matcher already reaches correctly), ships
+  advisory, prints its engagement state, and DENIES when it cannot ask. See
+  `skills/judgment-SKILL.md` (opt-in, `judgment.enabled`).
 - **Write through the edit tools**, never a shell redirect: every gate fires on
   Edit/Write only.
 - **Commit as you build**, and reserve "done" for a non-checkpoint, gate-green commit
@@ -71,6 +80,10 @@ Start from the example nearest your project: `stack.config.example.backend.json`
   paths not prose) + delegation + audit contract + the git work method.
 - `skills/model-succession-SKILL.md` — the seat-handoff letter (how the seat survives
   a model change).
+- `skills/judgment-SKILL.md` — the judgment seam (the fourth executor class): the seam
+  shape, how to write a closed question, provider classes and which may refuse, grading +
+  bands, fail-closed engagement, and the red proof. Paired with
+  `governance/LOCAL-MODELS.md` (dated provider recommendation + the measured costs).
 - `stack.config.README.md` — every config key, annotated.
 
 License: MIT. Author: [exiledsurfer](https://github.com/exiledsurfer). Coordinator

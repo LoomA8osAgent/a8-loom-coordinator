@@ -30,6 +30,11 @@ accumulation). Restart the session after install — hooks do not hot-reload.
 | `canon-block.js` | PreToolUse Edit/Write | string-pattern bans (inline handlers, native inputs, retired APIs) | `canonBlock.rules` | rules empty ⇒ inert |
 | `new-surface-consent.js` | PreToolUse Edit/Write | hand-rolled host / mount-CSS / NEW CSS class ⇒ block unless consent | `consent.tokens`, `canon.registryFile` | no |
 | `helper-home.js` | PreToolUse Edit/Write | raw DOM builder in a non-helper file ⇒ block unless exported / composes-a-helper / one-off+consent | `canon.helperHomes` | no |
+| `spec-gate.js` | PreToolUse Edit/Write | R1 build tooling stays out of the app scope · R2 a NEW surface must be byte-contained in a valid compile receipt | `specCatalog.*` | `enabled:false` ⇒ inert |
+| `lib/decision-provider.js` | (lib) | the ONE decision-model client — `systemone` (any loopback `/v1/systemone`) + `fixture`; strict validation, typed errors, loopback ENFORCED, fail-closed, never a silent fallback | `judgment.provider` | only when adopted |
+| `judgment-gate.js` | PreToolUse Edit/Write · Bash · Agent/Task | asks the roster's seams at whichever moment each one claims (`edit` \| `commit` \| `spawn`); PRINTS its engagement state, advises by default, and DENIES when engaged and unable to ask | `judgment.*` | `enabled:false` ⇒ SILENT no-op |
+| `judgment-roster.example.js` | (template) | the versioned unit — questions, ladders, bands, the state filter. COPY it to `judgment.roster`; never deployed as a hook | `judgment.roster` | template |
+| `judgment-server.example.sh` | (docs) | how to run a RESIDENT loopback provider, the two supply-chain / exposure hazards, and the telemetry MUSTs. Documentation that happens to be executable; nothing here runs it | — | docs |
 | `docsync-commit.js` | PreToolUse Bash | feature commit ⇒ per-pillar `Docs:` trailer | `docSync.*` | `enabled:false` ⇒ off |
 | `state-persistence-commit.js` | PreToolUse Bash | new user-selectable ⇒ `State:` trailer (save-walk coverage) | `statePersistence.*` | `enabled:false` ⇒ off |
 | `verification-first.js` | PreToolUse browser tools | app interaction must route through the scripted test API | `verification.*` | `enabled:false` ⇒ off (default) |

@@ -1,0 +1,10 @@
+# Compiled blocks are BUILD OUTPUT — untracked, regenerable from the spec.
+# Receipts are the tracked half in a real project (they are what the gate reads and
+# what proves a pasted block came from the compiler); here, in the package's own
+# example, both are untracked because they carry machine-local HMACs and absolute
+# paths that mean nothing on another machine.
+#
+# Keep this directory in git so the gate has somewhere to look on a fresh clone: a
+# missing out/ reads as "no receipts", which is the right answer for the wrong reason.
+*
+!.gitignore

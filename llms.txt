@@ -26,6 +26,7 @@
 
 - [coordinator-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/coordinator-SKILL.md): the cost/competency model grid + the brief contract (BUDGET in tokens + PROOF tier + paths-not-prose) + delegation + audit contract + the git work method.
 - [model-succession-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/model-succession-SKILL.md): the seat-handoff letter — how the coordinator seat survives a model change.
+- [judgment-SKILL.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/skills/judgment-SKILL.md): the judgment seam — the fourth executor class, for standing rules whose signal is MEANING and which therefore have no matcher. The seam shape, how to write a closed Noul / Choice / Score question, provider classes and which may refuse, grading + coverage-curve bands, fail-closed engagement, and the red proof. Opt-in (`judgment.enabled`), advisory by default, additive to the matcher that already owns the moment.
 - Also: doc-sync, dev-infrastructure, init-interview, skill-creator.
 
 ## Hooks (the enforcement floor — all config-driven, language-agnostic)
@@ -42,3 +43,5 @@
 ## Optional
 
 - [frontend/](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/frontend/README.md): opt-in CSS/DOM module — the design-system-export / satellite-product method (host-first, generated extraction, measured parity). Backend projects ignore it.
+- [integrations/spec-catalog.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/integrations/spec-catalog.md): opt-in constraint layer — constraint BEFORE replaces refusal AFTER. The code registry is projected into a catalog plus a byte-capped prompt the builder preloads instead of a raw ruleset; the builder emits a `{helper, props, children}` spec that can only name catalog entries; a compiler emits the real calls and an HMAC'd receipt; a gate refuses any new surface no receipt covers. Vendored (json-render + zod), so the package keeps zero runtime dependencies.
+- [governance/LOCAL-MODELS.md](https://github.com/LoomA8osAgent/a8-loom-coordinator/blob/master/governance/LOCAL-MODELS.md): the judgment layer's provider side — what a decision model is, the three provider classes and why only a TRAINED one may arm a refusal, the measured on-device costs (an Apple M4, 16 GB, 2026-09-19: ~115 ms per question warm; bundling is super-linear, so state length is the only latency lever and model size is not), and the calibration gate a band must pass before it may refuse anything. The package ships no model, no weights and no inference dependency — only the loopback `/v1/systemone` wire.

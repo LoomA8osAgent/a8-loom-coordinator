@@ -61,6 +61,38 @@ process.stdin.on('end', () => {
   msg += reminderTpl
     .replace(/\{reg\}/g, regFile)
     .replace(/\{consent\}/g, ((cfg.consent && cfg.consent.tokens) || []).join(' / '));
+  // spec-catalog (integrations/spec-catalog.md): when the layer is adopted the session
+  // is told the CONSTRAINT, not just the index — a builder emits a spec and pastes the
+  // compiled block, and an edit adding a new surface with no receipt is REFUSED. Silent
+  // when specCatalog.enabled is false, like every other optional piece here.
+  const specCat = cfg.specCatalog || {};
+  if (specCat.enabled) {
+    const cd = specCat.catalogDir || 'tools/spec-catalog';
+    msg += '\nSPEC-CATALOG IS ON — do not hand-assemble a new surface. Write ' +
+      (specCat.specDir || 'specs/ui-specs') + '/<name>.json, run `node ' + cd +
+      '/validate.js` then `node ' + cd + '/compile.js`, and paste the emitted block. An ' +
+      'edit that adds a new surface with no compile receipt is REFUSED by spec-gate. The ' +
+      'catalog payload (what you may name) is ' + cd + '/catalog.prompt.md.';
+  }
+
+  // judgment (skills/judgment-SKILL.md): the session is told which ENGAGEMENT state it is
+  // in, because that is the one property that keeps the layer auditable — a reader must
+  // always be able to tell "no provider configured, so nothing is being asked" apart from
+  // "asked, failed, approved anyway", and the second never happens. Silent when the layer
+  // is not adopted.
+  const jud = cfg.judgment || {};
+  if (jud.enabled) {
+    const kind = (process.env.A8_DECISION_PROVIDER || (jud.provider && jud.provider.kind) || '').trim();
+    msg += '\nJUDGMENT LAYER IS ON — ' + (kind
+      ? ('ENGAGED on provider `' + kind + '`. A seam that cannot reach it DENIES; it never ' +
+         'passes on silence. Questions live in ' + (jud.roster || 'hooks/judgment-roster.js') +
+         ' and nowhere else, and a band arms only on a TRAINED provider after a labeled set ' +
+         'measures it (governance/LOCAL-MODELS.md).')
+      : ('NOT ENGAGED — no provider configured, so no seam will ask anything and none is ' +
+         'promised. This is shadow-mode-first, not a failure. Configure judgment.provider.kind ' +
+         '(`fixture` for a deterministic stub, `systemone` for a loopback judge) to engage.'));
+  }
+
   if (sess.delegationHint) msg += '\n' + sess.delegationHint;
 
   process.stdout.write(JSON.stringify({

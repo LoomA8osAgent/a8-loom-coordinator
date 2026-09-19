@@ -125,6 +125,14 @@ real formats, helpers, checks and bans; delete the generic examples once yours l
 - Never build a reusable unit (helper / module / component / — frontend — a control or class)
   without first scanning {{registry.index}} and REUSING what exists; a genuinely-new abstraction
   needs explicit operator consent (`HELPER-HAND-ROLL` / `NEW-VOCABULARY-WITHOUT-CONSENT`).
+- Never hand-assemble a new surface when the spec-catalog layer is on — emit a spec, compile
+  it, paste the block. A new surface with no compile receipt is refused, and a spec that
+  names something the catalog does not contain is the thing you were about to invent
+  (`CONSTRAINT-ARRIVES-AFTER-THE-WRITE`).
+- Never let a judgment seam replace a verdict a matcher already reaches correctly, and never
+  arm one to refuse before a labeled set has measured its band on a TRAINED provider. A seam
+  advises, prints its engagement state, and denies when it cannot ask
+  (`RULE-LIVES-IN-PROSE-BECAUSE-NO-MATCHER-READS-MEANING`).
 - Never fix a bug in one module's copy of shared behavior — fix the ONE shared home and
   delete the per-module copies (`PATCH-NOT-ESCALATED-TO-SHARED`).
 - Never edit from memory — view source at exact line numbers before every edit.

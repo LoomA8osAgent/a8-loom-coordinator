@@ -1,6 +1,6 @@
 {
   "name": "a8-loom-coordinator",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Governance, skills, and hooks stack for running Claude (or any capable LLM) as an autonomous senior engineer on any software project — frontend or backend, any language. Config-driven, agent-native, MIT.",
   "keywords": [
     "claude",
@@ -21,7 +21,13 @@
     "cursor",
     "gemini-cli",
     "anti-hallucination",
-    "deterministic-ai"
+    "deterministic-ai",
+    "json-render",
+    "constrained-generation",
+    "codegen",
+    "decision-model",
+    "local-llm",
+    "calibration"
   ],
   "homepage": "https://github.com/LoomA8osAgent/a8-loom-coordinator#readme",
   "bugs": {
@@ -64,6 +70,9 @@
     "LICENSE"
   ],
   "scripts": {
+    "catalog": "node tools/gen-catalog.js",
+    "selftest:spec-gate": "node hooks/spec-gate.selftest.js",
+    "selftest:judgment-gate": "node hooks/judgment-gate.selftest.js",
     "postinstall": "node -e \"console.log('\\n  a8-loom-coordinator installed. Run:  npx a8-loom-coordinator init\\n')\""
   },
   "engines": {

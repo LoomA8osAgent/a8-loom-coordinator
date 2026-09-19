@@ -1,0 +1,21 @@
+{
+  "mount": { "kind": "host", "arg": "body", "slot": "section" },
+  "root": "grp",
+  "elements": {
+    "grp": {
+      "type": "buildSection",
+      "props": { "prefix": "ex", "label": "parameters", "collapsed": false },
+      "children": ["rows"]
+    },
+    "rows": {
+      "type": "buildRowHostFromItems",
+      "props": {
+        "host": { "$slot": "grp.body" },
+        "items": { "$arg": "items" },
+        "mode": "edit",
+        "onChange": { "$fn": "rebuild" }
+      },
+      "children": []
+    }
+  }
+}
