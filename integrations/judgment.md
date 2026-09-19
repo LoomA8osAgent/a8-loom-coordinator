@@ -295,3 +295,70 @@ mapping a level to a value · never to order dates or versions · never to judge
 a render or a screenshot (it has no image input) · never *"is this well written / good /
 more relevant"* (the lowest-scoring families published, ≈58–63%) · never a verdict a regex
 already reaches correctly.
+
+---
+
+## 9. Calibrate and retrain
+
+Full method, measured numbers, and the conclusion: `governance/LOCAL-MODELS.md` §7. This
+is the shape, so a project can build its own — every path below is PROPOSED (this package
+vends no labeled data, no trainer, and no calibration tool today; it names the shape they
+would ship under if adopted).
+
+### 9.1 A labeled row
+
+One line of JSONL per row, the same wire shape the gate already asks:
+
+```json
+{
+  "record": "example-record.field",
+  "state": "…the state your seam's filterState produced…",
+  "questions": { "knob_role": { "type": "choice", "criteria": { "…": "…", "unique": "the residue — no sentence written" } } },
+  "label": "coefficient",
+  "confidence": "high",
+  "reasoning": "one sentence: why this row got this label, not the others"
+}
+```
+
+Build the set from your own history first — past briefs, authored tests, the incident
+record, anything your repo already produced that carries a defensible answer. Label only
+where the history is ambiguous. `reasoning` is not decoration: it is what makes a labeled
+set audit-able later, and it is what a "the labeler's confidence doesn't predict the
+model's failures" finding (§7.2, measured here) is actually read off.
+
+### 9.2 The calibrate tool's output (proposed shape: `tools/judgment/calibrate-<seam>.js`)
+
+Given a labeled set and a results file (one recorded answer per row, same order), it
+prints and never edits a band on its own:
+
+- **overall accuracy** and **top-label ECE** (n-weighted, 10-bin)
+- **the coverage curve** at seven thresholds (`p(argmax) ≥ 0.5 … 0.99`): answered / coverage
+  / correct / precision, per rung — never a single accuracy line
+- **per-label accuracy**, so a collapse onto one or two options is visible rather than
+  averaged away
+- **the confusion table**: predicted-label mass, and the top true→predicted pairs
+- **the band verdict**: `armed: true/false` against the project's own precision/coverage
+  bars, computed, never asserted
+
+A re-run OVERWRITES its own report; the raw per-row results file is the durable artifact,
+and any hand-authored commentary lives in a clearly marked section below the generated
+part, same discipline `governance/LOCAL-MODELS.md` §7 itself follows.
+
+### 9.3 The trainer's flags (proposed shape: `tools/judgment/train-head.py`)
+
+A single-device fine-tune of a TRAINED provider's own decision head, backbone frozen:
+
+| flag | what it does |
+|---|---|
+| `--sets a.jsonl,b.jsonl` | one or more labeled sets, concatenated in order; cross-set duplicate `(record, question)` pairs are FATAL (a row must never sit in one set's train half and another's val half); an in-set duplicate is a NOTE, not a fatality |
+| `--results a.results.jsonl,b.results.jsonl` | the provider's own recorded soft-target distribution per row, same order as `--sets`, used as the KL target |
+| `--folds-file path.json` | write-once, read-forever: the k-fold split is generated on first use and every later run reads the SAME file, so two runs over the same rows are comparable by construction, not by coincidence |
+| `--lrs` / `--mix` | sweep learning rate and the mix weight between the hard label and the provider's own soft distribution (`(1-mix)·onehot + mix·distribution`) — report the sweep as a table, never a single winning cell |
+| `--epochs` | an epoch CAP, not a target; early stop on held-out fold loss is the actual stopping rule, and a run that hits the cap in every fold is a sign the cap was too low, not that training is done (§7.3) |
+| `--stages` | for a split/hierarchical question (§7.4): trains one head per stage over the SAME frozen backbone, fold membership kept by ROW so a row's stage-1 and stage-2 examples never cross the split |
+| `--final` | **only past the band.** Writes a servable checkpoint directory (weights + the provider's own config + a `head-card.json` recording which labeled set, which folds file, which hyperparameters, and the measured CV metrics). Every other flag combination trains, evaluates, and reports — and writes NOTHING that could be served |
+
+The backbone is frozen and asserted frozen at every run (zero gradients on the encoder,
+checked, not assumed) — the trainer only ever changes the head. §7.3's numbers are what
+this loop returns when it is run for real: ECE improves sharply, accuracy does not, and
+the honest report is both facts side by side, never the flattering one alone.

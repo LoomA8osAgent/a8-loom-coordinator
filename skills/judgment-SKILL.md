@@ -323,7 +323,25 @@ get wrong:
   mode is a wrong verdict and never an executed instruction) — but a wrong REFUSAL is itself
   a cost. A seam without a green hostile leg may ship advisory and may not refuse.
 - **Say plainly what is not measured.** Every number in `LOCAL-MODELS.md` §3 is latency,
-  memory, shape or validation. **No accuracy was measured. None.**
+  memory, shape or validation, not accuracy — `LOCAL-MODELS.md` §7 is the first run that
+  measured accuracy, on one seam, and it is the next bullet's evidence, not a green light
+  for seams in general.
+
+**Which seams fit a small TRAINED local model — measured, not guessed** (full run:
+`governance/LOCAL-MODELS.md` §7). A closed-vocabulary CHOICE over near-synonymous domain
+jargon (a 16-way "which role does this parameter play") is the WRONG seam for a 421M-class
+local head at a few hundred labeled rows: more training, more rows, and a narrower question
+each moved calibration (ECE 0.60 → 0.11) while barely moving or actively hurting accuracy
+(34.5% → 37% at best; a two-stage split that fixed the option collapse still nearly HALVED
+end-to-end accuracy, 37% → 18%, because the extra gate gave the model a new place to be
+wrong). A yes/no fact-check NOUL over PROSE — does this brief state its return shape, does
+this paragraph still describe the code it cites — is the shape that DOES fit: two options,
+no jargon-dense menu to collapse onto, exactly the family §5 already grades ADVISORY-FIRST
+and the vendor's own published task table (88% inference/fact-check) predicts should hold
+up. **The rule this leaves you with: the narrower and more binary the question, the more a
+small trained head's confidence means something; a wide closed menu over specialist
+vocabulary needs either a much bigger model or a much bigger labeled set than a repo gate
+is likely to have.**
 
 ---
 

@@ -482,3 +482,148 @@ than documentary:
   270 timed requests, both backends) `lsof -nP -a -p <pid> -i` showed **exactly one socket:
   the loopback listener**. `HF_HUB_OFFLINE=1` + `HF_HUB_DISABLE_TELEMETRY=1` belt-and-brace
   it; no `~/.cache/huggingface` was ever created.
+
+---
+
+## 7. What we measured — the first public calibration run of a local decision model
+
+§5 above states the METHOD. This section is the first time it was actually RUN, on a real
+seam, with a labeled set built from the seam's own content — a 16-way classification asking
+a decision model which of 16 named ROLES a shader parameter (a "knob") plays. It is the
+benchmark a next candidate is measured against, not a claim about decision models in
+general: one seam, one corpus, one machine.
+
+### 7.1 The method, concretely
+
+- **The labeled set is agent-built from the seam's own artifacts** — 220 rows in the first
+  pass (`knob-role-v1`), 336 after a second labelling pass (`knob-role-v1v2`) — each row a
+  `{state, questions, label, confidence, reasoning}` tuple over a real parameter, hand-filed
+  by the agents that authored the shapes, with the reasoning recorded beside the label. No
+  operator-labeled set exists anywhere in this run; §5.1's "your gate is your content"
+  extends to who writes the labels.
+- **5-fold stratified cross-validation**, seed fixed, folds written once to a tracked file
+  and re-read by every later run (never regenerated) — so a "same folds" comparison between
+  two heads is a same-rows comparison, not a coincidence.
+- **A coverage curve at seven thresholds** (`p(argmax) ≥ 0.5 … 0.99`), read as precision
+  against coverage together, never as a single accuracy number — this is §5.3's rule, run
+  for real.
+- **Top-label expected calibration error (ECE)**, 10-bin, n-weighted — the number that
+  answers "when this model says 99%, is it right 99% of the time" (it usually was not).
+- **The band rule**: a threshold arms only at precision ≥ 0.9 **and** coverage ≥ 0.3 — a
+  confident fraction has to be both right nine times in ten and cover at least three rows in
+  ten, or automation is not honest. §5.2/§5.3, applied.
+
+### 7.2 The numbers
+
+Measured on an Apple M4, 16 GB, one machine, one date (2026-09-19), against the SAME 220 or
+336 rows, same 16-way question, same band rule.
+
+| provider | class | params / dtype | accuracy | top-label ECE | latency p50 | precision ≥ 0.9 at coverage ≥ 0.3? |
+|---|---|---|---:|---:|---:|---|
+| Laya 421M, via von | TRAINED | 421M, int8 | **34.5%** (76/220) | **0.60** | **156 ms** | **NO** — under the band at every threshold |
+| kev-0.6b | TRAINED | 0.6B, fp32 | 29.1% (64/220) | 0.10 | 615 ms | NO — one row in 220 above p ≥ 0.5 |
+| kev-4b | TRAINED | 4B, bf16, 8 GB weights | **44.1%** (97/220) | 0.22 | 3.4 s | **NO on coverage** — precision 89.5% at coverage 17.3% (p ≥ 0.8), needs ≥ 30% |
+
+*Laya, per-answer detail:* at the confidence-99% cut, 150 of 220 rows are answered and
+**89 of those 150 are wrong** — the mean confidence on correct answers (0.964) and on
+wrong answers (0.939) differ by 2.5 points, i.e. the probability carries almost no
+information about correctness. Precision moves 35.0% → 40.7% from coverage 98.6% down to
+68.2% — 5.7 points of precision bought with 30 points of abstention. That is what
+"anti-calibrated, not merely mis-calibrated" means as a number rather than a description.
+(`agent-reports/knob-role-calibration-v1.md`)
+
+*kev-4b, per-answer detail:* the mechanism §5.3 depends on is actually present — precision
+rises from 47.8% at coverage 83.6% (p ≥ 0.5) to **100% at coverage 10.0%** (p ≥ 0.9), a
+monotone reliability curve unlike Laya's. It fails the band on coverage alone: the
+precision-≥-0.9 point sits at 17.3% coverage, not the required 30%. It also fails
+criterion 4 (latency) outright at 21× Laya's p50, and criterion 5 as shipped — it rounds
+every probability to two decimals on the wire, so a 16-option answer sums to 1.03 and
+fails validation unmodified; a run-time renormalize step (never landed in a tracked
+client) restored the softmax to make the run possible at all.
+(`agent-reports/kev-eval-v1.md`)
+
+### 7.3 The head retrain — a trained local head learns calibration, not the mapping
+
+`decision-models.md` §12b-2 ratifies fine-tuning Laya's own decision head (backbone
+FROZEN — zero encoder gradients, asserted at every run) against the labeled rows, loss
+shape transplanted from the RFDT recipe (cross-entropy on the chosen answer, KL to soft
+targets, the mix weight between hard label and the shipped head's own distribution swept
+`{0, 0.25, 0.5}`), receipts as the training rows.
+
+| run | rows | best cell | CV accuracy | CV ECE (T) | armed (prec ≥ 0.9 @ cov ≥ 0.3)? |
+|---|---:|---|---:|---:|---|
+| shipped head (baseline) | 220 | — | 34.7% | 0.61 | no |
+| retrained, 10-epoch cap | 220 | lr 5e-5, mix 0.5 | 36.6% | 0.14 | **no** — best pooled cut 53.4% @ coverage 33.2% |
+| retrained, 40-epoch cap | 220 | lr 5e-5, mix 0.5 | 37.0% | 0.13 | **no** — early stop fires before 40 in every fold; the cap was not the ceiling |
+| retrained, merged rows | 336 | lr 5e-5, mix 0.25 | 36.0% | 0.11 | **no** — best pooled cut 59.8% @ coverage 34.8% |
+
+**Accuracy is flat: 34.5% → 34.7% → 36.0–37.0%, a 2-point move that a reproducibility check
+(the same cell run twice, different processes) measured as inside this machine's own
+±1-point MPS noise floor.** ECE fell 5–6×, from 0.60 to 0.11–0.14, and the precision-at-high-confidence
+number is real (precision 0.60 → 0.81 at p ≥ 0.9 between the 220-row and
+336-row runs) — **the retrained head becomes honest about being unsure faster than it
+becomes more often right.** Adding 116 more rows targeted at the four roles the shipped
+head scored 0% on bought those roles **zero** additional accuracy (−1.3e-05 accuracy per
+added row, and a per-class slope indistinguishable from zero on ten of twelve classes that
+gained rows) — the round the labelled-set expansion was aimed at exhausted as a lever with
+no result. (`agent-reports/laya-head-retrain-v1.md`, `laya-head-retrain-v2.md`)
+
+### 7.4 The question split — collapse gone, accuracy worse
+
+The failure mode behind the flat curve: two of sixteen options (`unique`, the residue, and
+`iterations`) absorbed 65% of every answer, at every row count. `decision-models.md` §P2.4a
+splits the 16-way Choice into a two-stage question — a 5-way FAMILY Choice, then a 2–4-way
+ROLE Choice inside the chosen family — reusing the same 336 labeled rows unrelabeled.
+
+- **The attractor collapse is genuinely gone.** The two-stage retrain spreads across 14 of
+  16 final options; the 16-way retrain never chose 3 of them at all.
+- **The sub-question the split was built for does what it was built for.** Stage 2, asked
+  inside the TRUE family, scores 49.6% retrained (up from 36.6% at 16-way), with single
+  folds reaching precision 0.818 at coverage 0.361 — the closest this seam has come to the
+  band in its whole history.
+- **And end to end it is a net loss.** Composed accuracy **37% → 18%** (retrained), 34.5% →
+  12.5% (shipped) — roughly HALVED in both cases, because stage 1 (the 5-way family gate) is
+  itself only 30.1% accurate, and a knob mis-filed at stage 1 can never reach the stage-2
+  question that would have answered it correctly. The split moved the failure from
+  option-confusion to family-confusion; it did not remove it. (`agent-reports/knob-role-split-v1.md`)
+
+### 7.5 The conclusion
+
+**A trained local head, on a few hundred rows, learns CALIBRATION and not the MAPPING.**
+Every intervention tried here — more training, more rows, a narrower question — moved ECE
+sharply and moved accuracy barely or negatively. That is the signature of a model that is
+becoming more honest about a decision boundary it was never given enough signal to learn,
+not a model closing in on the answer. **A 16-way classification over close, jargon-adjacent
+domain vocabulary is the wrong seam for a 421M-class local model at hundreds of labeled
+rows.** The vendor's own published task-family table (§4.5) predicted this shape before any
+of these runs: intent/routing and moderation score in the 90s, inference/fact-check sits at
+88% and stays ADVISORY-FIRST by rule, and this seam — a closed-vocabulary classification
+over technical jargon — sits below all of them on a corpus this small. **The fit that DOES
+hold** is the shape `skills/judgment-SKILL.md` §5 already names as REFUSE-GRADE-eligible and
+ADVISORY-FIRST-by-default: a yes/no fact-check over PROSE (does this brief demand an
+evidence list, does this paragraph still describe what the cited code does) — one Noul, two
+options, no jargon-dense closed menu to collapse onto.
+
+**The kit is now the benchmark.** `research/labeled/knob-role-v1.jsonl` (+ `v2`, 336 rows
+total) + the fixed fold files + `tools/judgment/calibrate-knobs.js` + `tools/judgment/train-head.py`
+are a reusable measuring stick: any future provider — a new open checkpoint, a bigger local
+model, a remote one — is graded by running the SAME rows through the SAME coverage-curve /
+ECE / band arithmetic and reported against this table, never against its own vendor's
+published numbers (§3.4's warning, restated: a vendor's number here was out by 5×).
+
+---
+
+## 8. Prior art, and what we took
+
+Every project below was read for its SHAPE, not copied. Each row states what was adopted,
+what was refused, and why — so a reader choosing a stack can see the same trade-offs rather
+than re-discover them.
+
+| project | what it is | took | refused | why |
+|---|---|---|---|---|
+| [`coldteadotai/abide`](https://github.com/coldteadotai/abide) (MIT) | compiles a repo's instruction files into a rubric at session start, evaluates after every edit and once per turn against the full diff, bands at 0.8 / 0.5–0.8 / below 0.5; ships a `calibrate` command that scores rules against real git history to find ones that never fire | the rubric compiled from the instruction corpus rather than hand-listed · one question per rule over a diff · a three-outcome band ladder (act / notify / nothing) · `calibrate` as a command that finds dead rules against real history | **the transport** — Abide evaluates on TypeSafe's cloud; every changed line leaves the machine under the user's key | a repo gate must never depend on a remote key or a remote service being up, and must never ship a diff off-device; cloud-only fails a local-first privacy posture outright, whatever the rubric's quality |
+| [`thruwire/foreman`](https://github.com/thruwire/foreman) (MIT) | a fast classifier (Jev) supervising a slow coding agent concurrently, mid-flight, with a deterministic Python policy layer deciding what to do about the numbers (CONTINUE / START_WORKER / STEER_WORKER / STOP_WORKER / RETRY_WORKER / FINISH / ESCALATE) | concurrent mid-flight assessment as a pattern (a judge that watches a session IN PROGRESS, not only at a gate boundary) · a deterministic policy layer sitting between the model's number and the action taken — the model never acts directly | shipped as **Jev-only** (TypeSafe's hosted model is the implemented classifier; the README names other backends only as a future direction) · **Python-only**, a native `asyncio` runtime · **Codex-CLI-specific** as the only implemented worker, despite a documented worker protocol | this stack is deliberately runtime-agnostic (any coding agent, any language) and local-first; a fixed remote classifier and a single coding-CLI integration are both narrower than the surface this package targets |
+| [`jaredpalmer/kev`](https://github.com/jaredpalmer/kev) (Apache-2.0) | a pointer-head classifier (LoRA r=16 over a Qwen backbone, cross-entropy on the option distribution) trained and served on MPS as well as CUDA, `/v1/systemone`-compatible, 0.5b–8b checkpoints | the MPS pointer-head training loop as a working reference · the lr finding — **5e-5**, because *"2e-4 erodes what the base model already knows"* — corroborated on a different head and a different corpus in our own retrain (§7.3) | **adoption as a resident provider** — the 4B checkpoint that is actually competitive (44.1% accuracy, ECE 0.22, a real coverage curve) measured 3.4 s p50 on this machine, 21× Laya's latency, and 8 GB of bf16 weights drove system swap to 11.6 GB alongside the compositor and the reference runtime already running | a local judge must be resident and fast enough that a gate firing on every edit does not become a tax anyone switches off; the only checkpoint size worth using here is the one that does not fit |
+| [`featherless-ai/simple-jev`](https://github.com/featherless-ai/simple-jev) + [`RFDT`](https://github.com/featherless-ai/simple-jev/blob/main/RFDT/README.md) (repo licence unstated in the README, flagged rather than assumed) | RFDT fine-tunes a decoder LM with selected-label cross-entropy plus teacher→student KL to soft targets, from JSONL rows of `{request: {state, questions}, targets}`; `simple-jev` serves any open model as a decode-class classifier behind a `/v1/systemone` alias | **the loss shape** — cross-entropy on the chosen answer plus KL to soft targets, transplanted onto Laya's OWN decision head instead of a decoder's answer-token logits (§7.3); the observation that a receipt already IS a training row in this shape, for free | **RFDT as shipped** — decoder-only, requires NVIDIA BF16 GPUs (four in its own example), no Apple-silicon/MPS path, no calibration method stated, no benchmark against a trained head · **`simple-jev` untrained** — its own README states its outputs are "not calibrated probabilities of correctness," which is the DECODE class by definition (§1): argmax only, never a band | the loss shape is the real contribution and it transplants cleanly onto an already-TRAINED encoder head that already runs on this machine (§7.3's retrain is that transplant); the surrounding CUDA-only training rig and the untrained serving path are both refused as-is |
+| [`cocktailpeanut/jevthoven`](https://github.com/cocktailpeanut/jevthoven) (MIT) | a working Jev composer — music generated from a prompt via ~75–80 sequential Choice calls per 16-bar piece | **the composer spine** — code enumerates a structured space (bars, instruments, a fixed vocabulary of musical moves), the model picks one of the enumerated things per call, code renders the result; zero lines of code reused, the shape only | the domain (music) and the sequential-call structure for a task with a much smaller, flatter decision space than this stack's | a composer over a wide space needs many small closed picks in sequence; this repo's own composition seams (PART 2 of `decision-models.md`) follow the same spine over a different domain |
+| [`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya) (Apache-2.0) + [`wfzyx/von`](https://github.com/wfzyx/von) (Apache-2.0) | a ModernBERT-large backbone (395M) plus a decision head trained from scratch against proper scoring rules — genuinely TRAINED, non-autoregressive, never generates text — served over `/v1/systemone` by `von`, since Laya has no HTTP server of its own | **the provider we run.** §4.2's install path, §7's whole benchmark, and §7.3's head retrain are all against this pair. Two install traps recorded rather than repeated: `pip install von` installs an unrelated 2.5 KB stub, and `von serve` defaults to `--host 0.0.0.0` | nothing — this is the adopted default, not a rejection | it is the only candidate measured here that is simultaneously TRAINED, resident-fast (156 ms p50), Apache-2.0, and answers all three primitives (Noul / Choice / Score) without an export ceiling — even though §7 shows its calibration on THIS seam does not clear the band |
