@@ -239,7 +239,7 @@ local model has **zero marginal cost after a ~25 s load per session**.
 
 ### 4.2 The open primary — Laya 421M, served by von
 
-**`convaiinnovations/laya`, Apache-2.0.** ModernBERT-large backbone (395M, bidirectional,
+**[`convaiinnovations/laya`](https://huggingface.co/convaiinnovations/laya), Apache-2.0, served by [von](https://github.com/wfzyx/von).** ModernBERT-large backbone (395M, bidirectional,
 fully fine-tuned) plus a decision head trained from scratch against proper scoring rules —
 so it is genuinely TRAINED, non-autoregressive, "it never generates text". It speaks the
 same three primitives natively, answers all of them, and runs on PyTorch with an MPS

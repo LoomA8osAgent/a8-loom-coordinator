@@ -43,7 +43,7 @@ the retrievals behind its claims"* — could never have a matcher, so it lived i
 held only while somebody remembered. It becomes a gate here.
 [`hooks/judgment-gate.js`](hooks/judgment-gate.js) is a HOOK like every other, registered
 at the edit / commit / spawn matchers; it asks **Jev** (TypeSafe AI) **or an open decision
-model on your own machine** (Laya 421M served by von) over **one loopback
+model on your own machine** ([Laya 421M](https://huggingface.co/convaiinnovations/laya) served by [von](https://github.com/wfzyx/von)) over **one loopback
 `/v1/systemone` wire**, with a **fixture provider for every test**. Code enumerates, the
 model picks one of the enumerated things, code renders. It **fails closed** — an engaged
 seam that cannot reach its provider DENIES — it is **additive** (a verdict a regex already
