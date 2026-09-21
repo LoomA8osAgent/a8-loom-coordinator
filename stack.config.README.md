@@ -176,39 +176,7 @@ covers. Full method: `integrations/spec-catalog.md`.
 | `taskMap` | `null` | Overrides `codeRegistry.taskMap` for the catalog payload. |
 | `promptTargetBytes` / `promptCeilingBytes` | `24576` / `32768` | Over the CEILING is a BUILD FAILURE: an oversized payload is filed away undelivered while the tooling reports success. |
 | `promptPruning` | `{"enabled": false, "maxSections": 6}` | Whether a caller may build a SUBSET of the payload. The payload has six sections — `head` · `rules` · `taskmap` · `entries` · `format` · `workflow` — selected with `gen-catalog.js --sections a,b,c` or `buildPrompt(catalog, sections)`. Default builds all six. WHICH slices a task needs is the caller's decision; `gen-catalog.js` has no opinion about it and an unknown id is refused rather than skipped. The summary line always reports the sections actually built — a pruned payload and a broken renderer look identical from a byte count alone. |
-| `autofixSelector` | `"distance"` | `distance \| judgment`. Which selector resolves a name outside the catalog. `distance` is the built-in uniqueness gate (one candidate ⇒ that one, else refuse). `judgment` means the selector is supplied by the owner of the separate `judgment` block — `validate.js` calls whatever is injected via `autoFix(spec, {selector})`. Either way the candidates are ENUMERATED BY CODE and exposed as `choices` before anything is chosen, a pick outside that list is REFUSED, a null leaves the ambiguity refusal intact, and an invented name (zero candidates) never reaches a selector at all. |
-
-### `judgment` — the decision-model layer (`hooks/judgment-gate.js`)
-**It is a HOOK** — `hooks/judgment-gate.js`, registered at the `Edit|Write|MultiEdit`,
-`Bash` and `Agent|Task` matchers in `hooks/settings.template.json` (lines 27 / 36 / 42) and
-deployed by `hooks/install-hooks.sh` exactly like every other gate. "The FOURTH executor
-class" is `governance/FAILURE-PATTERNS.md`'s word for WHAT enforces a row — a hook
-(regex/structure), a generator (a regenerated index), human judgment (unenforced), and now
-a hook that consults a decision model: the class is about the kind of EVIDENCE the executor
-can read (meaning, not tokens), not about a different mechanism.
-
-**ON by default** (`enabled:true`), because the executor class is always on and the
-PROVIDER is what may be absent. Quickstart: `integrations/judgment.md`. It exists for
-standing rules that live in prose
-*because no matcher can read meaning*: "does this brief require its worker to report the
-retrievals behind its claims", "does this body describe a whole suite under a light label".
-Code enumerates the options, the model picks ONE of them, code renders the outcome. It
-never generates, counts, orders dates, measures geometry, or judges a render.
-Method: `skills/judgment-SKILL.md`. Providers + the measured costs + calibration:
-`governance/LOCAL-MODELS.md`. Wire + fixture: `hooks/lib/decision-provider.js`.
-| key | default | meaning |
-|---|---|---|
-| `enabled` | **`true`** | Master switch, and the ONLY way to make the line disappear. `false` ⇒ the gate exits 0 having printed nothing at all — and that is switching OFF an executor class, not skipping an optional extra. The three states while ON: no `provider.kind` ⇒ every fire at a declared seam PRINTS `not engaged — no provider declared` and passes (never silent, never a refusal) · a declared provider that cannot be reached ⇒ **DENY** with the typed code · a provider that answers ⇒ advise/refuse per the seam's band. |
-| `roster` | `hooks/judgment-roster.js` | YOUR question roster — the versioned unit. Copy `hooks/judgment-roster.example.js` and make the seams yours. A roster file that does not EXIST is "nothing declared": one printed line, then a pass. A roster that exists and will not load ⇒ **the gate REFUSES** — a gate that cannot load its roster has not found "no seam applies", it has found nothing. |
-| `stateMaxChars` | `2000` | The state ceiling, and on a local provider it is the ONLY latency lever there is (the state is re-encoded into every question's row; model size is not the lever). DERIVE it from the measured per-question scaling and the moment's budget — never choose it. A truncation is never silent: the filter says so inside the state. |
-| `timeoutMs` | `8000` | Per-seam client timeout. A timeout is a REFUSAL, never a pass. |
-| `commitRe` | `\bgit\b[^\|;&]*\bcommit\b` | What counts as the COMMIT moment on your project's Bash calls. The commit MESSAGE becomes the state (`-m` or `-F`), not the whole command line. |
-| `provider.kind` | **`null`** | `systemone \| fixture`. Null/empty ⇒ **NOT ENGAGED**: the gate prints one line saying exactly that and passes. That is not failing open — nothing was asked and nothing was promised. Fail-open would be asking, failing, and approving anyway, which never happens: an ENGAGED seam that cannot reach its provider DENIES with its typed error code printed. |
-| `provider.baseUrl` | `http://127.0.0.1:8493` | The `/v1/systemone` server. **LOOPBACK ONLY, enforced** — the client refuses any other host with its own error, so a brief/diff/commit message cannot leave the device by configuration mistake. Example: `http://127.0.0.1:8493` for Laya 421M served by `von` on your own machine (`integrations/judgment.md`, `hooks/judgment-server.example.sh`). The remote commercial provider — Jev, `https://api.typesafe.ai` with `modelId: "jev-1.13.0"` — is therefore NOT usable from a gate by construction; it is for app-side or author-time work where a key is acceptable. |
-| `provider.modelId` | `""` | The pinned checkpoint, reported in every printed line. Pin it; never track a `-latest` tag — e.g. `"laya"` locally, `"jev-1.13.0"` remotely, never `jev-latest`. |
-| `provider.fixturePath` | `""` | The planted-answer map for `kind:"fixture"` — deterministic, zero network, and the only provider any selftest should use. A MISSING map is an error, never an empty map. |
-| `provider.providerClass` | `""` | `TRAINED` \| `DECODE` \| `DIFFUSION` \| `""`. **Only `TRAINED` may arm a `refuse` band**, because a band is a cut on a calibrated confidence number and an untrained scorer's number is not that quantity. Undeclared is NOT trained — the safe direction, and the honest one for a value nobody measured. A refuse band against any other class prints **BAND NOT ARMED** and runs advisory. |
-| `seams` | `{}` | Per-seam overrides of the roster's `moment` (`spawn` \| `commit` \| `edit`), `mode` (`advisory` \| `refuse`), `band` and `appliesRe`. The QUESTIONS stay in the roster — they are the versioned unit; the band and the moment are a project's to tune. **Ship advisory.** A band arms only after a labeled set measures it AND a hostile-input leg is green (`governance/LOCAL-MODELS.md` §5). |
+| `autofixSelector` | `"distance"` | Which selector resolves a name outside the catalog. `distance` is the built-in uniqueness gate (one candidate ⇒ that one, else refuse). Any other value names a selector function the project injects via `autoFix(spec, {selector})` — `validate.js` calls whatever is injected. Either way the candidates are ENUMERATED BY CODE and exposed as `choices` before anything is chosen, a pick outside that list is REFUSED, a null leaves the ambiguity refusal intact, and an invented name (zero candidates) never reaches a selector at all. |
 
 ### `session` — SessionStart regeneration (`session-regenerate.js`)
 `generators[]` shell commands run at session start (registry, manifest,

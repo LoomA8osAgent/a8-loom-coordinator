@@ -189,9 +189,8 @@ class is refused outright even when the fixer could guess**: minting vocabulary 
 candidates}` per unresolved name — built **before** anything is chosen, and a selector
 `(name, candidates) => chosen|null` picks among exactly that list.
 `specCatalog.autofixSelector` names which one is in force: `distance` (the default —
-the uniqueness gate above) or `judgment` (a selector supplied by the owner of the
-separate `judgment` block; nothing in this layer consults it, the function is simply
-injected).
+the uniqueness gate above) or any other name, for a selector the project injects
+itself; nothing in this layer consults it, the function is simply injected.
 
 **Three properties hold for ANY selector, and they are enforced here rather than
 trusted to it:**

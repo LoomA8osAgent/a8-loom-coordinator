@@ -22,26 +22,13 @@ The core is discover-then-reuse: hooks that force retrieval before an edit, gene
 registries of what the codebase already has, and a coordinator seat that survives model
 changes. On top of that:
 
-- **Drift check** — checks that a generated thing still matches its source: a worker's
-  return against its brief, a commit against the work item and the message that describe
-  it, a cited `file:line` against the sentence quoting it, and a resumed session's memory
-  of a ruling against the compaction summary. String comparison first; a decision model
-  only when wording is ambiguous.
-- **Supervisor** — an optional monitor on a running lane that asks whether it is still
-  on-brief, stuck, or oversized. It writes a proposal the coordinator acts on at its next
-  checkpoint; it never interrupts a lane itself. Off by default
-  (`judgment.supervisor.enabled`).
-- **Local decision-model calibration** — run the judgment layer on an open model on your
-  own machine instead of a hosted one, and retrain its head on your own labeled decisions.
-  Worked example and numbers: `governance/LOCAL-MODELS.md` §7.
 - **Spec catalog** — opt-in: builders emit a spec naming only helpers scanned from your
   codebase; it compiles to real calls with a signed receipt, and a hook refuses any
   hand-written surface the receipt does not cover. `specCatalog.enabled`; method in
   [`integrations/spec-catalog.md`](integrations/spec-catalog.md).
-
-All four ride the judgment layer — a small decision model resolving one enumerated
-choice at a gate, failing closed — described under
-["a fourth executor class."](#whats-in-the-box)
+- **Verification instruments** — an instrument allowed to vouch for a run is DECLARED,
+  never assumed (`verification.instruments[]`); one receipt shape for browser and native
+  desktop alike, and a receipt naming an undeclared instrument is refused.
 
 ---
 
@@ -155,9 +142,8 @@ governance/    CLAUDE / OPERATOR / ROUTING / WORK / SESSION / HANDOFF templates,
                ACKNOWLEDGEMENTS
 skills/        coordinator (delegation + brief contract + audit contract + the
                model grid + the git work method), model-succession (the
-               seat-handoff letter), judgment (the decision-model seam:
-               questions, providers, bands, the red proof), doc-sync,
-               dev-infrastructure, init-interview, skill-creator
+               seat-handoff letter), doc-sync, dev-infrastructure,
+               init-interview, skill-creator
 hooks/         the enforcement floor (all config-driven, language-agnostic):
                canon-before-edit, anti-hand-roll, discover-then-reuse consent,
                doc-sync + state-persistence commit gates, verification-first
@@ -165,9 +151,6 @@ hooks/         the enforcement floor (all config-driven, language-agnostic):
                DECLARED instrument — browser or native-desktop, one receipt shape,
                plus a documented example desktop driver),
                session regenerators, caveman mode, service recovery, install script
-               — plus the OPT-IN judgment layer: judgment-gate + the one
-               decision-model client (loopback-only, fail-closed, typed errors)
-               + a roster template + a red-fixture proven red
 ENFORCEMENT.md the architecture of the floor: the four moments a gate fires
                (edit / spawn / commit / turn-boundary), the gates on the
                INSTRUMENTS you verify with, the meta-gates that keep the gates
@@ -213,52 +196,6 @@ Three design principles run through all of it:
    and the rails — so a spot-check takes ten seconds and the backlog can't fork into a
    second list.
 
-**And a fourth executor class, for the rules a matcher cannot read.** Some standing rules
-live in prose *because their signal is meaning rather than shape* — "this brief must
-require its worker to report the retrievals behind its claims", "this body must not
-describe a whole suite under a light label". Each is satisfiable a dozen ways, so no regex
-reaches it and the row sits in the ledger marked *judgment*, enforced only while somebody
-remembers. The **judgment layer is a HOOK** — `hooks/judgment-gate.js`, registered at the
-edit / commit / spawn matchers in `hooks/settings.template.json` and deployed by
-`hooks/install-hooks.sh` like every other gate; *"fourth executor class"* is the
-[`FAILURE-PATTERNS`](governance/FAILURE-PATTERNS.md) ledger's word for WHAT enforces a row
-(hook · generator · human judgment · and now a hook that consults a decision model), which
-is about the kind of evidence an executor can read, not a different mechanism. It is
-**installed and ON by default**; the gate speaks on every fire, and declaring a provider is
-what makes it judge. Quickstart with commands:
-[`integrations/judgment.md`](integrations/judgment.md). A small **decision model** — not a
-generator — answers ONE closed question at a gate boundary, where code enumerates the
-options and code renders the outcome. It is
-strictly ADDITIVE (a verdict a regex already reaches correctly is never delegated), it
-ships **advisory**, it **prints its engagement state on every pass** so "nothing was asked"
-is never confusable with "asked, failed, approved anyway" — and an engaged seam that cannot
-reach its provider **denies**. The provider is loopback-only and enforced as such; the
-package ships no model, no weights and no inference dependency, only the wire.
-[`governance/LOCAL-MODELS.md`](governance/LOCAL-MODELS.md) carries the dated
-recommendation, the measured costs, and the rule that no band arms before a labeled set
-measures it.
-
-Who answers, concretely — **Jev** (TypeSafe AI, `https://api.typesafe.ai/v1/systemone`,
-pin `jev-1.13.0`, $0.042 per million input tokens and output free) **or an open decision
-model on your own machine**, e.g. **Laya 421M** (`convaiinnovations/laya`, Apache-2.0)
-served by **von** (`github.com/wfzyx/von`, Apache-2.0) at
-`von serve --host 127.0.0.1 --port 8493 --backend laya --device auto`. The remote one
-cannot serve a gate here — the client refuses a non-loopback base URL by construction.
-
-- 🔭 **Watch for new open candidates:**
-  <https://huggingface.co/spaces/multimodalart/jev-reproductions-tracker> — 45 entries,
-  sorted by how they work (decoding · diffusion · trained · prior art · explainers). Its
-  own ceiling note: *no open model yet matches Jev's calibration claims.* **Only the
-  TRAINED class may arm a band.**
-
-**Vendor-claimed and dated 2026-09-19, not a same-set comparison** (Laya's own eval,
-23,024 questions, beside Jev's published figures): ~38 ms per question on their hardware
-vs ~150–400 ms for an API round trip; intent/routing **99.1** · moderation **96.7** ·
-topic classification **93.9** · fact-check **88.3** · search relevance **62.8** · response
-quality **58.1**; selective automation **92.2% at 50% coverage vs 83.8% at 100%**. *So:
-routing and classification seams may refuse-grade, fact-check seams advise first, quality
-and relevance seams are never built.*
-
 ## Quickstart
 
 1. Install (plugin / npx / manual — see the **Install** block at the top). `npx
@@ -277,49 +214,23 @@ and relevance seams are never built.*
    always-on set and deliver it by subject into the gate's refusal — and obey the
    harvest discipline: every session that surfaces a cross-cutting rule writes it down
    before it closes, along with the executor that will enforce it.
-6. **Judgment quickstart** — [`integrations/judgment.md`](integrations/judgment.md): the
-   layer is already ON and already speaking; that page is how you give it a provider (Jev,
-   or an open decision model such as Laya on your own machine), declare a seam, read what
-   it prints, and earn a band from labeled data before it refuses anything.
-7. Optional but recommended: install [rtk](integrations/rtk.md) and
+6. Optional but recommended: install [rtk](integrations/rtk.md) and
    [CodeGraph](integrations/codegraph.md); enable [caveman mode](integrations/caveman.md).
 
 ## Changelog
 
-- **0.4.0** — Two new seam families for the judgment layer, plus the measured chapter
-  behind them. **`drift`** (five Nouls, one question — *does A still describe B*) fires at
-  the result / commit / doc / compaction moments, runs a string comparison BEFORE the model
-  and prints the split, reads its band the other way up (the finding is the LOW answer), and
-  REPORTS rather than refuses at the two post-hoc moments. **`supervisor`**
-  (`hooks/judgment-supervisor.js`, OFF by default — it spawns a process) judges a lane while
-  it runs and writes proposals it has no channel to deliver; its policy table is data in the
-  roster and every number in it is a labelled placeholder. New moments registered:
-  `PostToolUse Agent|Task` and `SessionStart`. Provider resolution moved to
-  `hooks/lib/decision-provider.js` so the gate and the monitor read ONE answer. Selftests:
-  `judgment-gate` 21 legs, `judgment-supervisor` 8. Measured + prior art:
-  `governance/LOCAL-MODELS.md` §7–§8; calibrate/retrain quickstart `integrations/judgment.md` §9;
-  the seam-fit finding `skills/judgment-SKILL.md` §8.
-
-- **0.3.2** — Judgment goes ON by default (`judgment.enabled: true`, `provider.kind: null`):
-  the executor class is always on, the provider is what may be absent, and the gate prints
-  its state on every fire instead of being inert until adopted
-  (`hooks/lib/config.js`, `hooks/judgment-gate.js`, `stack.config.json` + both examples).
-  New operator quickstart [`integrations/judgment.md`](integrations/judgment.md); providers
-  named as facts throughout (Jev / TypeSafe AI · Laya 421M via von · Verdict 151M ·
-  `jev-benchmarks` · the reproductions tracker) in
-  [`governance/LOCAL-MODELS.md`](governance/LOCAL-MODELS.md),
-  [`skills/judgment-SKILL.md`](skills/judgment-SKILL.md) and
-  `hooks/judgment-server.example.sh`, which now carries the real install + launch + smoke
-  commands.
+- **0.5.0** — The decision-model layer introduced in 0.3.0 and extended in 0.3.2 / 0.4.0
+  is REMOVED. Measured on the stack's own content (four calibration runs, 2026-09-19 →
+  2026-09-21), every seam answered at base rate; a gate that refuses on a coin flip gets
+  switched off, so nothing here consults a model any more. Every gate in the package is
+  mechanical. The spec-catalog layer, the verification instruments and the brief contract
+  are unchanged.
 - **0.3.1** — `verification.instruments[]`: an instrument allowed to vouch for a run is
   DECLARED, never assumed; one receipt shape for all of them; a receipt naming an
   undeclared or disabled instrument is refused. Example desktop driver with its install
   audit: `hooks/native-instrument.example.sh` (`hooks/verification-first.js`).
-- **0.3.0** — The two new layers: the **judgment** layer (`hooks/judgment-gate.js` +
-  `hooks/lib/decision-provider.js` + `hooks/judgment-roster.example.js`, with its
-  red-fixture selftest) and the **spec-catalog** layer (`tools/gen-catalog.js` +
-  `tools/spec-catalog/` + `hooks/spec-gate.js`) — constraint BEFORE replacing refusal
-  AFTER.
+- **0.3.0** — The **spec-catalog** layer (`tools/gen-catalog.js` + `tools/spec-catalog/` +
+  `hooks/spec-gate.js`) — constraint BEFORE replacing refusal AFTER.
 
 ## Authors
 

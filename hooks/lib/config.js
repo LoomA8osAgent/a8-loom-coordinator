@@ -79,47 +79,7 @@ const DEFAULTS = {
   install: { hooksDir: '~/.claude/hooks', gateLog: '~/.claude/gate.log',
     settingsTarget: '.claude/settings.json', maxBackups: 2 },
   serviceRecovery: { notifyEnabled: true, notifyCommand: '', logFile: '~/.claude/service-recovery.log', autoResume: false },
-  codegraph: { syncEnabled: true, staleThresholdMinutes: 5, binaryCandidates: [] },
-  // judgment — the decision-model layer (hooks/judgment-gate.js). It IS A HOOK, deployed
-  // by install-hooks.sh and registered at the Edit/Write, Bash and Agent/Task matchers in
-  // settings.template.json exactly like every other gate. "A fourth executor class" is the
-  // FAILURE-PATTERNS ledger's word for what KIND OF EVIDENCE an executor can read —
-  // meaning rather than tokens — never a different mechanism. Code enumerates, the model
-  // picks one of the enumerated things, code renders.
-  //
-  // ⚠ ON BY DEFAULT, unlike the other optional blocks: the EXECUTOR CLASS is always on and
-  // the PROVIDER is what may be absent. Four states, every one of them PRINTED:
-  //   enabled, no roster file      ⇒ one line saying nothing is declared, then a pass
-  //   enabled, no provider.kind    ⇒ "not engaged — no provider declared", then a pass
-  //   enabled, provider unreachable⇒ DENY, with the typed code printed verbatim
-  //   enabled, provider answers    ⇒ advise / refuse per the seam's band
-  // `enabled:false` is the ONLY way to make the line disappear, and it switches OFF an
-  // executor class rather than skipping an optional extra.
-  //
-  // The questions live in the PROJECT's own roster file and never in a hook; the provider
-  // is loopback-only and the client refuses anything else.
-  // See integrations/judgment.md + skills/judgment-SKILL.md + governance/LOCAL-MODELS.md.
-  judgment: {
-    enabled: true, roster: 'hooks/judgment-roster.js', stateMaxChars: 2000,
-    timeoutMs: 8000, commitRe: '\\bgit\\b[^|;&]*\\bcommit\\b',
-    provider: { kind: null, baseUrl: 'http://127.0.0.1:8493', modelId: '', fixturePath: '', providerClass: '' },
-    seams: {},
-    // supervisor — the OPTIONAL in-flight monitor (hooks/judgment-supervisor.js).
-    // ⚠ OFF BY DEFAULT, unlike the layer above it, and for one reason: it is the only
-    // thing in this package that SPAWNS A DETACHED PROCESS, and a package must never do
-    // that silently. Turning it on makes the gate launch one monitor per spawned worker
-    // and write its sentinel when that worker returns; the monitor itself only ever
-    // WRITES proposals — it has no channel to a running worker and executes nothing.
-    //   dir              where the monitor's per-lane files live (brief / observe / log /
-    //                    pending / done). Default: a temp dir.
-    //   agentRe          only watch workers whose type matches. '' = watch every spawn.
-    //   instrumentWords  YOUR project's proving instruments, declared ONCE, here. The
-    //                    over-proof question is answered from this list in code when it
-    //                    exists; when it does not, the question goes to the MODEL and the
-    //                    log says why. This package ships no list of its own — a second
-    //                    list would silently exempt every instrument added to the first.
-    supervisor: { enabled: false, dir: '', agentRe: '', instrumentWords: [] }
-  }
+  codegraph: { syncEnabled: true, staleThresholdMinutes: 5, binaryCandidates: [] }
 };
 
 function expandTilde(p) {

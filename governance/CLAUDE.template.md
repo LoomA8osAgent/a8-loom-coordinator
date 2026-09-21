@@ -40,9 +40,7 @@ non-coordinator skills are **NOT** auto-loaded — they are Read/grep on demand 
 Load on demand (NOT auto-loaded — `ROUTING.md` maps each task keyword to its file):
 core specs, per-module specs, the invariant set (`{{invariants.path}}` — see §Invariants
 below), the failure narrative / project memory, the full file inventory, and the remaining
-skills. Judgment / decision model / seam / band → `integrations/judgment.md` (the
-quickstart) + `skills/judgment-SKILL.md` (the practice) + `governance/LOCAL-MODELS.md`
-(providers, measured costs, calibration).
+skills.
 
 **The work list is `WORK.tsv`** — one row per item, printed by `node tools/work.js`. There is
 no second list, no tree, no status column; order is the only priority signal, and a row leaves
@@ -131,11 +129,8 @@ real formats, helpers, checks and bans; delete the generic examples once yours l
   it, paste the block. A new surface with no compile receipt is refused, and a spec that
   names something the catalog does not contain is the thing you were about to invent
   (`CONSTRAINT-ARRIVES-AFTER-THE-WRITE`).
-- Never let a judgment seam replace a verdict a matcher already reaches correctly, and never
-  arm one to refuse before a labeled set has measured its band on a TRAINED provider. A seam
-  advises, prints its engagement state, and denies when it cannot ask
-  (`RULE-LIVES-IN-PROSE-BECAUSE-NO-MATCHER-READS-MEANING`). The layer is a HOOK and it is ON
-  by default; declaring a provider is what makes it judge (`integrations/judgment.md`).
+- Never leave a standing rule as prose a matcher cannot read — give it a FORM with named
+  labels so a gate checks structure (`RULE-LIVES-IN-PROSE-BECAUSE-NO-MATCHER-READS-MEANING`).
 - Never fix a bug in one module's copy of shared behavior — fix the ONE shared home and
   delete the per-module copies (`PATCH-NOT-ESCALATED-TO-SHARED`).
 - Never edit from memory — view source at exact line numbers before every edit.

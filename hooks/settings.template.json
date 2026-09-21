@@ -20,12 +20,6 @@
             "command": "node \"__HOOKS_DIR__/clean-session-artifacts.js\"",
             "timeout": 10,
             "statusMessage": "Sweeping session artifacts..."
-          },
-          {
-            "type": "command",
-            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
-            "timeout": 15,
-            "statusMessage": "judgment seam (compaction)..."
           }
         ]
       }
@@ -69,12 +63,6 @@
             "command": "node \"__HOOKS_DIR__/helper-home.js\"",
             "timeout": 5,
             "statusMessage": "helper-home gate..."
-          },
-          {
-            "type": "command",
-            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
-            "timeout": 15,
-            "statusMessage": "judgment seam (edit)..."
           }
         ]
       },
@@ -98,23 +86,6 @@
             "command": "node \"__HOOKS_DIR__/satellite-gate.js\"",
             "timeout": 8,
             "statusMessage": "satellite commit gate..."
-          },
-          {
-            "type": "command",
-            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
-            "timeout": 15,
-            "statusMessage": "judgment seam (commit)..."
-          }
-        ]
-      },
-      {
-        "matcher": "Agent|Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
-            "timeout": 15,
-            "statusMessage": "judgment seam (spawn)..."
           }
         ]
       },
@@ -139,17 +110,6 @@
             "command": "node \"__HOOKS_DIR__/codegraph-sync-postedit.js\"",
             "timeout": 3,
             "statusMessage": "codegraph sync..."
-          }
-        ]
-      },
-      {
-        "matcher": "Agent|Task",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node \"__HOOKS_DIR__/judgment-gate.js\"",
-            "timeout": 15,
-            "statusMessage": "judgment seam (result)..."
           }
         ]
       }

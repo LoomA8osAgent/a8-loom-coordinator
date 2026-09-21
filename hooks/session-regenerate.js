@@ -75,24 +75,6 @@ process.stdin.on('end', () => {
       'catalog payload (what you may name) is ' + cd + '/catalog.prompt.md.';
   }
 
-  // judgment (skills/judgment-SKILL.md): the session is told which ENGAGEMENT state it is
-  // in, because that is the one property that keeps the layer auditable — a reader must
-  // always be able to tell "no provider configured, so nothing is being asked" apart from
-  // "asked, failed, approved anyway", and the second never happens. Silent when the layer
-  // is not adopted.
-  const jud = cfg.judgment || {};
-  if (jud.enabled) {
-    const kind = (process.env.A8_DECISION_PROVIDER || (jud.provider && jud.provider.kind) || '').trim();
-    msg += '\nJUDGMENT LAYER IS ON — ' + (kind
-      ? ('ENGAGED on provider `' + kind + '`. A seam that cannot reach it DENIES; it never ' +
-         'passes on silence. Questions live in ' + (jud.roster || 'hooks/judgment-roster.js') +
-         ' and nowhere else, and a band arms only on a TRAINED provider after a labeled set ' +
-         'measures it (governance/LOCAL-MODELS.md).')
-      : ('NOT ENGAGED — no provider configured, so no seam will ask anything and none is ' +
-         'promised. This is shadow-mode-first, not a failure. Configure judgment.provider.kind ' +
-         '(`fixture` for a deterministic stub, `systemone` for a loopback judge) to engage.'));
-  }
-
   if (sess.delegationHint) msg += '\n' + sess.delegationHint;
 
   process.stdout.write(JSON.stringify({

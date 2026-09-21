@@ -93,15 +93,13 @@ construction.
   },
 ```
 
-The last two are the seams a judgment layer plugs into, and both are **off by
-default**. `promptPruning` declares whether a caller may build a SUBSET of the payload
-(`gen-catalog.js --sections a,b,c`, or `buildPrompt(catalog, sections)` via the module
-API); `autofixSelector` names which selector resolves a name that is outside the
-catalog. **The mechanics here are plain parameters** — a section allow-list, and an
-injectable `(name, candidates) => chosen|null` — and **no code in this package consults
-a judgment layer.** When `autofixSelector` is `judgment`, the selector function is
-supplied by the owner of the separate `judgment` block; this layer still enumerates the
-candidates, still refuses a pick that is not one of them, and still refuses on a null.
+The last two are injection points, and both are **off by default**. `promptPruning`
+declares whether a caller may build a SUBSET of the payload (`gen-catalog.js --sections
+a,b,c`, or `buildPrompt(catalog, sections)` via the module API); `autofixSelector` names
+which selector resolves a name that is outside the catalog. **The mechanics here are plain
+parameters** — a section allow-list, and an injectable `(name, candidates) => chosen|null`.
+A project may inject its own selector; this layer still enumerates the candidates, still
+refuses a pick that is not one of them, and still refuses on a null.
 That boundary is the point: code owns what is POSSIBLE, a selector owns only WHICH of
 those.
 
@@ -145,7 +143,7 @@ covers. Full method: `integrations/spec-catalog.md`.
 | `taskMap` | `null` | Overrides `codeRegistry.taskMap` for the catalog payload. |
 | `promptTargetBytes` / `promptCeilingBytes` | `24576` / `32768` | Over the CEILING is a BUILD FAILURE: an oversized payload is filed away undelivered while the tooling reports success. |
 | `promptPruning` | `{"enabled": false, "maxSections": 6}` | Whether a caller may build a SUBSET of the payload. The payload has six sections — `head` · `rules` · `taskmap` · `entries` · `format` · `workflow` — selected with `gen-catalog.js --sections a,b,c` or `buildPrompt(catalog, sections)`. Default builds all six. WHICH slices a task needs is the caller's decision; `gen-catalog.js` has no opinion about it and an unknown id is refused rather than skipped. The summary line always reports the sections actually built — a pruned payload and a broken renderer look identical from a byte count alone. |
-| `autofixSelector` | `"distance"` | `distance \| judgment`. Which selector resolves a name outside the catalog. `distance` is the built-in uniqueness gate (one candidate ⇒ that one, else refuse). `judgment` means the selector is supplied by the owner of the separate `judgment` block — `validate.js` calls whatever is injected via `autoFix(spec, {selector})`. Either way the candidates are ENUMERATED BY CODE and exposed as `choices` before anything is chosen, a pick outside that list is REFUSED, a null leaves the ambiguity refusal intact, and an invented name (zero candidates) never reaches a selector at all. |
+| `autofixSelector` | `"distance"` | Which selector resolves a name outside the catalog. `distance` is the built-in uniqueness gate (one candidate ⇒ that one, else refuse). Any other value names a selector function the project injects — `validate.js` calls whatever is injected via `autoFix(spec, {selector})`. Either way the candidates are ENUMERATED BY CODE and exposed as `choices` before anything is chosen, a pick outside that list is REFUSED, a null leaves the ambiguity refusal intact, and an invented name (zero candidates) never reaches a selector at all. |
 
 ```
 
@@ -559,6 +557,10 @@ add `tools/spec-catalog/out/` to `files` or ship a `.keep` instead. (b) the vend
 should be a decision someone made rather than one they discovered.
 
 ### §18 RESOLVED (2026-09-19) — both answered conservatively, by the judgment lane
+
+> 2026-09-21, 0.5.0: the sibling `judgment` block and its gate were REMOVED from the
+> package (measured at base rate on every seam). The record below is history; the
+> spec-catalog patches it describes are unchanged.
 
 Both were left open as *decisions someone should make rather than discover*. Made, and
 recorded here beside the question rather than in a commit message:
